@@ -1857,6 +1857,11 @@ let currentVocabIndexMC = 0;
             u.pitch = 1.0;
             ensureVoicesReady().then((voices) => {
                 const uaVoice = uaVoiceCache || getUkrainianVoice(voices);
+                if (uaVoice) {
+                    uaVoiceCache = uaVoice;
+                    u.voice = uaVoice;
+                } else {
+                    console.warn("Ukrainian voice not found, using default with uk-UA lang.");
                 if (!uaVoice) {
                     console.warn("Ukrainian voice not found, skipping UA TTS to avoid wrong language.");
                     return;
