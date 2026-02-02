@@ -1377,6 +1377,8 @@ let currentVocabIndexMC = 0;
             const card = block.vocab[currentVocabIndexMC];
 
             mcQuestionEl.textContent = card.ru;
+            const mcQuestionId = `mc-${currentBlockIndex}-${currentVocabIndexMC}`;
+            speakUAPromptOnce(mcQuestionId, card.ru);
             mcFeedbackEl.textContent = "";
             mcFeedbackEl.className = "feedback";
 
@@ -1464,6 +1466,8 @@ let currentVocabIndexMC = 0;
             const card = block.vocab[currentVocabIndexWrite];
 
             wQuestionEl.textContent = card.ru;
+            const wQuestionId = `write-${currentBlockIndex}-${currentVocabIndexWrite}`;
+            speakUAPromptOnce(wQuestionId, card.ru);
             wInputEl.value = "";
             wFeedbackEl.textContent = "";
             wFeedbackEl.className = "feedback";
@@ -1548,6 +1552,8 @@ let currentVocabIndexMC = 0;
             const card = block.sentences[currentSentenceIndex];
 
             sQuestionEl.textContent = card.ru;
+            const sQuestionId = `sent-${currentBlockIndex}-${currentSentenceIndex}`;
+            speakUAPromptOnce(sQuestionId, card.ru);
             sInputEl.value = "";
             sFeedbackEl.textContent = "";
             sFeedbackEl.className = "feedback";
@@ -1693,6 +1699,25 @@ let currentVocabIndexMC = 0;
 
         })();
     
+        let lastSpokenQuestionId = null;
+
+        function speakUAPromptOnce(questionId, text) {
+            if (!text) return;
+            if (lastSpokenQuestionId === questionId) return;
+            lastSpokenQuestionId = questionId;
+            if (!("speechSynthesis" in window)) return;
+            speakUA(text);
+        }
+
+        function speakUA(text) {
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = "uk-UA";
+            u.rate = 0.95;
+            u.pitch = 1.0;
+            speechSynthesis.cancel();
+            speechSynthesis.speak(u);
+        }
+
         // ===== English TTS: озвучка правильної відповіді =====
         let TTS_ENABLED = true;
         let TTS_LANG = "en-US";
