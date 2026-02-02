@@ -1697,6 +1697,10 @@ let currentVocabIndexMC = 0;
         });
 
         btnNextEx.addEventListener("click", nextExerciseStep);
+        btnNextEx.addEventListener("touchstart", (event) => {
+            event.preventDefault();
+            nextExerciseStep();
+        }, { passive: false });
 
         btnToggleExplain.addEventListener("click", () => {
             if (currentExerciseStep === 0) {
