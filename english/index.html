@@ -581,91 +581,118 @@
         const blocks = [
             {
                 title: "Video 01",
-                topicTag: "English A0 — Video 01",
-                explanation: `
+                subtitle: "English A0 — Video 01",
+                explain: `
                         <div class="topic-tag">English A0 — Video 01</div>
                         <h2>I + verb</h2>
                         <p>UA: Конструкція використовується, щоб сказати, що я щось роблю або це факт про мене.</p>
                         <p>EN: Used to say what I do or what is true about me.</p>
                         <p>Form: I + verb</p>
-                        <p><b>Examples:</b></p>
+                        <ul>
+                            <li>I understand — Я розумію</li>
+                            <li>I see — Я бачу</li>
+                            <li>I work — Я працюю</li>
+                        </ul>
                         <h2>I + verb + object</h2>
                         <p>UA: Коли дія спрямована на об’єкт або має уточнення.</p>
                         <p>EN: Used when the action has an object.</p>
                         <p>Form: I + verb + object</p>
-                        <p><b>Examples:</b></p>
+                        <ul>
+                            <li>I understand you — Я тебе розумію</li>
+                            <li>I see you — Я тебе бачу</li>
+                            <li>I work online — Я працюю онлайн</li>
+                        </ul>
                         <h2>I live in + place</h2>
                         <p>UA: Використовується, щоб сказати, де я живу.</p>
                         <p>EN: Used to say where I live.</p>
                         <p>Form: I live in + country / city / town</p>
-                        <p><b>Examples:</b></p>
+                        <ul>
+                            <li>I live in London — Я живу в Лондоні</li>
+                            <li>I live in New York — Я живу в Нью-Йорку</li>
+                        </ul>
                         <h2>I speak + language</h2>
                         <p>UA: Використовується, щоб сказати, якою мовою я говорю.</p>
                         <p>EN: Used to say what language I speak.</p>
                         <p>Form: I speak + language</p>
-                        <p><b>Examples:</b></p>
+                        <ul>
+                            <li>I speak English — Я говорю англійською</li>
+                            <li>I speak Spanish — Я говорю іспанською</li>
+                        </ul>
                         <h2>I learn</h2>
                         <p>UA: Використовується, щоб сказати, що я щось вивчаю.</p>
                         <p>EN: Used to say what I learn.</p>
                         <p>Form: I learn + object</p>
-                        <p><b>Examples:</b></p>
+                        <ul>
+                            <li>I learn English — Я вивчаю англійську</li>
+                            <li>I learn online — Я вивчаю онлайн</li>
+                        </ul>
                         <h2>I like / I love</h2>
                         <p>UA: Використовується, щоб сказати, що мені подобається або що я люблю.</p>
                         <p>EN: Used to express liking or love.</p>
                         <p>Form: I like / I love + object</p>
-                        <p><b>Examples:</b></p>
+                        <ul>
+                            <li>I like music — Мені подобається музика</li>
+                            <li>I love you — Я тебе люблю</li>
+                        </ul>
                         <h2>here / there / often</h2>
                         <p>UA: Слова місця та частоти дії.</p>
                         <p>EN: Words of place and frequency.</p>
                         <p>Form: here / there / often</p>
-                        <p><b>Examples:</b></p>
+                        <ul>
+                            <li>I live here — Я живу тут</li>
+                            <li>I work there — Я працюю там</li>
+                            <li>I often work online — Я часто працюю онлайн</li>
+                        </ul>
                         <h2>I have / I can</h2>
                         <p>UA: I have — мати щось; I can — вміти або могти щось зробити.</p>
                         <p>EN: I have — possession; I can — ability.</p>
                         <p>Form: I have + object / I can + verb</p>
-                        <p><b>Examples:</b></p>
+                        <ul>
+                            <li>I have time — Я маю час</li>
+                            <li>I can speak English — Я можу говорити англійською</li>
+                        </ul>
                     `,
                 vocab: [
-                    { ua: "Я розумію", en: "I understand" },
-                    { ua: "Я бачу", en: "I see" },
-                    { ua: "Я працюю", en: "I work" },
-                    { ua: "Я тебе розумію", en: "I understand you" },
-                    { ua: "Я тебе бачу", en: "I see you" },
-                    { ua: "Я працюю онлайн", en: "I work online" },
-                    { ua: "Я живу в Лондоні", en: "I live in London" },
-                    { ua: "Я живу в Нью-Йорку", en: "I live in New York" },
-                    { ua: "Я говорю англійською", en: "I speak English" },
-                    { ua: "Я говорю іспанською", en: "I speak Spanish" },
-                    { ua: "Я вивчаю англійську", en: "I learn English" },
-                    { ua: "Я вивчаю онлайн", en: "I learn online" },
-                    { ua: "Мені подобається музика", en: "I like music" },
-                    { ua: "Я тебе люблю", en: "I love you" },
-                    { ua: "Я живу тут", en: "I live here" },
-                    { ua: "Я працюю там", en: "I work there" },
-                    { ua: "Я часто працюю онлайн", en: "I often work online" },
-                    { ua: "Я маю час", en: "I have time" },
-                    { ua: "Я можу говорити англійською", en: "I can speak English" }
+                    { ru: "Я розумію", en: "I understand" },
+                    { ru: "Я бачу", en: "I see" },
+                    { ru: "Я працюю", en: "I work" },
+                    { ru: "Я тебе розумію", en: "I understand you" },
+                    { ru: "Я тебе бачу", en: "I see you" },
+                    { ru: "Я працюю онлайн", en: "I work online" },
+                    { ru: "Я живу в Лондоні", en: "I live in London" },
+                    { ru: "Я живу в Нью-Йорку", en: "I live in New York" },
+                    { ru: "Я говорю англійською", en: "I speak English" },
+                    { ru: "Я говорю іспанською", en: "I speak Spanish" },
+                    { ru: "Я вивчаю англійську", en: "I learn English" },
+                    { ru: "Я вивчаю онлайн", en: "I learn online" },
+                    { ru: "Мені подобається музика", en: "I like music" },
+                    { ru: "Я тебе люблю", en: "I love you" },
+                    { ru: "Я живу тут", en: "I live here" },
+                    { ru: "Я працюю там", en: "I work there" },
+                    { ru: "Я часто працюю онлайн", en: "I often work online" },
+                    { ru: "Я маю час", en: "I have time" },
+                    { ru: "Я можу говорити англійською", en: "I can speak English" }
                 ],
                 sentences: [
-                    { ua: "Я розумію", en: "I understand" },
-                    { ua: "Я бачу", en: "I see" },
-                    { ua: "Я працюю", en: "I work" },
-                    { ua: "Я тебе розумію", en: "I understand you" },
-                    { ua: "Я тебе бачу", en: "I see you" },
-                    { ua: "Я працюю онлайн", en: "I work online" },
-                    { ua: "Я живу в Лондоні", en: "I live in London" },
-                    { ua: "Я живу в Нью-Йорку", en: "I live in New York" },
-                    { ua: "Я говорю англійською", en: "I speak English" },
-                    { ua: "Я говорю іспанською", en: "I speak Spanish" },
-                    { ua: "Я вивчаю англійську", en: "I learn English" },
-                    { ua: "Я вивчаю онлайн", en: "I learn online" },
-                    { ua: "Мені подобається музика", en: "I like music" },
-                    { ua: "Я тебе люблю", en: "I love you" },
-                    { ua: "Я живу тут", en: "I live here" },
-                    { ua: "Я працюю там", en: "I work there" },
-                    { ua: "Я часто працюю онлайн", en: "I often work online" },
-                    { ua: "Я маю час", en: "I have time" },
-                    { ua: "Я можу говорити англійською", en: "I can speak English" }
+                    { ru: "Я розумію", en: "I understand" },
+                    { ru: "Я бачу", en: "I see" },
+                    { ru: "Я працюю", en: "I work" },
+                    { ru: "Я тебе розумію", en: "I understand you" },
+                    { ru: "Я тебе бачу", en: "I see you" },
+                    { ru: "Я працюю онлайн", en: "I work online" },
+                    { ru: "Я живу в Лондоні", en: "I live in London" },
+                    { ru: "Я живу в Нью-Йорку", en: "I live in New York" },
+                    { ru: "Я говорю англійською", en: "I speak English" },
+                    { ru: "Я говорю іспанською", en: "I speak Spanish" },
+                    { ru: "Я вивчаю англійську", en: "I learn English" },
+                    { ru: "Я вивчаю онлайн", en: "I learn online" },
+                    { ru: "Мені подобається музика", en: "I like music" },
+                    { ru: "Я тебе люблю", en: "I love you" },
+                    { ru: "Я живу тут", en: "I live here" },
+                    { ru: "Я працюю там", en: "I work there" },
+                    { ru: "Я часто працюю онлайн", en: "I often work online" },
+                    { ru: "Я маю час", en: "I have time" },
+                    { ru: "Я можу говорити англійською", en: "I can speak English" }
                 ]
             }
         ];
@@ -1408,8 +1435,8 @@ let currentVocabIndexMC = 0;
             blockTitleEl.textContent = `Вправа ${currentBlockIndex + 1}. ${block.title}`;
             blockProgressTextEl.textContent = `Вправа ${currentBlockIndex + 1} з ${total}`;
             explainEl.innerHTML = `
-                    ${block.topicTag ? `<div class="topic-tag">${block.topicTag}</div>` : ""}
-                    ${block.explanation}
+                    ${block.subtitle ? `<div class="topic-tag">${block.subtitle}</div>` : ""}
+                    ${block.explain}
                 `;
 
             blockSelectEl.value = String(currentBlockIndex);
@@ -1445,9 +1472,9 @@ let currentVocabIndexMC = 0;
             lastVocabIndexMC = currentVocabIndexMC;
             const card = block.vocab[currentVocabIndexMC];
 
-            mcQuestionEl.textContent = card.ua;
+            mcQuestionEl.textContent = card.ru;
             const mcQuestionId = `mc-${currentBlockIndex}-${currentVocabIndexMC}`;
-            speakUkrainianOnce(mcQuestionId, card.ua);
+            speakUkrainianOnce(mcQuestionId, card.ru);
             mcFeedbackEl.textContent = "";
             mcFeedbackEl.className = "feedback";
 
@@ -1534,9 +1561,9 @@ let currentVocabIndexMC = 0;
             lastVocabIndexWrite = currentVocabIndexWrite;
             const card = block.vocab[currentVocabIndexWrite];
 
-            wQuestionEl.textContent = card.ua;
+            wQuestionEl.textContent = card.ru;
             const wQuestionId = `write-${currentBlockIndex}-${currentVocabIndexWrite}`;
-            speakUkrainianOnce(wQuestionId, card.ua);
+            speakUkrainianOnce(wQuestionId, card.ru);
             wInputEl.value = "";
             wFeedbackEl.textContent = "";
             wFeedbackEl.className = "feedback";
@@ -1620,9 +1647,9 @@ let currentVocabIndexMC = 0;
             lastSentenceIndex = currentSentenceIndex;
             const card = block.sentences[currentSentenceIndex];
 
-            sQuestionEl.textContent = card.ua;
+            sQuestionEl.textContent = card.ru;
             const sQuestionId = `sent-${currentBlockIndex}-${currentSentenceIndex}`;
-            speakUkrainianOnce(sQuestionId, card.ua);
+            speakUkrainianOnce(sQuestionId, card.ru);
             sInputEl.value = "";
             sFeedbackEl.textContent = "";
             sFeedbackEl.className = "feedback";
@@ -1857,11 +1884,6 @@ let currentVocabIndexMC = 0;
             u.pitch = 1.0;
             ensureVoicesReady().then((voices) => {
                 const uaVoice = uaVoiceCache || getUkrainianVoice(voices);
-                if (uaVoice) {
-                    uaVoiceCache = uaVoice;
-                    u.voice = uaVoice;
-                } else {
-                    console.warn("Ukrainian voice not found, using default with uk-UA lang.");
                 if (!uaVoice) {
                     console.warn("Ukrainian voice not found, skipping UA TTS to avoid wrong language.");
                     return;
