@@ -1818,7 +1818,14 @@ let currentVocabIndexMC = 0;
         }
 
         function getUkrainianVoice(voices) {
-            return voices.find((voice) => voice.lang && voice.lang.toLowerCase().startsWith("uk")) || null;
+            return voices.find((voice) => {
+                const lang = (voice.lang || "").toLowerCase();
+                const name = (voice.name || "").toLowerCase();
+                return lang === "uk-ua"
+                    || lang.startsWith("uk")
+                    || name.includes("ukrain")
+                    || name.includes("укра");
+            }) || null;
         }
 
         function queueUtterance(utterance, lang) {
@@ -1850,10 +1857,12 @@ let currentVocabIndexMC = 0;
             u.pitch = 1.0;
             ensureVoicesReady().then((voices) => {
                 const uaVoice = uaVoiceCache || getUkrainianVoice(voices);
-                if (uaVoice) {
-                    uaVoiceCache = uaVoice;
-                    u.voice = uaVoice;
+                if (!uaVoice) {
+                    console.warn("Ukrainian voice not found, skipping UA TTS to avoid wrong language.");
+                    return;
                 }
+                uaVoiceCache = uaVoice;
+                u.voice = uaVoice;
                 const englishSpeaking = window.speechSynthesis.speaking && currentSpeechLang === "en";
                 if (!englishSpeaking) {
                     try { window.speechSynthesis.cancel(); } catch(e) {}
