@@ -1861,14 +1861,13 @@ let currentVocabIndexMC = 0;
                     uaVoiceCache = uaVoice;
                     u.voice = uaVoice;
                 } else {
-                    const defaultVoice = voices.find((voice) => voice.default) || voices[0] || null;
-                    const defaultLang = (defaultVoice?.lang || "").toLowerCase();
-                    if (defaultLang.startsWith("ru")) {
-                        console.warn("Default voice is Russian; skipping UA TTS to avoid wrong language.");
-                        return;
-                    }
                     console.warn("Ukrainian voice not found, using default with uk-UA lang.");
+                if (!uaVoice) {
+                    console.warn("Ukrainian voice not found, skipping UA TTS to avoid wrong language.");
+                    return;
                 }
+                uaVoiceCache = uaVoice;
+                u.voice = uaVoice;
                 const englishSpeaking = window.speechSynthesis.speaking && currentSpeechLang === "en";
                 if (!englishSpeaking) {
                     try { window.speechSynthesis.cancel(); } catch(e) {}
