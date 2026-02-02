@@ -1761,6 +1761,12 @@ let currentVocabIndexMC = 0;
             window.scrollTo({ top: 0, behavior: "smooth" });
         });
 
+        let lastUaSpokenKey = null;
+        let uaTtsArmed = false;
+        let uaVoiceCache = null;
+        let voicesReadyPromise = null;
+        let currentSpeechLang = null;
+
         /* ====== ІНІЦІАЛІЗАЦІЯ ====== */
         (function init() {
             blocks.forEach((b, i) => {
@@ -1773,12 +1779,6 @@ let currentVocabIndexMC = 0;
             try { resetStage('mc'); resetStage('write'); resetStage('sent'); } catch(e) {}
 
         })();
-    
-        let lastUaSpokenKey = null;
-        let uaTtsArmed = false;
-        let uaVoiceCache = null;
-        let voicesReadyPromise = null;
-        let currentSpeechLang = null;
 
         function ensureVoicesReady() {
             if (!("speechSynthesis" in window)) return Promise.resolve([]);
