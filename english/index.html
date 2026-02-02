@@ -577,7 +577,7 @@
     </div>
 
 <script>
-        /* ====== ДАННЫЕ УПРАЖНЕНИЙ ====== */
+        /* ====== ДАНІ ВПРАВ ====== */
         const blocks = [
             {
                 title: "Video 01",
@@ -671,7 +671,7 @@
         ];
 
 
-        /* ====== ИГРОВАЯ ЛОГИКА (цели этапов) ====== */
+        /* ====== ІГРОВА ЛОГІКА (цілі етапів) ====== */
         const GAME = {
             livesPerStage: 3,
             stage: {
@@ -738,12 +738,12 @@
             resetStage("sent");
         }
 
-        // --- UX helpers: перезапуск этапа/вправи и "продолжить" ---
+        // --- UX helpers: перезапуск етапу/вправи і "продовжити" ---
         function restartStage(kind) {
             clearAutoNext();
             resetStage(kind);
 
-            // сброс счётчика ошибок для подсказки
+            // скидання лічильника помилок для підказки
             if (kind === "mc") { wrongAttemptsMC = 0; lastVocabIndexMC = -1; try { const b=blocks[currentBlockIndex]; resetSeq("mc",(b.vocab&&b.vocab.length)?b.vocab.length:0);} catch(e){} loadMCQuestion(); }
             if (kind === "write") { wrongAttemptsWrite = 0; lastVocabIndexWrite = -1; try { const b=blocks[currentBlockIndex]; resetSeq("write",(b.vocab&&b.vocab.length)?b.vocab.length:0);} catch(e){} loadWQuestion(); }
             if (kind === "sent") { wrongAttemptsSent = 0; lastSentenceIndex = -1; try { const b=blocks[currentBlockIndex]; resetSeq("sent",(b.sentences&&b.sentences.length)?b.sentences.length:0);} catch(e){} loadSentence(); }
@@ -754,10 +754,10 @@
 
         function restartCurrentBlock() {
             clearAutoNext();
-            // сброс всего вправи (и прогресса этапов)
+            // скидання всієї вправи (і прогресу етапів)
             try { if (typeof resetAllStages === "function") resetAllStages(); } catch (e) {}
 
-            // статистику этой сессии (stats) трогаем только если она уже инициализирована
+            // статистику цієї сесії (stats) чіпаємо лише якщо вона вже ініціалізована
             try {
                 if (typeof stats !== "undefined") {
                     stats[currentBlockIndex] = {
@@ -782,7 +782,7 @@
             if (currentBlockIndex < blocks.length - 1) {
                 loadBlock(currentBlockIndex + 1);
             } else {
-                // если это последнее вправа — просто закрываем модалку и остаёмся тут
+                // якщо це остання вправа — просто закриваємо модалку й лишаємось тут
                 loadBlock(currentBlockIndex);
             }
         }
@@ -886,16 +886,16 @@
         function showVictory(kind) {
             clearAutoNext();
 
-            // В интерфейсе не показываем тех-ярлыки MC/WRITE/SENT.
-            // Определяем номер этапа 1..3 для пользователя:
+            // В інтерфейсі не показуємо тех-ярлики MC/WRITE/SENT.
+            // Визначаємо номер етапу 1..3 для користувача:
             const stageNumber = (kind === "mc") ? 1 : (kind === "write") ? 2 : 3;
 
-            // Если это последний этап и он пройден — показываем финальное окно вправи
+            // Якщо це останній етап і він пройдений — показуємо фінальне вікно вправи
             const isFinalStage = (kind === "sent");
             const exerciseDone = isFinalStage && stageState.mc.cleared && stageState.write.cleared && stageState.sent.cleared;
 
             if (exerciseDone) {
-                // Можем показать итоговые звёзды по последнему этапу (или просто ⭐⭐⭐ если хочется).
+                // Можемо показати підсумкові зірки за останній етап (або просто ⭐⭐⭐ якщо хочеться).
                 const stars = calcStars(kind);
                 stageState[kind].stars = stars;
 
@@ -907,21 +907,21 @@
                     tertiaryText: "Повторити вправу",
                     onPrimary: () => {
                         closeModal();
-                        nextBlock(); // к следующему упражнению
+                        nextBlock(); // до наступної вправи
                     },
                     onSecondary: () => {
                         closeModal();
-                        restartStage(kind); // сброс только этапа 3
+                        restartStage(kind); // скидання лише етапу 3
                     },
                     onTertiary: () => {
                         closeModal();
-                        restartCurrentBlock(); // сброс всего вправи
+                        restartCurrentBlock(); // скидання всієї вправи
                     }
                 });
                 return;
             }
 
-            // Обычная победа этапа
+            // Звичайна перемога етапу
             const stars = calcStars(kind);
             stageState[kind].stars = stars;
 
@@ -933,11 +933,11 @@
                 tertiaryText: "",
                 onPrimary: () => {
                     closeModal();
-                    goNextStep(); // на следующий этап
+                    goNextStep(); // на наступний етап
                 },
                 onSecondary: () => {
                     closeModal();
-                    restartStage(kind); // сброс прогресса текущего этапа
+                    restartStage(kind); // скидання прогресу поточного етапу
                 }
             });
 }
@@ -962,7 +962,7 @@
                 }
             } catch(e) {}
 
-            // ігрове повідомлення + червона вспишка
+            // ігрове повідомлення + червона спалах
             flashScreen("red");
             showToast(`Упс! Помилка 😅 Штраф: -${rollback}`);
 
@@ -1054,10 +1054,10 @@ function onCorrect(kind) {
                 `Етап ${currentExerciseStep} з 3 • ❤️ ${s.lives} • ✅ ${s.correct}/${cfg.needCorrect} • 🎯 ${acc}% (потрібно ${needAcc}%) • XP ${gameXP}`;
         }
 
-        /* ====== ВСПОМОГАТЕЛЬНЫЕ ====== */
+        /* ====== ДОПОМІЖНІ ====== */
         let autoNextTimeout = null;
 
-        // локальные счётчики ошибок для одного вопроса
+        // локальні лічильники помилок для одного питання
         let wrongAttemptsMC = 0;
         let wrongAttemptsWrite = 0;
         let wrongAttemptsSent = 0;
@@ -1158,12 +1158,12 @@ function onCorrect(kind) {
 
         /* ====== СОСТОЯНИЕ ====== */
         let currentBlockIndex = 0;
-        // 0 – только объяснение, 1 – вправа 1, 2 – вправа 2, 3 – вправа 3
+        // 0 – лише пояснення, 1 – вправа 1, 2 – вправа 2, 3 – вправа 3
         let currentExerciseStep = 0;
         let explainVisible = true;
 
         
-        // Чтобы не повторялось одно и то же сразу подряд (минимум через 1)
+        // Щоб не повторювалося одне й те саме одразу підряд (мінімум через 1)
         let lastVocabIndexMC = -1;
         let lastVocabIndexWrite = -1;
         let lastSentenceIndex = -1;
@@ -1200,7 +1200,7 @@ function randIntExcept(max, last) {
             if (max <= 1) return 0;
             let i = randInt(max);
             if (i === last) {
-                // гарантируем другое значение
+                // гарантуємо інше значення
                 i = (i + 1 + randInt(max - 1)) % max;
                 if (i === last) i = (i + 1) % max;
             }
@@ -1272,6 +1272,31 @@ let currentVocabIndexMC = 0;
             updateGateUI();
         }
 
+        const stageReloadAttempted = { mc: false, write: false, sent: false };
+
+        function ensureStageQuestionLoaded() {
+            if (currentExerciseStep === 1) {
+                if (!mcQuestionEl.textContent.trim() && !stageReloadAttempted.mc) {
+                    stageReloadAttempted.mc = true;
+                    loadMCQuestion();
+                }
+                return;
+            }
+            if (currentExerciseStep === 2) {
+                if (!wQuestionEl.textContent.trim() && !stageReloadAttempted.write) {
+                    stageReloadAttempted.write = true;
+                    loadWQuestion();
+                }
+                return;
+            }
+            if (currentExerciseStep === 3) {
+                if (!sQuestionEl.textContent.trim() && !stageReloadAttempted.sent) {
+                    stageReloadAttempted.sent = true;
+                    loadSentence();
+                }
+            }
+        }
+
         function nextExerciseStep() {
             clearAutoNext();
             if (currentExerciseStep === 0) {
@@ -1279,8 +1304,11 @@ let currentVocabIndexMC = 0;
                 explainVisible = false;
                 uaTtsArmed = true;
                 lastUaSpokenKey = null;
+                stageReloadAttempted.mc = false;
+                ensureVoicesReady();
                 updateExerciseVisibility();
                 loadMCQuestion();
+                ensureStageQuestionLoaded();
                 return;
             }
 
@@ -1289,11 +1317,14 @@ let currentVocabIndexMC = 0;
                 updateExerciseVisibility();
                 lastUaSpokenKey = null;
                 if (currentExerciseStep === 2) {
+                    stageReloadAttempted.write = false;
                     loadWQuestion();
                 }
                 if (currentExerciseStep === 3) {
+                    stageReloadAttempted.sent = false;
                     loadSentence();
                 }
+                ensureStageQuestionLoaded();
             } else {
                 openModal({title:"Вже останній етап", text:"Ця вправа вже на останньому етапі. Можна повторити її або перейти далі.", primaryText:"Ок"});
             }
@@ -1317,6 +1348,9 @@ let currentVocabIndexMC = 0;
             lastVocabIndexMC = -1;
             lastVocabIndexWrite = -1;
             lastSentenceIndex = -1;
+            stageReloadAttempted.mc = false;
+            stageReloadAttempted.write = false;
+            stageReloadAttempted.sent = false;
  
             // reset sequencers for this block
             try {
@@ -1356,10 +1390,6 @@ let currentVocabIndexMC = 0;
             btnPrev.disabled = currentBlockIndex === 0;
             btnNext.disabled = currentBlockIndex === total - 1;
 
-            loadMCQuestion();
-            loadWQuestion();
-            loadSentence();
-
             mcFeedbackEl.textContent = "";
             mcFeedbackEl.className = "feedback";
             wFeedbackEl.textContent = "";
@@ -1372,10 +1402,10 @@ let currentVocabIndexMC = 0;
             updateExerciseVisibility();
         }
 
-        /* ====== УПРАЖНЕНИЕ 1 – ВЫБОР ====== */
+        /* ====== ВПРАВА 1 – ВИБІР ====== */
         function loadMCQuestion() {
             clearAutoNext();
-            wrongAttemptsMC = 0; // сброс ошибок для нового слова
+            wrongAttemptsMC = 0; // скидання помилок для нового слова
 
             const block = blocks[currentBlockIndex];
             if (!block.vocab || !block.vocab.length) {
@@ -1432,7 +1462,7 @@ let currentVocabIndexMC = 0;
                 onCorrect("mc");
 
                 speakEnglish(correct);
-                // помечаем правильную кнопку зелёным
+                // позначаємо правильну кнопку зеленим
                 button.classList.add("correct");
 
                 updateStatsView();
@@ -1446,13 +1476,13 @@ let currentVocabIndexMC = 0;
 
                 if (wrongAttemptsMC >= 3) {
                     mcFeedbackEl.textContent = "❌ Не зовсім. Підказка: правильна відповідь — " + correct;
-                speakEnglish(correct);
+                    speakEnglish(correct);
                 } else {
                     mcFeedbackEl.textContent = "❌ Не зовсім. Спробуй ще раз.";
                 }
 
                 mcFeedbackEl.className = "feedback wrong";
-                // подсветить только выбранную кнопку, но не блокировать остальные
+                // підсвітити лише вибрану кнопку, але не блокувати інші
                 button.classList.add("wrong");
 
                 onWrong("mc");
@@ -1462,10 +1492,10 @@ let currentVocabIndexMC = 0;
 
         mcNextBtn.addEventListener("click", loadMCQuestion);
 
-        /* ====== УПРАЖНЕНИЕ 2 – НАПИСАТЬ ====== */
+        /* ====== ВПРАВА 2 – НАПИСАТИ ====== */
         function loadWQuestion() {
             clearAutoNext();
-            wrongAttemptsWrite = 0; // сброс ошибок при новом слове
+            wrongAttemptsWrite = 0; // скидання помилок при новому слові
 
             const block = blocks[currentBlockIndex];
             if (!block.vocab || !block.vocab.length) {
@@ -1545,10 +1575,10 @@ let currentVocabIndexMC = 0;
             if (e.key === "Enter") checkWAnswer();
         });
 
-        /* ====== УПРАЖНЕНИЕ 3 – ПРЕДЛОЖЕНИЯ ====== */
+        /* ====== ВПРАВА 3 – РЕЧЕННЯ ====== */
         function loadSentence() {
             clearAutoNext();
-            wrongAttemptsSent = 0; // сброс ошибок
+            wrongAttemptsSent = 0; // скидання помилок
 
             const block = blocks[currentBlockIndex];
             if (!block.sentences || !block.sentences.length) {
@@ -1630,7 +1660,7 @@ let currentVocabIndexMC = 0;
             if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) checkSentence();
         });
 
-        /* ====== НАВИГАЦИЯ, ЭТАПЫ, РЕСТАРТ ====== */
+        /* ====== НАВІГАЦІЯ, ЕТАПИ, ПЕРЕЗАПУСК ====== */
         btnPrev.addEventListener("click", () => {
             if (currentBlockIndex > 0) loadBlock(currentBlockIndex - 1);
         });
@@ -1667,7 +1697,7 @@ let currentVocabIndexMC = 0;
 
         btnRestart.addEventListener("click", () => {
             clearAutoNext();
-            // сброс статистики только для текущего вправи
+            // скидання статистики лише для поточної вправи
             stats[currentBlockIndex] = {
                 mc: { correct: 0, total: 0 },
                 write: { correct: 0, total: 0 },
@@ -1678,6 +1708,9 @@ let currentVocabIndexMC = 0;
             lastVocabIndexMC = -1;
             lastVocabIndexWrite = -1;
             lastSentenceIndex = -1;
+            stageReloadAttempted.mc = false;
+            stageReloadAttempted.write = false;
+            stageReloadAttempted.sent = false;
  
             // reset sequencers for this block
             try {
@@ -1688,19 +1721,16 @@ let currentVocabIndexMC = 0;
             } catch (e) {}
 
             gameXP = 0;
-            // вернуть на этап объяснения и перезагрузить вопросы
+            // повернути на етап пояснення
             currentExerciseStep = 0;
             explainVisible = true;
             uaTtsArmed = false;
             lastUaSpokenKey = null;
             updateExerciseVisibility();
-            loadMCQuestion();
-            loadWQuestion();
-            loadSentence();
             window.scrollTo({ top: 0, behavior: "smooth" });
         });
 
-        /* ====== ИНИЦИАЛИЗАЦИЯ ====== */
+        /* ====== ІНІЦІАЛІЗАЦІЯ ====== */
         (function init() {
             blocks.forEach((b, i) => {
                 const opt = document.createElement("option");
@@ -1715,6 +1745,62 @@ let currentVocabIndexMC = 0;
     
         let lastUaSpokenKey = null;
         let uaTtsArmed = false;
+        let uaVoiceCache = null;
+        let voicesReadyPromise = null;
+        let currentSpeechLang = null;
+
+        function ensureVoicesReady() {
+            if (!("speechSynthesis" in window)) return Promise.resolve([]);
+            if (voicesReadyPromise) return voicesReadyPromise;
+
+            voicesReadyPromise = new Promise((resolve) => {
+                let settled = false;
+                const finish = () => {
+                    if (settled) return;
+                    settled = true;
+                    resolve(window.speechSynthesis.getVoices());
+                };
+
+                const voices = window.speechSynthesis.getVoices();
+                if (voices.length) {
+                    finish();
+                    return;
+                }
+
+                const onChanged = () => {
+                    const updated = window.speechSynthesis.getVoices();
+                    if (updated.length) {
+                        window.speechSynthesis.removeEventListener("voiceschanged", onChanged);
+                        clearTimeout(timerId);
+                        finish();
+                    }
+                };
+
+                window.speechSynthesis.addEventListener("voiceschanged", onChanged);
+                const timerId = setTimeout(() => {
+                    window.speechSynthesis.removeEventListener("voiceschanged", onChanged);
+                    finish();
+                }, 800);
+            });
+
+            return voicesReadyPromise;
+        }
+
+        function getUkrainianVoice(voices) {
+            return voices.find((voice) => voice.lang && voice.lang.toLowerCase().startsWith("uk")) || null;
+        }
+
+        function queueUtterance(utterance, lang) {
+            utterance.onstart = () => {
+                currentSpeechLang = lang;
+            };
+            const clearLang = () => {
+                if (currentSpeechLang === lang) currentSpeechLang = null;
+            };
+            utterance.onend = clearLang;
+            utterance.onerror = clearLang;
+            window.speechSynthesis.speak(utterance);
+        }
 
         function speakUkrainianOnce(questionId, text) {
             if (!uaTtsArmed) return;
@@ -1726,12 +1812,23 @@ let currentVocabIndexMC = 0;
         }
 
         function speakUA(text) {
+            if (!("speechSynthesis" in window)) return;
             const u = new SpeechSynthesisUtterance(text);
             u.lang = "uk-UA";
             u.rate = 0.95;
             u.pitch = 1.0;
-            speechSynthesis.cancel();
-            speechSynthesis.speak(u);
+            ensureVoicesReady().then((voices) => {
+                const uaVoice = uaVoiceCache || getUkrainianVoice(voices);
+                if (uaVoice) {
+                    uaVoiceCache = uaVoice;
+                    u.voice = uaVoice;
+                }
+                const englishSpeaking = window.speechSynthesis.speaking && currentSpeechLang === "en";
+                if (!englishSpeaking) {
+                    try { window.speechSynthesis.cancel(); } catch(e) {}
+                }
+                queueUtterance(u, "uk");
+            });
         }
 
         // ===== English TTS: озвучка правильної відповіді =====
@@ -1746,6 +1843,14 @@ let currentVocabIndexMC = 0;
             u.lang = TTS_LANG;
             u.rate = 0.95;
             u.pitch = 1.0;
+            u.onstart = () => {
+                currentSpeechLang = "en";
+            };
+            const clearLang = () => {
+                if (currentSpeechLang === "en") currentSpeechLang = null;
+            };
+            u.onend = clearLang;
+            u.onerror = clearLang;
             window.speechSynthesis.speak(u);
         }
 
