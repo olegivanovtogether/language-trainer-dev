@@ -1277,13 +1277,31 @@ let currentVocabIndexMC = 0;
             if (currentExerciseStep === 0) {
                 currentExerciseStep = 1;
                 explainVisible = false;
+                uaTtsArmed = true;
                 updateExerciseVisibility();
+                const block = blocks[currentBlockIndex];
+                if (block && block.vocab && block.vocab[currentVocabIndexMC]) {
+                    const card = block.vocab[currentVocabIndexMC];
+                    const mcQuestionId = `mc-${currentBlockIndex}-${currentVocabIndexMC}`;
+                    speakUkrainianOnce(mcQuestionId, card.ru);
+                }
                 return;
             }
 
             if (currentExerciseStep < 3) {
                 currentExerciseStep++;
                 updateExerciseVisibility();
+                const block = blocks[currentBlockIndex];
+                if (currentExerciseStep === 2 && block && block.vocab && block.vocab[currentVocabIndexWrite]) {
+                    const card = block.vocab[currentVocabIndexWrite];
+                    const wQuestionId = `write-${currentBlockIndex}-${currentVocabIndexWrite}`;
+                    speakUkrainianOnce(wQuestionId, card.ru);
+                }
+                if (currentExerciseStep === 3 && block && block.sentences && block.sentences[currentSentenceIndex]) {
+                    const card = block.sentences[currentSentenceIndex];
+                    const sQuestionId = `sent-${currentBlockIndex}-${currentSentenceIndex}`;
+                    speakUkrainianOnce(sQuestionId, card.ru);
+                }
             } else {
                 openModal({title:"Вже останній етап", text:"Ця вправа вже на останньому етапі. Можна повторити її або перейти далі.", primaryText:"Ок"});
             }
@@ -1301,6 +1319,8 @@ let currentVocabIndexMC = 0;
             currentExerciseStep = 0;
             explainVisible = true;
             topPanelVisibleInPractice = false;
+            uaTtsArmed = false;
+            lastUaSpokenKey = null;
             resetAllStages();
             lastVocabIndexMC = -1;
             lastVocabIndexWrite = -1;
@@ -1378,7 +1398,7 @@ let currentVocabIndexMC = 0;
 
             mcQuestionEl.textContent = card.ru;
             const mcQuestionId = `mc-${currentBlockIndex}-${currentVocabIndexMC}`;
-            speakUAPromptOnce(mcQuestionId, card.ru);
+            speakUkrainianOnce(mcQuestionId, card.ru);
             mcFeedbackEl.textContent = "";
             mcFeedbackEl.className = "feedback";
 
@@ -1467,7 +1487,7 @@ let currentVocabIndexMC = 0;
 
             wQuestionEl.textContent = card.ru;
             const wQuestionId = `write-${currentBlockIndex}-${currentVocabIndexWrite}`;
-            speakUAPromptOnce(wQuestionId, card.ru);
+            speakUkrainianOnce(wQuestionId, card.ru);
             wInputEl.value = "";
             wFeedbackEl.textContent = "";
             wFeedbackEl.className = "feedback";
@@ -1553,7 +1573,7 @@ let currentVocabIndexMC = 0;
 
             sQuestionEl.textContent = card.ru;
             const sQuestionId = `sent-${currentBlockIndex}-${currentSentenceIndex}`;
-            speakUAPromptOnce(sQuestionId, card.ru);
+            speakUkrainianOnce(sQuestionId, card.ru);
             sInputEl.value = "";
             sFeedbackEl.textContent = "";
             sFeedbackEl.className = "feedback";
@@ -1679,6 +1699,8 @@ let currentVocabIndexMC = 0;
             // вернуть на этап объяснения и перезагрузить вопросы
             currentExerciseStep = 0;
             explainVisible = true;
+            uaTtsArmed = false;
+            lastUaSpokenKey = null;
             updateExerciseVisibility();
             loadMCQuestion();
             loadWQuestion();
@@ -1699,12 +1721,14 @@ let currentVocabIndexMC = 0;
 
         })();
     
-        let lastSpokenQuestionId = null;
+        let lastUaSpokenKey = null;
+        let uaTtsArmed = false;
 
-        function speakUAPromptOnce(questionId, text) {
+        function speakUkrainianOnce(questionId, text) {
+            if (!uaTtsArmed) return;
             if (!text) return;
-            if (lastSpokenQuestionId === questionId) return;
-            lastSpokenQuestionId = questionId;
+            if (lastUaSpokenKey === questionId) return;
+            lastUaSpokenKey = questionId;
             if (!("speechSynthesis" in window)) return;
             speakUA(text);
         }
