@@ -545,8 +545,8 @@
     </div>
 
     <div class="next-ex-btn-wrap">
-        <button id="btn-restart" class="primary">Перезапустити цю вправу</button>
-        <button id="btn-next-ex" class="primary">Почати вправи</button>
+        <button id="btn-restart" class="primary" type="button">Перезапустити цю вправу</button>
+        <button id="btn-next-ex" class="primary" type="button" onclick="nextExerciseStep()">Почати вправи</button>
     </div>
 
     <div id="stats" class="stats"></div>
@@ -1697,6 +1697,10 @@ let currentVocabIndexMC = 0;
         });
 
         btnNextEx.addEventListener("click", nextExerciseStep);
+        btnNextEx.addEventListener("touchstart", (event) => {
+            event.preventDefault();
+            nextExerciseStep();
+        }, { passive: false });
 
         btnToggleExplain.addEventListener("click", () => {
             if (currentExerciseStep === 0) {
