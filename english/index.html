@@ -545,8 +545,8 @@
     </div>
 
     <div class="next-ex-btn-wrap">
-        <button id="btn-restart" class="primary">Перезапустити цю вправу</button>
-        <button id="btn-next-ex" class="primary">Почати вправи</button>
+        <button id="btn-restart" class="primary" type="button">Перезапустити цю вправу</button>
+        <button id="btn-next-ex" class="primary" type="button" onclick="nextExerciseStep()">Почати вправи</button>
     </div>
 
     <div id="stats" class="stats"></div>
@@ -1297,6 +1297,31 @@ let currentVocabIndexMC = 0;
             }
         }
 
+        function focusActiveExercise() {
+            let card = null;
+            let focusTarget = null;
+
+            if (currentExerciseStep === 1) {
+                card = ex1Card;
+                focusTarget = mcOptionsEl.querySelector("button");
+            } else if (currentExerciseStep === 2) {
+                card = ex2Card;
+                focusTarget = wInputEl;
+            } else if (currentExerciseStep === 3) {
+                card = ex3Card;
+                focusTarget = sInputEl;
+            }
+
+            if (!card) return;
+
+            requestAnimationFrame(() => {
+                card.scrollIntoView({ behavior: "smooth", block: "start" });
+                if (focusTarget && typeof focusTarget.focus === "function") {
+                    focusTarget.focus({ preventScroll: true });
+                }
+            });
+        }
+
         function nextExerciseStep() {
             clearAutoNext();
             if (currentExerciseStep === 0) {
@@ -1309,6 +1334,7 @@ let currentVocabIndexMC = 0;
                 updateExerciseVisibility();
                 loadMCQuestion();
                 ensureStageQuestionLoaded();
+                focusActiveExercise();
                 return;
             }
 
@@ -1325,6 +1351,7 @@ let currentVocabIndexMC = 0;
                     loadSentence();
                 }
                 ensureStageQuestionLoaded();
+                focusActiveExercise();
             } else {
                 openModal({title:"Вже останній етап", text:"Ця вправа вже на останньому етапі. Можна повторити її або перейти далі.", primaryText:"Ок"});
             }
@@ -1670,6 +1697,10 @@ let currentVocabIndexMC = 0;
         });
 
         btnNextEx.addEventListener("click", nextExerciseStep);
+        btnNextEx.addEventListener("touchstart", (event) => {
+            event.preventDefault();
+            nextExerciseStep();
+        }, { passive: false });
 
         btnToggleExplain.addEventListener("click", () => {
             if (currentExerciseStep === 0) {
