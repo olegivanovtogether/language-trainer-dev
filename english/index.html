@@ -287,7 +287,7 @@
         }
 
 
-        /* Полоска прогресса этапа (красная → жёлтая → зелёная) */
+        /* Смуга прогресу етапу (червона → жовта → зелена) */
         #stage-bar-wrap{
             height: 10px;
             width: 100%;
@@ -312,7 +312,7 @@
             text-align: center;
         }
 
-        /* Вспышки экрана */
+        /* Спалахи екрана */
         @keyframes flash-green {
             0% {
                 background-color: #c8f7c5;
@@ -333,7 +333,7 @@
             }
         }
 
-        /* зелёное – один раз, но дольше; красное – 1 мигания */
+        /* зелене – один раз, але довше; червоне – 1 блимання */
         body.flash-green {
             animation: flash-green 0.5s ease-out;
         }
@@ -411,8 +411,8 @@
                 text-align: left;
             }
         }
-    
-        /* ====== MODAL (внутри страницы, вместо confirm/alert) ====== */
+
+        /* ====== MODAL (всередині сторінки, замість confirm/alert) ====== */
         .modal-overlay{
             position: fixed;
             inset: 0;
@@ -463,21 +463,21 @@
 </head>
 <body>
     <h1>English A0 – тренажер (Video 01)</h1>
-    <div class="subtitle">Покрокові вправи: Video 01 (UA → EN).</div>
+    <div class="subtitle">Покрокові вправи: базові фрази та конструкції (UA → EN).</div>
 
     <div id="topPanel">
-<div class="warning">
-        Краще проходити вправи по порядку. Можна стрибати по списку, але мозок буде сильніше втомлюватися 🙂
-    </div>
+        <div class="warning">
+            Краще проходити вправи по порядку. Можна стрибати по списку, але мозок буде сильніше втомлюватися 🙂
+        </div>
 
-    <div class="top-row">
-        <div class="block-selector-label">Перейти до вправи:</div>
-        <select id="block-select"></select>
-    </div>
+        <div class="top-row">
+            <div class="block-selector-label">Перейти до вправи:</div>
+            <select id="block-select"></select>
+        </div>
 
-    <div class="block-header">
-        <div class="block-title" id="block-title"></div>
-</div>
+        <div class="block-header">
+            <div class="block-title" id="block-title"></div>
+        </div>
         <div class="block-progress">
             <span class="progress-dot"></span>
             <span id="block-progress-text"></span>
@@ -488,16 +488,16 @@
 
     <div class="exercise-step" id="exercise-step"></div>
 
-    
+
     <div id="stage-bar-wrap" aria-label="Прогрес етапу"><div id="stage-bar"></div></div>
-<div class="toggle-explain-row">
+    <div class="toggle-explain-row">
         <button id="btn-toggle-explain">Сховати пояснення</button>
     </div>
 
-    <!-- ОБЪЯСНЕНИЕ УПРАЖНЕНИЯ -->
+    <!-- ПОЯСНЕННЯ ВПРАВИ -->
     <div id="explain" class="explain"></div>
 
-    <!-- Упражнение 1: выбор правильной фразы -->
+    <!-- Вправа 1: вибір правильної фрази -->
     <div id="ex1" class="card" style="display:none;">
         <div class="card-title">1️⃣ Вибір правильної фрази</div>
         <div class="label">Українська фраза:</div>
@@ -510,7 +510,7 @@
         <button id="mc-next" class="primary">Наступне слово в цій вправі</button>
     </div>
 
-    <!-- Упражнение 2: вписать фразу -->
+    <!-- Вправа 2: вписати фразу -->
     <div id="ex2" class="card" style="display:none;">
         <div class="card-title">2️⃣ Написати фразу самому</div>
         <div class="label">Українська фраза:</div>
@@ -527,7 +527,7 @@
         <button id="w-next" class="primary">Наступне слово в цій вправі</button>
     </div>
 
-    <!-- Упражнение 3: перевод предложений -->
+    <!-- Вправа 3: переклад речень -->
     <div id="ex3" class="card" style="display:none;">
         <div class="card-title">3️⃣ Переклад маленьких речень</div>
         <div class="label">Український текст:</div>
@@ -546,12 +546,12 @@
 
     <div class="next-ex-btn-wrap">
         <button id="btn-restart" class="primary">Перезапустити цю вправу</button>
-        <button id="btn-next-ex" class="primary" type="button" onclick="nextExerciseStep()">Почати вправи</button>
+        <button id="btn-next-ex" class="primary">Почати вправи</button>
     </div>
 
     <div id="stats" class="stats"></div>
 
-    <!-- Навигация по вправим -->
+    <!-- Навигація по вправам -->
     <div class="nav-buttons">
         <button id="btn-prev">← Попередня вправа</button>
         <button id="btn-next">Наступна вправа →</button>
@@ -561,8 +561,8 @@
         Статистика зберігається лише поки сторінка відкрита.
     </div>
 
-    
-    <!-- ====== MODAL (внутри страницы) ====== -->
+
+    <!-- ====== MODAL (всередині сторінки) ====== -->
     <div id="modalOverlay" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="modal">
             <h2 id="modalTitle">Готово</h2>
@@ -570,129 +570,203 @@
             <div class="modal-actions">
                 <button id="modalSecondary">Спробувати ще раз</button>
                 <button id="modalPrimary" class="primary">Далі</button>
-            
+
                 <button id="modalTertiary" class="secondary">Повторити вправу</button>
             </div>
         </div>
     </div>
 
-<script>
+    <script>
         /* ====== ДАНІ ВПРАВ ====== */
         const blocks = [
             {
-                title: "Video 01",
-                subtitle: "English A0 — Video 01",
-                explain: `
-                        <div class="topic-tag">English A0 — Video 01</div>
-                        <h2>I + verb</h2>
-                        <p>UA: Конструкція використовується, щоб сказати, що я щось роблю або це факт про мене.</p>
-                        <p>EN: Used to say what I do or what is true about me.</p>
-                        <p>Form: I + verb</p>
-                        <ul>
-                            <li>I understand — Я розумію</li>
-                            <li>I see — Я бачу</li>
-                            <li>I work — Я працюю</li>
-                        </ul>
-                        <h2>I + verb + object</h2>
-                        <p>UA: Коли дія спрямована на об’єкт або має уточнення.</p>
-                        <p>EN: Used when the action has an object.</p>
-                        <p>Form: I + verb + object</p>
-                        <ul>
-                            <li>I understand you — Я тебе розумію</li>
-                            <li>I see you — Я тебе бачу</li>
-                            <li>I work online — Я працюю онлайн</li>
-                        </ul>
-                        <h2>I live in + place</h2>
-                        <p>UA: Використовується, щоб сказати, де я живу.</p>
-                        <p>EN: Used to say where I live.</p>
-                        <p>Form: I live in + country / city / town</p>
-                        <ul>
-                            <li>I live in London — Я живу в Лондоні</li>
-                            <li>I live in New York — Я живу в Нью-Йорку</li>
-                        </ul>
-                        <h2>I speak + language</h2>
-                        <p>UA: Використовується, щоб сказати, якою мовою я говорю.</p>
-                        <p>EN: Used to say what language I speak.</p>
-                        <p>Form: I speak + language</p>
-                        <ul>
-                            <li>I speak English — Я говорю англійською</li>
-                            <li>I speak Spanish — Я говорю іспанською</li>
-                        </ul>
-                        <h2>I learn</h2>
-                        <p>UA: Використовується, щоб сказати, що я щось вивчаю.</p>
-                        <p>EN: Used to say what I learn.</p>
-                        <p>Form: I learn + object</p>
-                        <ul>
-                            <li>I learn English — Я вивчаю англійську</li>
-                            <li>I learn online — Я вивчаю онлайн</li>
-                        </ul>
-                        <h2>I like / I love</h2>
-                        <p>UA: Використовується, щоб сказати, що мені подобається або що я люблю.</p>
-                        <p>EN: Used to express liking or love.</p>
-                        <p>Form: I like / I love + object</p>
-                        <ul>
-                            <li>I like music — Мені подобається музика</li>
-                            <li>I love you — Я тебе люблю</li>
-                        </ul>
-                        <h2>here / there / often</h2>
-                        <p>UA: Слова місця та частоти дії.</p>
-                        <p>EN: Words of place and frequency.</p>
-                        <p>Form: here / there / often</p>
-                        <ul>
-                            <li>I live here — Я живу тут</li>
-                            <li>I work there — Я працюю там</li>
-                            <li>I often work online — Я часто працюю онлайн</li>
-                        </ul>
-                        <h2>I have / I can</h2>
-                        <p>UA: I have — мати щось; I can — вміти або могти щось зробити.</p>
-                        <p>EN: I have — possession; I can — ability.</p>
-                        <p>Form: I have + object / I can + verb</p>
-                        <ul>
-                            <li>I have time — Я маю час</li>
-                            <li>I can speak English — Я можу говорити англійською</li>
-                        </ul>
-                    `,
+                title: "I + verb",
+                topicTag: "🧩 базова дія про себе",
+                explanation: `
+                                            <div class="topic-tag">🧩 I + verb</div>
+                                            <h2>I + verb</h2>
+                                            <p><b>UA:</b> Конструкція використовується, щоб сказати, що я щось роблю або це факт про мене.</p>
+                                            <p><b>EN:</b> Used to say what I do or what is true about me.</p>
+                                            <p><b>Form:</b> I + verb</p>
+                                            <ul>
+                                                <li>I understand — Я розумію</li>
+                                                <li>I see — Я бачу</li>
+                                                <li>I work — Я працюю</li>
+                                            </ul>
+                                        `,
                 vocab: [
-                    { ru: "Я розумію", en: "I understand" },
-                    { ru: "Я бачу", en: "I see" },
-                    { ru: "Я працюю", en: "I work" },
-                    { ru: "Я тебе розумію", en: "I understand you" },
-                    { ru: "Я тебе бачу", en: "I see you" },
-                    { ru: "Я працюю онлайн", en: "I work online" },
-                    { ru: "Я живу в Лондоні", en: "I live in London" },
-                    { ru: "Я живу в Нью-Йорку", en: "I live in New York" },
-                    { ru: "Я говорю англійською", en: "I speak English" },
-                    { ru: "Я говорю іспанською", en: "I speak Spanish" },
-                    { ru: "Я вивчаю англійську", en: "I learn English" },
-                    { ru: "Я вивчаю онлайн", en: "I learn online" },
-                    { ru: "Мені подобається музика", en: "I like music" },
-                    { ru: "Я тебе люблю", en: "I love you" },
-                    { ru: "Я живу тут", en: "I live here" },
-                    { ru: "Я працюю там", en: "I work there" },
-                    { ru: "Я часто працюю онлайн", en: "I often work online" },
-                    { ru: "Я маю час", en: "I have time" },
-                    { ru: "Я можу говорити англійською", en: "I can speak English" }
+                    { ua: "Я розумію", en: "I understand" },
+                    { ua: "Я бачу", en: "I see" },
+                    { ua: "Я працюю", en: "I work" }
                 ],
                 sentences: [
-                    { ru: "Я розумію", en: "I understand" },
-                    { ru: "Я бачу", en: "I see" },
-                    { ru: "Я працюю", en: "I work" },
-                    { ru: "Я тебе розумію", en: "I understand you" },
-                    { ru: "Я тебе бачу", en: "I see you" },
-                    { ru: "Я працюю онлайн", en: "I work online" },
-                    { ru: "Я живу в Лондоні", en: "I live in London" },
-                    { ru: "Я живу в Нью-Йорку", en: "I live in New York" },
-                    { ru: "Я говорю англійською", en: "I speak English" },
-                    { ru: "Я говорю іспанською", en: "I speak Spanish" },
-                    { ru: "Я вивчаю англійську", en: "I learn English" },
-                    { ru: "Я вивчаю онлайн", en: "I learn online" },
-                    { ru: "Мені подобається музика", en: "I like music" },
-                    { ru: "Я тебе люблю", en: "I love you" },
-                    { ru: "Я живу тут", en: "I live here" },
-                    { ru: "Я працюю там", en: "I work there" },
-                    { ru: "Я часто працюю онлайн", en: "I often work online" },
-                    { ru: "Я маю час", en: "I have time" },
-                    { ru: "Я можу говорити англійською", en: "I can speak English" }
+                    { ua: "Я розумію і бачу.", en: "I understand and I see." },
+                    { ua: "Я працюю.", en: "I work." }
+                ]
+            },
+            {
+                title: "I + verb + object",
+                topicTag: "🎯 дія з об'єктом",
+                explanation: `
+                                            <div class="topic-tag">🎯 I + verb + object</div>
+                                            <h2>I + verb + object</h2>
+                                            <p><b>UA:</b> Коли дія спрямована на об’єкт або має уточнення.</p>
+                                            <p><b>EN:</b> Used when the action has an object.</p>
+                                            <p><b>Form:</b> I + verb + object</p>
+                                            <ul>
+                                                <li>I understand you — Я тебе розумію</li>
+                                                <li>I see you — Я тебе бачу</li>
+                                                <li>I work online — Я працюю онлайн</li>
+                                            </ul>
+                                        `,
+                vocab: [
+                    { ua: "Я тебе розумію", en: "I understand you" },
+                    { ua: "Я тебе бачу", en: "I see you" },
+                    { ua: "Я працюю онлайн", en: "I work online" }
+                ],
+                sentences: [
+                    { ua: "Я тебе розумію.", en: "I understand you." },
+                    { ua: "Я працюю онлайн.", en: "I work online." }
+                ]
+            },
+            {
+                title: "I live in + place",
+                topicTag: "📍 де я живу",
+                explanation: `
+                                            <div class="topic-tag">📍 I live in + place</div>
+                                            <h2>I live in + place</h2>
+                                            <p><b>UA:</b> Використовується, щоб сказати, де я живу.</p>
+                                            <p><b>EN:</b> Used to say where I live.</p>
+                                            <p><b>Form:</b> I live in + country / city / town</p>
+                                            <ul>
+                                                <li>I live in London — Я живу в Лондоні</li>
+                                                <li>I live in New York — Я живу в Нью-Йорку</li>
+                                            </ul>
+                                        `,
+                vocab: [
+                    { ua: "Я живу в Лондоні", en: "I live in London" },
+                    { ua: "Я живу в Нью-Йорку", en: "I live in New York" }
+                ],
+                sentences: [
+                    { ua: "Я живу в Лондоні.", en: "I live in London." },
+                    { ua: "Я живу в Нью-Йорку.", en: "I live in New York." }
+                ]
+            },
+            {
+                title: "I speak + language",
+                topicTag: "🗣️ мови",
+                explanation: `
+                                            <div class="topic-tag">🗣️ I speak + language</div>
+                                            <h2>I speak + language</h2>
+                                            <p><b>UA:</b> Використовується, щоб сказати, якою мовою я говорю.</p>
+                                            <p><b>EN:</b> Used to say what language I speak.</p>
+                                            <p><b>Form:</b> I speak + language</p>
+                                            <ul>
+                                                <li>I speak English — Я говорю англійською</li>
+                                                <li>I speak Spanish — Я говорю іспанською</li>
+                                            </ul>
+                                        `,
+                vocab: [
+                    { ua: "Я говорю англійською", en: "I speak English" },
+                    { ua: "Я говорю іспанською", en: "I speak Spanish" }
+                ],
+                sentences: [
+                    { ua: "Я говорю англійською.", en: "I speak English." },
+                    { ua: "Я говорю іспанською.", en: "I speak Spanish." }
+                ]
+            },
+            {
+                title: "I learn",
+                topicTag: "📚 навчання",
+                explanation: `
+                                            <div class="topic-tag">📚 I learn</div>
+                                            <h2>I learn</h2>
+                                            <p><b>UA:</b> Використовується, щоб сказати, що я щось вивчаю.</p>
+                                            <p><b>EN:</b> Used to say what I learn.</p>
+                                            <p><b>Form:</b> I learn + object</p>
+                                            <ul>
+                                                <li>I learn English — Я вивчаю англійську</li>
+                                                <li>I learn online — Я вивчаю онлайн</li>
+                                            </ul>
+                                        `,
+                vocab: [
+                    { ua: "Я вивчаю англійську", en: "I learn English" },
+                    { ua: "Я вивчаю онлайн", en: "I learn online" }
+                ],
+                sentences: [
+                    { ua: "Я вивчаю англійську.", en: "I learn English." },
+                    { ua: "Я вивчаю онлайн.", en: "I learn online." }
+                ]
+            },
+            {
+                title: "I like / I love",
+                topicTag: "❤️ вподобання",
+                explanation: `
+                                            <div class="topic-tag">❤️ I like / I love</div>
+                                            <h2>I like / I love</h2>
+                                            <p><b>UA:</b> Використовується, щоб сказати, що мені подобається або що я люблю.</p>
+                                            <p><b>EN:</b> Used to express liking or love.</p>
+                                            <p><b>Form:</b> I like / I love + object</p>
+                                            <ul>
+                                                <li>I like music — Мені подобається музика</li>
+                                                <li>I love you — Я тебе люблю</li>
+                                            </ul>
+                                        `,
+                vocab: [
+                    { ua: "Мені подобається музика", en: "I like music" },
+                    { ua: "Я тебе люблю", en: "I love you" }
+                ],
+                sentences: [
+                    { ua: "Мені подобається музика.", en: "I like music." },
+                    { ua: "Я тебе люблю.", en: "I love you." }
+                ]
+            },
+            {
+                title: "here / there / often",
+                topicTag: "📌 місце і частота",
+                explanation: `
+                                            <div class="topic-tag">📌 here / there / often</div>
+                                            <h2>here / there / often</h2>
+                                            <p><b>UA:</b> Слова місця та частоти дії.</p>
+                                            <p><b>EN:</b> Words of place and frequency.</p>
+                                            <p><b>Form:</b> here / there / often</p>
+                                            <ul>
+                                                <li>I live here — Я живу тут</li>
+                                                <li>I work there — Я працюю там</li>
+                                                <li>I often work online — Я часто працюю онлайн</li>
+                                            </ul>
+                                        `,
+                vocab: [
+                    { ua: "Я живу тут", en: "I live here" },
+                    { ua: "Я працюю там", en: "I work there" },
+                    { ua: "Я часто працюю онлайн", en: "I often work online" }
+                ],
+                sentences: [
+                    { ua: "Я живу тут.", en: "I live here." },
+                    { ua: "Я часто працюю онлайн.", en: "I often work online." }
+                ]
+            },
+            {
+                title: "I have / I can",
+                topicTag: "🛠️ мати і могти",
+                explanation: `
+                                            <div class="topic-tag">🛠️ I have / I can</div>
+                                            <h2>I have / I can</h2>
+                                            <p><b>UA:</b> I have — мати щось; I can — вміти або могти щось зробити.</p>
+                                            <p><b>EN:</b> I have — possession; I can — ability.</p>
+                                            <p><b>Form:</b> I have + object / I can + verb</p>
+                                            <ul>
+                                                <li>I have time — Я маю час</li>
+                                                <li>I can speak English — Я можу говорити англійською</li>
+                                            </ul>
+                                        `,
+                vocab: [
+                    { ua: "Я маю час", en: "I have time" },
+                    { ua: "Я можу говорити англійською", en: "I can speak English" }
+                ],
+                sentences: [
+                    { ua: "Я маю час.", en: "I have time." },
+                    { ua: "Я можу говорити англійською.", en: "I can speak English." }
                 ]
             }
         ];
@@ -702,9 +776,9 @@
         const GAME = {
             livesPerStage: 3,
             stage: {
-                mc:    { needCorrect: 5, minAccuracy: 0.70 },
+                mc: { needCorrect: 5, minAccuracy: 0.70 },
                 write: { needCorrect: 5, minAccuracy: 0.70 },
-                sent:  { needCorrect: 3, minAccuracy: 0.60 }
+                sent: { needCorrect: 3, minAccuracy: 0.60 }
             },
             stars: {
                 two: 0.85,
@@ -716,42 +790,42 @@
         let gameXP = 0;
 
         let stageState = {
-            mc:    { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 },
+            mc: { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 },
             write: { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 },
-            sent:  { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 }
+            sent: { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 }
         };
 
-        
+
         // ====== Коміти: штраф замість скидання ======
         // Правила:
         // - Якщо N <= 3: 3 життя, штраф = відкат на 3
         // - Якщо N > 3: 5 життів (макс), штраф = відкат на 5
         // - ЖОДНИХ повних скидів назад. Лише відкат correct і позиції показу.
-        function getNFor(kind){
+        function getNFor(kind) {
             const b = blocks[currentBlockIndex];
             if (kind === "sent") return (b.sentences && b.sentences.length) ? b.sentences.length : 0;
             return (b.vocab && b.vocab.length) ? b.vocab.length : 0;
         }
-        function getLivesMax(kind){
+        function getLivesMax(kind) {
             const n = getNFor(kind);
             return (n <= 3) ? 3 : 5;
         }
-        function getRollbackSteps(kind){
+        function getRollbackSteps(kind) {
             // штраф = 3 або 5 (не більше 5)
             const n = getNFor(kind);
             return (n <= 3) ? 3 : 5;
         }
 
-        function showToast(msg){
+        function showToast(msg) {
             const ov = document.getElementById("toastOverlay");
             const el = document.getElementById("toastMsg");
-            if(!ov || !el) return;
+            if (!ov || !el) return;
             el.textContent = msg;
             ov.classList.add("show");
-            ov.setAttribute("aria-hidden","false");
-            setTimeout(()=>{
+            ov.setAttribute("aria-hidden", "false");
+            setTimeout(() => {
                 ov.classList.remove("show");
-                ov.setAttribute("aria-hidden","true");
+                ov.setAttribute("aria-hidden", "true");
             }, 1200);
         }
 
@@ -771,9 +845,9 @@
             resetStage(kind);
 
             // скидання лічильника помилок для підказки
-            if (kind === "mc") { wrongAttemptsMC = 0; lastVocabIndexMC = -1; try { const b=blocks[currentBlockIndex]; resetSeq("mc",(b.vocab&&b.vocab.length)?b.vocab.length:0);} catch(e){} loadMCQuestion(); }
-            if (kind === "write") { wrongAttemptsWrite = 0; lastVocabIndexWrite = -1; try { const b=blocks[currentBlockIndex]; resetSeq("write",(b.vocab&&b.vocab.length)?b.vocab.length:0);} catch(e){} loadWQuestion(); }
-            if (kind === "sent") { wrongAttemptsSent = 0; lastSentenceIndex = -1; try { const b=blocks[currentBlockIndex]; resetSeq("sent",(b.sentences&&b.sentences.length)?b.sentences.length:0);} catch(e){} loadSentence(); }
+            if (kind === "mc") { wrongAttemptsMC = 0; lastVocabIndexMC = -1; try { const b = blocks[currentBlockIndex]; resetSeq("mc", (b.vocab && b.vocab.length) ? b.vocab.length : 0); } catch (e) { } loadMCQuestion(); }
+            if (kind === "write") { wrongAttemptsWrite = 0; lastVocabIndexWrite = -1; try { const b = blocks[currentBlockIndex]; resetSeq("write", (b.vocab && b.vocab.length) ? b.vocab.length : 0); } catch (e) { } loadWQuestion(); }
+            if (kind === "sent") { wrongAttemptsSent = 0; lastSentenceIndex = -1; try { const b = blocks[currentBlockIndex]; resetSeq("sent", (b.sentences && b.sentences.length) ? b.sentences.length : 0); } catch (e) { } loadSentence(); }
 
             updateExerciseVisibility();
             updateGateUI();
@@ -782,7 +856,7 @@
         function restartCurrentBlock() {
             clearAutoNext();
             // скидання всієї вправи (і прогресу етапів)
-            try { if (typeof resetAllStages === "function") resetAllStages(); } catch (e) {}
+            try { if (typeof resetAllStages === "function") resetAllStages(); } catch (e) { }
 
             // статистику цієї сесії (stats) чіпаємо лише якщо вона вже ініціалізована
             try {
@@ -793,10 +867,10 @@
                         sent: { correct: 0, total: 0 }
                     };
                 }
-            } catch (e) {}
+            } catch (e) { }
 
             loadBlock(currentBlockIndex);
-            try { if (typeof updateStatsView === "function") updateStatsView(); } catch (e) {}
+            try { if (typeof updateStatsView === "function") updateStatsView(); } catch (e) { }
         }
 
         function goNextStep() {
@@ -809,7 +883,7 @@
             if (currentBlockIndex < blocks.length - 1) {
                 loadBlock(currentBlockIndex + 1);
             } else {
-                // якщо це остання вправа — просто закриваємо модалку й лишаємось тут
+                // якщо це остання вправа — просто закриваємо модалку і лишаємося тут
                 loadBlock(currentBlockIndex);
             }
         }
@@ -841,7 +915,7 @@
             return null;
         }
 
-        
+
         // ====== MODAL helpers ======
         const modalOverlayEl = document.getElementById("modalOverlay");
         const modalTitleEl = document.getElementById("modalTitle");
@@ -872,7 +946,7 @@
             modalOverlayEl.style.display = "flex";
             modalOverlayEl.setAttribute("aria-hidden", "false");
 
-            // фокус на основной кнопке
+            // фокус на основній кнопці
             modalPrimaryEl.focus();
         }
 
@@ -896,14 +970,14 @@
             if (typeof fn === "function") fn();
         });
 
-        
+
 
         modalTertiaryEl.addEventListener("click", () => {
             const fn = modalTertiaryAction;
             closeModal();
             if (typeof fn === "function") fn();
         });
-// закрытие кликом по затемнению
+        // закриття кліком по затемненню
         modalOverlayEl.addEventListener("click", (e) => {
             if (e.target === modalOverlayEl) {
                 closeModal();
@@ -922,7 +996,7 @@
             const exerciseDone = isFinalStage && stageState.mc.cleared && stageState.write.cleared && stageState.sent.cleared;
 
             if (exerciseDone) {
-                // Можемо показати підсумкові зірки за останній етап (або просто ⭐⭐⭐ якщо хочеться).
+                // Можемо показати підсумкові зірки за останнім етапом (або просто ⭐⭐⭐ за бажанням).
                 const stars = calcStars(kind);
                 stageState[kind].stars = stars;
 
@@ -953,7 +1027,7 @@
             stageState[kind].stars = stars;
 
             openModal({
-                title: "Етап " + stageNumber + " з 3 пройдено  " + "⭐".repeat(stars),
+                title: "ЕТАП " + stageNumber + " З 3 ПРОЙДЕНО  " + "⭐".repeat(stars),
                 text: "Чудово! Можеш продовжити або повторити цей етап.",
                 primaryText: "Продовжити",
                 secondaryText: "Повторити етап",
@@ -967,7 +1041,7 @@
                     restartStage(kind); // скидання прогресу поточного етапу
                 }
             });
-}
+        }
 
         function showFail(kind) {
             clearAutoNext();
@@ -987,9 +1061,9 @@
                     seq[kind].pos = Math.max(0, (seq[kind].pos || 0) - rollback);
                     seq[kind].last = -1;
                 }
-            } catch(e) {}
+            } catch (e) { }
 
-            // ігрове повідомлення + червона спалах
+            // ігрове повідомлення + червона вспишка
             flashScreen("red");
             showToast(`Упс! Помилка 😅 Штраф: -${rollback}`);
 
@@ -1000,7 +1074,7 @@
             if (kind === "write") loadWQuestion();
             if (kind === "sent") loadSentence();
         }
-function onCorrect(kind) {
+        function onCorrect(kind) {
             const s = stageState[kind];
             s.attempts++;
             s.correct++;
@@ -1035,21 +1109,21 @@ function onCorrect(kind) {
         function updateGateUI() {
             const kind = currentKind();
 
-            // 1) верхняя панель (меньше нагрузки во время практики)
+            // 1) верхня панель (менше навантаження під час практики)
             if (currentExerciseStep === 0) {
-                // на объяснении панель всегда видна, кнопка не нужна
+                // на поясненні панель завжди видна, кнопка не потрібна
                 topPanelEl.style.display = "block";
                 btnTopPanelEl.style.display = "none";
-                // при переходе к практике панель будет скрыта по умолчанию
+                // при переході до практики панель буде прихована за замовчуванням
                 btnTopPanelEl.textContent = "Показати панель";
             } else {
-                // во время практики по умолчанию скрываем, но даём кнопку открыть
+                // під час практики за замовчуванням ховаємо, але даємо кнопку відкрити
                 topPanelEl.style.display = topPanelVisibleInPractice ? "block" : "none";
                 btnTopPanelEl.style.display = "inline-flex";
                 btnTopPanelEl.textContent = topPanelVisibleInPractice ? "Сховати панель" : "Показати панель";
             }
 
-            // 2) гейт по этапам
+            // 2) ґейт за етапами
             if (!kind) {
                 btnNextEx.disabled = false;
                 return;
@@ -1062,7 +1136,7 @@ function onCorrect(kind) {
             const acc = Math.round(stageAccuracy(kind) * 100);
             const needAcc = Math.round(cfg.minAccuracy * 100);
 
-            // полоска прогресса этапа (красная → жёлтая → зелёная)
+            // смужка прогресу етапу (червона → жовта → зелена)
             if (stageBarWrapEl && stageBarEl) {
                 if (currentExerciseStep === 0) {
                     stageBarWrapEl.style.display = "none";
@@ -1070,13 +1144,13 @@ function onCorrect(kind) {
                     stageBarWrapEl.style.display = "block";
                     const progress = Math.max(0, Math.min(1, s.correct / cfg.needCorrect));
                     stageBarEl.style.width = `${Math.round(progress * 100)}%`;
-                    const hue = Math.round(progress * 120); // 0=красный, 120=зелёный
+                    const hue = Math.round(progress * 120); // 0=червоний, 120=зелений
                     stageBarEl.style.backgroundColor = `hsl(${hue}, 85%, 45%)`;
                 }
             }
 
 
-            // текст делаем "игровым", но коротким
+            // текст робимо "ігровим", але коротким
             exerciseStepEl.textContent =
                 `Етап ${currentExerciseStep} з 3 • ❤️ ${s.lives} • ✅ ${s.correct}/${cfg.needCorrect} • 🎯 ${acc}% (потрібно ${needAcc}%) • XP ${gameXP}`;
         }
@@ -1100,827 +1174,406 @@ function onCorrect(kind) {
             }
         }
 
-        function normalizeAnswer(str) {
-            return str
-                .toLowerCase()
-                .replace(/\s+/g, " ")
-                .trim()
-                .replace(/[.!?]+$/, "");
-        }
-
-        function flashScreen(type) {
-            const cls = type === "green" ? "flash-green" : "flash-red";
+        function flashScreen(color) {
             document.body.classList.remove("flash-green", "flash-red");
-            // принудительный reflow
-            void document.body.offsetWidth;
-            document.body.classList.add(cls);
-
-            let duration = 500; // зелёное по умолчанию дольше
-            if (type === "red") {
-                duration = 750; // 0.25 * 3 мигания
-            }
-
-            setTimeout(() => {
-                document.body.classList.remove(cls);
-            }, duration);
+            if (color === "green") document.body.classList.add("flash-green");
+            if (color === "red") document.body.classList.add("flash-red");
         }
 
         function clearAutoNext() {
-            if (autoNextTimeout !== null) {
+            if (autoNextTimeout) {
                 clearTimeout(autoNextTimeout);
                 autoNextTimeout = null;
             }
         }
 
-        /* ====== DOM ====== */
+        function normalizeText(str) {
+            return (str || "")
+                .trim()
+                .toLowerCase()
+                .replace(/[’‘]/g, "'")
+                .replace(/\s+/g, " ");
+        }
+
+        // ====== РЕНДЕР ПАНЕЛІ + EXPLAIN ======
+        const blockSelectEl = document.getElementById("block-select");
         const blockTitleEl = document.getElementById("block-title");
         const blockProgressTextEl = document.getElementById("block-progress-text");
-        const exerciseStepEl = document.getElementById("exercise-step");
-        const stageBarWrapEl = document.getElementById("stage-bar-wrap");
-        const stageBarEl = document.getElementById("stage-bar");
         const explainEl = document.getElementById("explain");
         const btnToggleExplain = document.getElementById("btn-toggle-explain");
+        const topPanelEl = document.getElementById("topPanel");
+        const btnTopPanelEl = document.getElementById("btn-topPanel");
 
-        const blockSelectEl = document.getElementById("block-select");
+        const stageBarWrapEl = document.getElementById("stage-bar-wrap");
+        const stageBarEl = document.getElementById("stage-bar");
 
-        const ex1Card = document.getElementById("ex1");
-        const ex2Card = document.getElementById("ex2");
-        const ex3Card = document.getElementById("ex3");
+        const toastOverlayEl = document.createElement("div");
+        toastOverlayEl.id = "toastOverlay";
+        toastOverlayEl.className = "toast-overlay";
+        toastOverlayEl.setAttribute("aria-hidden", "true");
+        toastOverlayEl.innerHTML = '<div class="toast" id="toastMsg"></div>';
+        document.body.appendChild(toastOverlayEl);
 
-        // MC
+        let currentBlockIndex = 0;
+        let currentExerciseStep = 0; // 0 = пояснення, 1/2/3 = етапи
+        let explainVisible = true;
+        let topPanelVisibleInPractice = false;
+
+        // статистика (на сесію)
+        let stats = blocks.map(() => ({
+            mc: { correct: 0, total: 0 },
+            write: { correct: 0, total: 0 },
+            sent: { correct: 0, total: 0 }
+        }));
+
+        function buildBlockSelect() {
+            blockSelectEl.innerHTML = "";
+            blocks.forEach((b, idx) => {
+                const opt = document.createElement("option");
+                opt.value = idx;
+                opt.textContent = `${idx + 1}. ${b.title}`;
+                blockSelectEl.appendChild(opt);
+            });
+        }
+
+        function updateBlockHeader() {
+            const b = blocks[currentBlockIndex];
+            blockTitleEl.textContent = b.title;
+            blockProgressTextEl.textContent = `Вправа ${currentBlockIndex + 1} з ${blocks.length}`;
+            blockSelectEl.value = currentBlockIndex;
+        }
+
+        function updateStatsView() {
+            const s = stats[currentBlockIndex];
+            const totalCorrect = s.mc.correct + s.write.correct + s.sent.correct;
+            const totalAttempts = s.mc.total + s.write.total + s.sent.total;
+            const acc = totalAttempts ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
+            document.getElementById("stats").textContent =
+                `Всього: ${totalCorrect}/${totalAttempts} • Точність: ${acc}%`;
+        }
+
+        function updateExerciseVisibility() {
+            const ex1 = document.getElementById("ex1");
+            const ex2 = document.getElementById("ex2");
+            const ex3 = document.getElementById("ex3");
+
+            ex1.style.display = (currentExerciseStep === 1) ? "block" : "none";
+            ex2.style.display = (currentExerciseStep === 2) ? "block" : "none";
+            ex3.style.display = (currentExerciseStep === 3) ? "block" : "none";
+
+            explainEl.style.display = (currentExerciseStep === 0 && explainVisible) ? "block" : "none";
+            btnToggleExplain.style.display = (currentExerciseStep === 0) ? "inline-flex" : "inline-flex";
+        }
+
+        // ====== ПОСЛІДОВНІСТЬ ДЛЯ НЕПОВТОРЕННЯ ======
+        function makeSequence(n) {
+            const order = Array.from({ length: n }, (_, i) => i);
+            shuffle(order);
+            return { order, pos: 0, last: -1 };
+        }
+
+        const seq = {
+            mc: null,
+            write: null,
+            sent: null
+        };
+
+        function resetSeq(kind, n) {
+            seq[kind] = makeSequence(n);
+        }
+
+        function nextIndex(kind, n) {
+            if (!seq[kind] || seq[kind].order.length !== n) resetSeq(kind, n);
+            const s = seq[kind];
+            if (s.pos >= s.order.length) {
+                resetSeq(kind, n);
+            }
+            let idx = s.order[s.pos++];
+            if (idx === s.last && n > 1) {
+                idx = s.order[s.pos++ % s.order.length];
+            }
+            s.last = idx;
+            return idx;
+        }
+
+        // ====== EX1: Multiple Choice ======
         const mcQuestionEl = document.getElementById("mc-question");
         const mcOptionsEl = document.getElementById("mc-options");
         const mcFeedbackEl = document.getElementById("mc-feedback");
         const mcNextBtn = document.getElementById("mc-next");
+        let mcAnswer = "";
+        let lastVocabIndexMC = -1;
 
-        // write
+        function loadMCQuestion() {
+            const vocab = blocks[currentBlockIndex].vocab;
+            if (!vocab || vocab.length === 0) return;
+
+            const idx = nextIndex("mc", vocab.length);
+            lastVocabIndexMC = idx;
+            const item = vocab[idx];
+            mcQuestionEl.textContent = item.ua;
+            mcAnswer = item.en;
+
+            // options = 1 correct + 3 random
+            const options = [item.en];
+            const otherItems = vocab.filter((_, i) => i !== idx);
+            shuffle(otherItems);
+            for (let i = 0; i < Math.min(3, otherItems.length); i++) {
+                options.push(otherItems[i].en);
+            }
+            shuffle(options);
+
+            mcOptionsEl.innerHTML = "";
+            options.forEach(opt => {
+                const btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.textContent = opt;
+                btn.onclick = () => checkMCAnswer(btn, opt);
+                mcOptionsEl.appendChild(btn);
+            });
+
+            mcFeedbackEl.textContent = "";
+            wrongAttemptsMC = 0;
+        }
+
+        function checkMCAnswer(btn, opt) {
+            const isCorrect = normalizeText(opt) === normalizeText(mcAnswer);
+
+            mcFeedbackEl.textContent = isCorrect ? "✅ Правильно!" : "❌ Неправильно";
+            mcFeedbackEl.className = "feedback " + (isCorrect ? "correct" : "wrong");
+
+            if (isCorrect) {
+                btn.classList.add("correct");
+                flashScreen("green");
+                onCorrect("mc");
+            } else {
+                btn.classList.add("wrong");
+                flashScreen("red");
+                onWrong("mc");
+                wrongAttemptsMC++;
+            }
+
+            if (isCorrect) {
+                autoNextTimeout = setTimeout(() => {
+                    loadMCQuestion();
+                }, 450);
+            } else if (wrongAttemptsMC >= 2) {
+                mcFeedbackEl.textContent = `❌ Неправильно. Правильна відповідь: ${mcAnswer}`;
+            }
+        }
+
+        mcNextBtn.addEventListener("click", () => {
+            loadMCQuestion();
+        });
+
+        // ====== EX2: Write Answer ======
         const wQuestionEl = document.getElementById("w-question");
         const wInputEl = document.getElementById("w-input");
         const wFeedbackEl = document.getElementById("w-feedback");
         const wCheckBtn = document.getElementById("w-check");
         const wShowBtn = document.getElementById("w-show");
         const wNextBtn = document.getElementById("w-next");
+        let wAnswer = "";
+        let lastVocabIndexWrite = -1;
 
-        // sentences
+        function loadWQuestion() {
+            const vocab = blocks[currentBlockIndex].vocab;
+            if (!vocab || vocab.length === 0) return;
+
+            const idx = nextIndex("write", vocab.length);
+            lastVocabIndexWrite = idx;
+            const item = vocab[idx];
+            wQuestionEl.textContent = item.ua;
+            wAnswer = item.en;
+            wInputEl.value = "";
+            wFeedbackEl.textContent = "";
+            wrongAttemptsWrite = 0;
+        }
+
+        function checkWriteAnswer() {
+            const user = normalizeText(wInputEl.value);
+            const correct = normalizeText(wAnswer);
+            const isCorrect = user === correct;
+
+            wFeedbackEl.textContent = isCorrect ? "✅ Правильно!" : "❌ Неправильно";
+            wFeedbackEl.className = "feedback " + (isCorrect ? "correct" : "wrong");
+
+            if (isCorrect) {
+                flashScreen("green");
+                onCorrect("write");
+                autoNextTimeout = setTimeout(() => {
+                    loadWQuestion();
+                }, 500);
+            } else {
+                flashScreen("red");
+                onWrong("write");
+                wrongAttemptsWrite++;
+            }
+        }
+
+        wCheckBtn.addEventListener("click", checkWriteAnswer);
+        wInputEl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                checkWriteAnswer();
+            }
+        });
+
+        wShowBtn.addEventListener("click", () => {
+            wFeedbackEl.textContent = `✅ Правильна відповідь: ${wAnswer}`;
+            wFeedbackEl.className = "feedback correct";
+        });
+
+        wNextBtn.addEventListener("click", () => {
+            loadWQuestion();
+        });
+
+        // ====== EX3: Sentences ======
         const sQuestionEl = document.getElementById("s-question");
         const sInputEl = document.getElementById("s-input");
         const sFeedbackEl = document.getElementById("s-feedback");
         const sCheckBtn = document.getElementById("s-check");
         const sShowBtn = document.getElementById("s-show");
         const sNextBtn = document.getElementById("s-next");
-
-        // навигация
-        const btnPrev = document.getElementById("btn-prev");
-        const btnNext = document.getElementById("btn-next");
-        const btnNextEx = document.getElementById("btn-next-ex");
-        const btnRestart = document.getElementById("btn-restart");
-
-        const statsEl = document.getElementById("stats");
-
-        const topPanelEl = document.getElementById("topPanel");
-        const btnTopPanelEl = document.getElementById("btn-topPanel");
-
-        // панель сверху: скрываем во время практики, показываем только по кнопке
-        let topPanelVisibleInPractice = false;
-
-        /* ====== СОСТОЯНИЕ ====== */
-        let currentBlockIndex = 0;
-        // 0 – лише пояснення, 1 – вправа 1, 2 – вправа 2, 3 – вправа 3
-        let currentExerciseStep = 0;
-        let explainVisible = true;
-
-        
-        // Щоб не повторювалося одне й те саме одразу підряд (мінімум через 1)
-        let lastVocabIndexMC = -1;
-        let lastVocabIndexWrite = -1;
+        let sAnswer = "";
         let lastSentenceIndex = -1;
-        // ===== Sequencer: 1 pass in-order through all items (N), then random drill K=N*3 (repeats allowed) =====
-        // Коміт: тепер це ОДИН потік всередині вправи: N по порядку, потім N*3 рандомом з тих самих N.
-        function makeSeq() { return { pos: 0, last: -1, n: 0 }; }
-        const seq = { mc: makeSeq(), write: makeSeq(), sent: makeSeq() };
 
-        function resetSeq(kind, n) {
-            seq[kind] = makeSeq();
-            seq[kind].n = n || 0;
-            seq[kind].pos = 0;
-            seq[kind].last = -1;
+        function loadSentence() {
+            const sentences = blocks[currentBlockIndex].sentences;
+            if (!sentences || sentences.length === 0) return;
+
+            const idx = nextIndex("sent", sentences.length);
+            lastSentenceIndex = idx;
+            const item = sentences[idx];
+            sQuestionEl.textContent = item.ua;
+            sAnswer = item.en;
+            sInputEl.value = "";
+            sFeedbackEl.textContent = "";
+            wrongAttemptsSent = 0;
         }
 
-        function nextIndex(kind, n) {
-            if (!seq[kind] || seq[kind].n !== n) resetSeq(kind, n);
-            const s = seq[kind];
-            if (n <= 0) return 0;
+        function checkSentence() {
+            const user = normalizeText(sInputEl.value);
+            const correct = normalizeText(sAnswer);
+            const isCorrect = user === correct;
 
-            let idx;
-            if (s.pos < n) {
-                // ordered pass
-                idx = s.pos;
-            } else {
-                // drill
-                idx = randIntExcept(n, s.last);
-            }
-            s.pos++;
-            s.last = idx;
-            return idx;
-        }
-function randIntExcept(max, last) {
-            if (max <= 1) return 0;
-            let i = randInt(max);
-            if (i === last) {
-                // гарантуємо інше значення
-                i = (i + 1 + randInt(max - 1)) % max;
-                if (i === last) i = (i + 1) % max;
-            }
-            return i;
-        }
-let currentVocabIndexMC = 0;
-        let currentVocabIndexWrite = 0;
-        let currentSentenceIndex = 0;
+            sFeedbackEl.textContent = isCorrect ? "✅ Правильно!" : "❌ Неправильно";
+            sFeedbackEl.className = "feedback " + (isCorrect ? "correct" : "wrong");
 
-        const stats = {};
-
-        function ensureStatsForBlock(index) {
-            if (!stats[index]) {
-                stats[index] = {
-                    mc: { correct: 0, total: 0 },
-                    write: { correct: 0, total: 0 },
-                    sent: { correct: 0, total: 0 }
-                };
-            }
-        }
-
-        function updateStatsView() {
-            ensureStatsForBlock(currentBlockIndex);
-            const st = stats[currentBlockIndex];
-            statsEl.textContent =
-                `Статистика цієї вправи (лише за цю сесію): ` +
-                `вибір — ${st.mc.correct}/${st.mc.total}, ` +
-                `написання — ${st.write.correct}/${st.write.total}, ` +
-                `речення — ${st.sent.correct}/${st.sent.total}.`;
-        }
-
-        function updateExplainVisibility() {
-            if (currentExerciseStep === 0) {
-                // На этапе объяснения: всегда видно, кнопку блокируем
-                explainVisible = true;
-                explainEl.style.display = "block";
-                btnToggleExplain.disabled = true;
-                btnToggleExplain.textContent = "Сховати пояснення";
-            } else {
-                // Во время упражнений кнопку можно использовать
-                btnToggleExplain.disabled = false;
-                explainEl.style.display = explainVisible ? "block" : "none";
-                btnToggleExplain.textContent = explainVisible
-                    ? "Сховати пояснення"
-                    : "Показати пояснення";
-            }
-        }
-
-        function updateExerciseVisibility() {
-            ex1Card.style.display = (currentExerciseStep === 1) ? "block" : "none";
-            ex2Card.style.display = (currentExerciseStep === 2) ? "block" : "none";
-            ex3Card.style.display = (currentExerciseStep === 3) ? "block" : "none";
-
-            if (currentExerciseStep === 0) {
-                exerciseStepEl.textContent = "Спочатку спокійно прочитай пояснення, потім натисни «Почати вправи».";
-                btnNextEx.textContent = "Почати вправи";
-            } else if (currentExerciseStep === 1) {
-                exerciseStepEl.textContent = "Етап 1 з 3: просто обери правильну фразу.";
-                btnNextEx.textContent = "Перейти до 2-го етапу";
-            } else if (currentExerciseStep === 2) {
-                exerciseStepEl.textContent = "Етап 2 з 3: напиши фразу сам.";
-                btnNextEx.textContent = "Перейти до 3-го етапу";
-            } else {
-                exerciseStepEl.textContent = "Етап 3 з 3: переклади маленькі речення.";
-                btnNextEx.textContent = "Усі етапи пройдені — можна перейти до наступної вправи";
-            }
-
-            updateExplainVisibility();
-            updateGateUI();
-        }
-
-        const stageReloadAttempted = { mc: false, write: false, sent: false };
-
-        function ensureStageQuestionLoaded() {
-            if (currentExerciseStep === 1) {
-                if (!mcQuestionEl.textContent.trim() && !stageReloadAttempted.mc) {
-                    stageReloadAttempted.mc = true;
-                    loadMCQuestion();
-                }
-                return;
-            }
-            if (currentExerciseStep === 2) {
-                if (!wQuestionEl.textContent.trim() && !stageReloadAttempted.write) {
-                    stageReloadAttempted.write = true;
-                    loadWQuestion();
-                }
-                return;
-            }
-            if (currentExerciseStep === 3) {
-                if (!sQuestionEl.textContent.trim() && !stageReloadAttempted.sent) {
-                    stageReloadAttempted.sent = true;
+            if (isCorrect) {
+                flashScreen("green");
+                onCorrect("sent");
+                autoNextTimeout = setTimeout(() => {
                     loadSentence();
-                }
-            }
-        }
-
-        function focusActiveExercise() {
-            let card = null;
-            let focusTarget = null;
-
-            if (currentExerciseStep === 1) {
-                card = ex1Card;
-                focusTarget = mcOptionsEl.querySelector("button");
-            } else if (currentExerciseStep === 2) {
-                card = ex2Card;
-                focusTarget = wInputEl;
-            } else if (currentExerciseStep === 3) {
-                card = ex3Card;
-                focusTarget = sInputEl;
-            }
-
-            if (!card) return;
-
-            requestAnimationFrame(() => {
-                card.scrollIntoView({ behavior: "smooth", block: "start" });
-                if (focusTarget && typeof focusTarget.focus === "function") {
-                    focusTarget.focus({ preventScroll: true });
-                }
-            });
-        }
-
-        function nextExerciseStep() {
-            clearAutoNext();
-            if (currentExerciseStep === 0) {
-                currentExerciseStep = 1;
-                explainVisible = false;
-                uaTtsArmed = true;
-                lastUaSpokenKey = null;
-                stageReloadAttempted.mc = false;
-                ensureVoicesReady();
-                updateExerciseVisibility();
-                loadMCQuestion();
-                ensureStageQuestionLoaded();
-                focusActiveExercise();
-                return;
-            }
-
-            if (currentExerciseStep < 3) {
-                currentExerciseStep++;
-                updateExerciseVisibility();
-                lastUaSpokenKey = null;
-                if (currentExerciseStep === 2) {
-                    stageReloadAttempted.write = false;
-                    loadWQuestion();
-                }
-                if (currentExerciseStep === 3) {
-                    stageReloadAttempted.sent = false;
-                    loadSentence();
-                }
-                ensureStageQuestionLoaded();
-                focusActiveExercise();
+                }, 500);
             } else {
-                openModal({title:"Вже останній етап", text:"Ця вправа вже на останньому етапі. Можна повторити її або перейти далі.", primaryText:"Ок"});
+                flashScreen("red");
+                onWrong("sent");
+                wrongAttemptsSent++;
             }
         }
 
-        /* ====== ЗАГРУЗКА УПРАЖНЕНИЯ ====== */
+        sCheckBtn.addEventListener("click", checkSentence);
+        sInputEl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                checkSentence();
+            }
+        });
+
+        sShowBtn.addEventListener("click", () => {
+            sFeedbackEl.textContent = `✅ Правильна відповідь: ${sAnswer}`;
+            sFeedbackEl.className = "feedback correct";
+        });
+
+        sNextBtn.addEventListener("click", () => {
+            loadSentence();
+        });
+
+        // ====== Навігація по блокам і етапам ======
         function loadBlock(index) {
-            clearAutoNext();
-
-            const total = blocks.length;
-            if (index < 0) index = 0;
-            if (index >= total) index = total - 1;
-
             currentBlockIndex = index;
             currentExerciseStep = 0;
             explainVisible = true;
             topPanelVisibleInPractice = false;
-            uaTtsArmed = false;
-            lastUaSpokenKey = null;
-            resetAllStages();
-            lastVocabIndexMC = -1;
-            lastVocabIndexWrite = -1;
-            lastSentenceIndex = -1;
-            stageReloadAttempted.mc = false;
-            stageReloadAttempted.write = false;
-            stageReloadAttempted.sent = false;
- 
-            // reset sequencers for this block
-            try {
-                const b = blocks[currentBlockIndex];
-                resetSeq("mc", (b.vocab && b.vocab.length) ? b.vocab.length : 0);
-                resetSeq("write", (b.vocab && b.vocab.length) ? b.vocab.length : 0);
-                resetSeq("sent", (b.sentences && b.sentences.length) ? b.sentences.length : 0);
-            } catch (e) {}
 
+            updateBlockHeader();
+            updateStatsView();
+
+            // Reset stage state for new block
+            resetAllStages();
+            updateGateUI();
 
             const block = blocks[currentBlockIndex];
-
-            // Dynamic repetition rule (as requested):
-            // 1 pass through all N items in order + random drill K=N*3 from the same items.
-            // To prevent switching to the next exercise after the first pass, we require total correct = N*4.
-            try {
-                const nV = (block.vocab && block.vocab.length) ? block.vocab.length : 0;
-                const nS = (block.sentences && block.sentences.length) ? block.sentences.length : 0;
-                if (nV > 0) {
-                    GAME.stage.mc.needCorrect = nV * 4;
-                    GAME.stage.write.needCorrect = nV * 4;
-                }
-                if (nS > 0) {
-                    GAME.stage.sent.needCorrect = nS * 4;
-                }
-            } catch(e) {}
-
-            blockTitleEl.textContent = `Вправа ${currentBlockIndex + 1}. ${block.title}`;
-            blockProgressTextEl.textContent = `Вправа ${currentBlockIndex + 1} з ${total}`;
             explainEl.innerHTML = `
-                    ${block.subtitle ? `<div class="topic-tag">${block.subtitle}</div>` : ""}
-                    ${block.explain}
+                    ${block.explanation}
                 `;
 
-            blockSelectEl.value = String(currentBlockIndex);
-
-            btnPrev.disabled = currentBlockIndex === 0;
-            btnNext.disabled = currentBlockIndex === total - 1;
-
-            mcFeedbackEl.textContent = "";
-            mcFeedbackEl.className = "feedback";
-            wFeedbackEl.textContent = "";
-            wFeedbackEl.className = "feedback";
-            sFeedbackEl.textContent = "";
-            sFeedbackEl.className = "feedback";
-
-            ensureStatsForBlock(currentBlockIndex);
-            updateStatsView();
             updateExerciseVisibility();
+
+            // Reset sequences
+            resetSeq("mc", block.vocab ? block.vocab.length : 0);
+            resetSeq("write", block.vocab ? block.vocab.length : 0);
+            resetSeq("sent", block.sentences ? block.sentences.length : 0);
+
+            loadMCQuestion();
+            loadWQuestion();
+            loadSentence();
         }
 
-        /* ====== ВПРАВА 1 – ВИБІР ====== */
-        function loadMCQuestion() {
-            clearAutoNext();
-            wrongAttemptsMC = 0; // скидання помилок для нового слова
-
-            const block = blocks[currentBlockIndex];
-            if (!block.vocab || !block.vocab.length) {
-                mcQuestionEl.textContent = "Для цієї вправи ще немає слів.";
-                mcOptionsEl.innerHTML = "";
-                return;
+        function nextExerciseStep() {
+            if (currentExerciseStep < 3) {
+                currentExerciseStep++;
             }
+            updateExerciseVisibility();
+            updateGateUI();
+        }
 
-            currentVocabIndexMC = nextIndex('mc', block.vocab.length);
-            lastVocabIndexMC = currentVocabIndexMC;
-            const card = block.vocab[currentVocabIndexMC];
-
-            mcQuestionEl.textContent = card.ru;
-            const mcQuestionId = `mc-${currentBlockIndex}-${currentVocabIndexMC}`;
-            speakUkrainianOnce(mcQuestionId, card.ru);
-            mcFeedbackEl.textContent = "";
-            mcFeedbackEl.className = "feedback";
-
-            const maxOptions = Math.min(4, block.vocab.length);
-            const options = [card.en];
-
-            while (options.length < maxOptions) {
-                const idx = randInt(block.vocab.length);
-                const opt = block.vocab[idx].en;
-                if (!options.includes(opt)) {
-                    options.push(opt);
-                }
+        document.getElementById("btn-next-ex").addEventListener("click", () => {
+            if (currentExerciseStep === 0) {
+                currentExerciseStep = 1;
+            } else if (currentExerciseStep < 3) {
+                currentExerciseStep++;
             }
-
-            shuffle(options);
-
-            mcOptionsEl.innerHTML = "";
-            options.forEach(text => {
-                const btn = document.createElement("button");
-                btn.textContent = text;
-                btn.className = "option-btn";
-                btn.addEventListener("click", () => checkMCAnswer(btn, text, card.en));
-                mcOptionsEl.appendChild(btn);
-            });
-        }
-
-        function checkMCAnswer(button, chosen, correct) {
-            clearAutoNext();
-
-            ensureStatsForBlock(currentBlockIndex);
-            const st = stats[currentBlockIndex].mc;
-            st.total++;
-
-            if (normalizeAnswer(chosen) === normalizeAnswer(correct)) {
-                flashScreen("green");
-                mcFeedbackEl.textContent = "✅ Правильно!";
-                mcFeedbackEl.className = "feedback correct";
-                st.correct++;
-                onCorrect("mc");
-
-                speakEnglish(correct);
-                // позначаємо правильну кнопку зеленим
-                button.classList.add("correct");
-
-                updateStatsView();
-
-                autoNextTimeout = setTimeout(() => {
-                    loadMCQuestion();
-                }, 900);
-            } else {
-                wrongAttemptsMC++;
-                flashScreen("red");
-
-                if (wrongAttemptsMC >= 3) {
-                    mcFeedbackEl.textContent = "❌ Не зовсім. Підказка: правильна відповідь — " + correct;
-                    speakEnglish(correct);
-                } else {
-                    mcFeedbackEl.textContent = "❌ Не зовсім. Спробуй ще раз.";
-                }
-
-                mcFeedbackEl.className = "feedback wrong";
-                // підсвітити лише вибрану кнопку, але не блокувати інші
-                button.classList.add("wrong");
-
-                onWrong("mc");
-                updateStatsView();
-            }
-        }
-
-        mcNextBtn.addEventListener("click", loadMCQuestion);
-
-        /* ====== ВПРАВА 2 – НАПИСАТИ ====== */
-        function loadWQuestion() {
-            clearAutoNext();
-            wrongAttemptsWrite = 0; // скидання помилок при новому слові
-
-            const block = blocks[currentBlockIndex];
-            if (!block.vocab || !block.vocab.length) {
-                wQuestionEl.textContent = "Для цієї вправи ще немає слів.";
-                return;
-            }
-
-            currentVocabIndexWrite = nextIndex('write', block.vocab.length);
-            lastVocabIndexWrite = currentVocabIndexWrite;
-            const card = block.vocab[currentVocabIndexWrite];
-
-            wQuestionEl.textContent = card.ru;
-            const wQuestionId = `write-${currentBlockIndex}-${currentVocabIndexWrite}`;
-            speakUkrainianOnce(wQuestionId, card.ru);
-            wInputEl.value = "";
-            wFeedbackEl.textContent = "";
-            wFeedbackEl.className = "feedback";
-        }
-
-        function checkWAnswer() {
-            clearAutoNext();
-            const block = blocks[currentBlockIndex];
-            if (!block.vocab || !block.vocab.length) return;
-
-            const card = block.vocab[currentVocabIndexWrite];
-            const user = wInputEl.value;
-            if (!user.trim()) return;
-
-            ensureStatsForBlock(currentBlockIndex);
-            const st = stats[currentBlockIndex].write;
-            st.total++;
-
-            if (normalizeAnswer(user) === normalizeAnswer(card.en)) {
-                flashScreen("green");
-                wFeedbackEl.textContent = "✅ Чудово! Саме так і пишеться.";
-                wFeedbackEl.className = "feedback correct";
-                st.correct++;
-                onCorrect("write");
-                speakEnglish(card.en);
-                updateStatsView();
-
-                autoNextTimeout = setTimeout(() => {
-                    loadWQuestion();
-                }, 900);
-            } else {
-                wrongAttemptsWrite++;
-                flashScreen("red");
-
-                if (wrongAttemptsWrite >= 3) {
-                    wFeedbackEl.textContent = "❌ Трохи не так. Підказка: правильна відповідь — " + card.en;
-                speakEnglish(card.en);
-                } else {
-                    wFeedbackEl.textContent = "❌ Трохи не так. Виправ і натисни ще раз.";
-                }
-
-                wFeedbackEl.className = "feedback wrong";
-                onWrong("write");
-                updateStatsView();
-            }
-        }
-
-        function showWAnswer() {
-            clearAutoNext();
-            const block = blocks[currentBlockIndex];
-            if (!block.vocab || !block.vocab.length) return;
-
-            const card = block.vocab[currentVocabIndexWrite];
-            wFeedbackEl.textContent = "Правильна відповідь: " + card.en;
-            wFeedbackEl.className = "feedback";
-            speakEnglish(card.en);
-        }
-
-        wCheckBtn.addEventListener("click", checkWAnswer);
-        wShowBtn.addEventListener("click", showWAnswer);
-        wNextBtn.addEventListener("click", loadWQuestion);
-        wInputEl.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") checkWAnswer();
+            updateExerciseVisibility();
+            updateGateUI();
         });
 
-        /* ====== ВПРАВА 3 – РЕЧЕННЯ ====== */
-        function loadSentence() {
-            clearAutoNext();
-            wrongAttemptsSent = 0; // скидання помилок
-
-            const block = blocks[currentBlockIndex];
-            if (!block.sentences || !block.sentences.length) {
-                sQuestionEl.textContent = "Для цієї вправи ще немає речень.";
-                sInputEl.value = "";
-                sFeedbackEl.textContent = "";
-                sFeedbackEl.className = "feedback";
-                return;
+        document.getElementById("btn-prev").addEventListener("click", () => {
+            if (currentBlockIndex > 0) {
+                loadBlock(currentBlockIndex - 1);
             }
+        });
 
-            currentSentenceIndex = nextIndex('sent', block.sentences.length);
-            lastSentenceIndex = currentSentenceIndex;
-            const card = block.sentences[currentSentenceIndex];
-
-            sQuestionEl.textContent = card.ru;
-            const sQuestionId = `sent-${currentBlockIndex}-${currentSentenceIndex}`;
-            speakUkrainianOnce(sQuestionId, card.ru);
-            sInputEl.value = "";
-            sFeedbackEl.textContent = "";
-            sFeedbackEl.className = "feedback";
-        }
-
-        function checkSentence() {
-            clearAutoNext();
-            const block = blocks[currentBlockIndex];
-            if (!block.sentences || !block.sentences.length) return;
-
-            const card = block.sentences[currentSentenceIndex];
-            const user = sInputEl.value;
-            if (!user.trim()) return;
-
-            ensureStatsForBlock(currentBlockIndex);
-            const st = stats[currentBlockIndex].sent;
-            st.total++;
-
-            if (normalizeAnswer(user) === normalizeAnswer(card.en)) {
-                flashScreen("green");
-                sFeedbackEl.textContent = "✅ Чудово! Речення перекладено точно.";
-                sFeedbackEl.className = "feedback correct";
-                st.correct++;
-                onCorrect("sent");
-                speakEnglish(card.en);
-                updateStatsView();
-
-                autoNextTimeout = setTimeout(() => {
-                    loadSentence();
-                }, 900);
-            } else {
-                wrongAttemptsSent++;
-                flashScreen("red");
-
-                if (wrongAttemptsSent >= 3) {
-                    sFeedbackEl.textContent = "❌ Трохи не так. Підказка: правильний варіант —\n" + card.en;
-                } else {
-                    sFeedbackEl.textContent = "❌ Трохи не так. Спробуй ще раз або натисни «Показати відповідь».";
-                }
-
-                sFeedbackEl.className = "feedback wrong";
-                onWrong("sent");
-                updateStatsView();
+        document.getElementById("btn-next").addEventListener("click", () => {
+            if (currentBlockIndex < blocks.length - 1) {
+                loadBlock(currentBlockIndex + 1);
             }
-        }
-
-        function showSentenceAnswer() {
-            clearAutoNext();
-            const block = blocks[currentBlockIndex];
-            if (!block.sentences || !block.sentences.length) return;
-
-            const card = block.sentences[currentSentenceIndex];
-            sFeedbackEl.textContent = "Правильний варіант:\n" + card.en;
-            sFeedbackEl.className = "feedback";
-            speakEnglish(card.en);
-        }
-
-        sCheckBtn.addEventListener("click", checkSentence);
-        sShowBtn.addEventListener("click", showSentenceAnswer);
-        sNextBtn.addEventListener("click", loadSentence);
-        sInputEl.addEventListener("keydown", (e) => {
-            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) checkSentence();
         });
 
-        /* ====== НАВІГАЦІЯ, ЕТАПИ, ПЕРЕЗАПУСК ====== */
-        btnPrev.addEventListener("click", () => {
-            if (currentBlockIndex > 0) loadBlock(currentBlockIndex - 1);
+        document.getElementById("btn-restart").addEventListener("click", () => {
+            restartCurrentBlock();
         });
 
-        btnNext.addEventListener("click", () => {
-            if (currentBlockIndex < blocks.length - 1) loadBlock(currentBlockIndex + 1);
+        blockSelectEl.addEventListener("change", (e) => {
+            const idx = parseInt(e.target.value, 10);
+            loadBlock(idx);
         });
-
-        btnNextEx.addEventListener("click", nextExerciseStep);
-        btnNextEx.addEventListener("touchstart", (event) => {
-            event.preventDefault();
-            nextExerciseStep();
-        }, { passive: false });
 
         btnToggleExplain.addEventListener("click", () => {
-            if (currentExerciseStep === 0) {
-                explainVisible = true;
-                updateExplainVisibility();
-                return;
-            }
             explainVisible = !explainVisible;
-            updateExplainVisibility();
+            explainEl.style.display = explainVisible ? "block" : "none";
+            btnToggleExplain.textContent = explainVisible ? "Сховати пояснення" : "Показати пояснення";
         });
 
-
         btnTopPanelEl.addEventListener("click", () => {
-            // работает только во время практики (этап 1–3)
-            if (currentExerciseStep === 0) return;
-
             topPanelVisibleInPractice = !topPanelVisibleInPractice;
             updateGateUI();
         });
 
-        blockSelectEl.addEventListener("change", () => {
-            const idx = parseInt(blockSelectEl.value, 10);
-            loadBlock(idx);
-        });
-
-        btnRestart.addEventListener("click", () => {
-            clearAutoNext();
-            // скидання статистики лише для поточної вправи
-            stats[currentBlockIndex] = {
-                mc: { correct: 0, total: 0 },
-                write: { correct: 0, total: 0 },
-                sent: { correct: 0, total: 0 }
-            };
-            updateStatsView();
-            resetAllStages();
-            lastVocabIndexMC = -1;
-            lastVocabIndexWrite = -1;
-            lastSentenceIndex = -1;
-            stageReloadAttempted.mc = false;
-            stageReloadAttempted.write = false;
-            stageReloadAttempted.sent = false;
- 
-            // reset sequencers for this block
-            try {
-                const b = blocks[currentBlockIndex];
-                resetSeq("mc", (b.vocab && b.vocab.length) ? b.vocab.length : 0);
-                resetSeq("write", (b.vocab && b.vocab.length) ? b.vocab.length : 0);
-                resetSeq("sent", (b.sentences && b.sentences.length) ? b.sentences.length : 0);
-            } catch (e) {}
-
-            gameXP = 0;
-            // повернути на етап пояснення
-            currentExerciseStep = 0;
-            explainVisible = true;
-            uaTtsArmed = false;
-            lastUaSpokenKey = null;
-            updateExerciseVisibility();
-            window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-
-        let lastUaSpokenKey = null;
-        let uaTtsArmed = false;
-        let uaVoiceCache = null;
-        let voicesReadyPromise = null;
-        let currentSpeechLang = null;
-
-        /* ====== ІНІЦІАЛІЗАЦІЯ ====== */
-        (function init() {
-            blocks.forEach((b, i) => {
-                const opt = document.createElement("option");
-                opt.value = String(i);
-                opt.textContent = `${i + 1}. ${b.title}`;
-                blockSelectEl.appendChild(opt);
-            });
-            loadBlock(0);
-            try { resetStage('mc'); resetStage('write'); resetStage('sent'); } catch(e) {}
-
-        })();
-
-        function ensureVoicesReady() {
-            if (!("speechSynthesis" in window)) return Promise.resolve([]);
-            if (voicesReadyPromise) return voicesReadyPromise;
-
-            voicesReadyPromise = new Promise((resolve) => {
-                let settled = false;
-                const finish = () => {
-                    if (settled) return;
-                    settled = true;
-                    resolve(window.speechSynthesis.getVoices());
-                };
-
-                const voices = window.speechSynthesis.getVoices();
-                if (voices.length) {
-                    finish();
-                    return;
-                }
-
-                const onChanged = () => {
-                    const updated = window.speechSynthesis.getVoices();
-                    if (updated.length) {
-                        window.speechSynthesis.removeEventListener("voiceschanged", onChanged);
-                        clearTimeout(timerId);
-                        finish();
-                    }
-                };
-
-                window.speechSynthesis.addEventListener("voiceschanged", onChanged);
-                const timerId = setTimeout(() => {
-                    window.speechSynthesis.removeEventListener("voiceschanged", onChanged);
-                    finish();
-                }, 800);
-            });
-
-            return voicesReadyPromise;
-        }
-
-        function getUkrainianVoice(voices) {
-            return voices.find((voice) => {
-                const lang = (voice.lang || "").toLowerCase();
-                const name = (voice.name || "").toLowerCase();
-                return lang === "uk-ua"
-                    || lang.startsWith("uk")
-                    || name.includes("ukrain")
-                    || name.includes("укра");
-            }) || null;
-        }
-
-        function queueUtterance(utterance, lang) {
-            utterance.onstart = () => {
-                currentSpeechLang = lang;
-            };
-            const clearLang = () => {
-                if (currentSpeechLang === lang) currentSpeechLang = null;
-            };
-            utterance.onend = clearLang;
-            utterance.onerror = clearLang;
-            window.speechSynthesis.speak(utterance);
-        }
-
-        function speakUkrainianOnce(questionId, text) {
-            if (!uaTtsArmed) return;
-            if (!text) return;
-            if (lastUaSpokenKey === questionId) return;
-            lastUaSpokenKey = questionId;
-            if (!("speechSynthesis" in window)) return;
-            speakUA(text);
-        }
-
-        function speakUA(text) {
-            if (!("speechSynthesis" in window)) return;
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = "uk-UA";
-            u.rate = 0.95;
-            u.pitch = 1.0;
-            ensureVoicesReady().then((voices) => {
-                const uaVoice = uaVoiceCache || getUkrainianVoice(voices);
-                if (!uaVoice) {
-                    console.warn("Ukrainian voice not found, skipping UA TTS to avoid wrong language.");
-                    return;
-                }
-                uaVoiceCache = uaVoice;
-                u.voice = uaVoice;
-                const englishSpeaking = window.speechSynthesis.speaking && currentSpeechLang === "en";
-                if (!englishSpeaking) {
-                    try { window.speechSynthesis.cancel(); } catch(e) {}
-                }
-                queueUtterance(u, "uk");
-            });
-        }
-
-        // ===== English TTS: озвучка правильної відповіді =====
-        let TTS_ENABLED = true;
-        let TTS_LANG = "en-US";
-
-        function speakEnglish(text) {
-            if (!TTS_ENABLED) return;
-            if (!("speechSynthesis" in window)) return;
-            try { window.speechSynthesis.cancel(); } catch(e) {}
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = TTS_LANG;
-            u.rate = 0.95;
-            u.pitch = 1.0;
-            u.onstart = () => {
-                currentSpeechLang = "en";
-            };
-            const clearLang = () => {
-                if (currentSpeechLang === "en") currentSpeechLang = null;
-            };
-            u.onend = clearLang;
-            u.onerror = clearLang;
-            window.speechSynthesis.speak(u);
-        }
-
-</script>
+        // Init
+        buildBlockSelect();
+        loadBlock(0);
+    </script>
 </body>
 </html>
