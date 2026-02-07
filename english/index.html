@@ -893,10 +893,23 @@
             return s.attempts ? (s.correct / s.attempts) : 0;
         }
 
-        function stageGoalMet(kind) {
+        function getStageGoal(kind) {
             const cfg = GAME.stage[kind];
+            const n = getNFor(kind);
+            if (!n) {
+                return { needCorrect: 0, minAccuracy: cfg.minAccuracy };
+            }
+            return {
+                needCorrect: Math.max(1, Math.min(cfg.needCorrect, n)),
+                minAccuracy: cfg.minAccuracy
+            };
+        }
+
+        function stageGoalMet(kind) {
+            const { needCorrect, minAccuracy } = getStageGoal(kind);
             const s = stageState[kind];
-            return s.correct >= cfg.needCorrect && stageAccuracy(kind) >= cfg.minAccuracy;
+            if (!needCorrect) return true;
+            return s.correct >= needCorrect && stageAccuracy(kind) >= minAccuracy;
         }
 
         function calcStars(kind) {
@@ -1131,7 +1144,7 @@
 
             btnNextEx.disabled = !stageState[kind].cleared;
 
-            const cfg = GAME.stage[kind];
+            const cfg = getStageGoal(kind);
             const s = stageState[kind];
             const acc = Math.round(stageAccuracy(kind) * 100);
             const needAcc = Math.round(cfg.minAccuracy * 100);
@@ -1142,7 +1155,7 @@
                     stageBarWrapEl.style.display = "none";
                 } else {
                     stageBarWrapEl.style.display = "block";
-                    const progress = Math.max(0, Math.min(1, s.correct / cfg.needCorrect));
+                    const progress = cfg.needCorrect ? Math.max(0, Math.min(1, s.correct / cfg.needCorrect)) : 1;
                     stageBarEl.style.width = `${Math.round(progress * 100)}%`;
                     const hue = Math.round(progress * 120); // 0=червоний, 120=зелений
                     stageBarEl.style.backgroundColor = `hsl(${hue}, 85%, 45%)`;
@@ -1203,6 +1216,7 @@
         const btnToggleExplain = document.getElementById("btn-toggle-explain");
         const topPanelEl = document.getElementById("topPanel");
         const btnTopPanelEl = document.getElementById("btn-topPanel");
+        const btnTtsEl = document.getElementById("btn-tts");
 
         const stageBarWrapEl = document.getElementById("stage-bar-wrap");
         const stageBarEl = document.getElementById("stage-bar");
