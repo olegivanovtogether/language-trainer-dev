@@ -827,6 +827,9 @@
         function stageGoalMet(kind) {
             const cfg = GAME.stage[kind];
             const s = stageState[kind];
+            if (kind === "sent") {
+                return s.correct >= cfg.needCorrect;
+            }
             return s.correct >= cfg.needCorrect && stageAccuracy(kind) >= cfg.minAccuracy;
         }
 
@@ -1083,7 +1086,7 @@
 
             // текст робимо "ігровим", але коротким
             exerciseStepEl.textContent =
-                `Етап ${currentExerciseStep} з 3 • ❤️ ${s.lives} • ✅ ${s.correct}/${cfg.needCorrect} • 🎯 ${acc}% (потрібно ${needAcc}%) • XP ${gameXP}`;
+                `Етап ${currentExerciseStep} з 3 • ❤️ ${s.lives} • ✅ ${s.correct}/${cfg.needCorrect} • 🎯 ${acc}%${kind === "sent" ? "" : ` (потрібно ${needAcc}%)`} • XP ${gameXP}`;
         }
 
         /* ====== ДОПОМІЖНІ ====== */
