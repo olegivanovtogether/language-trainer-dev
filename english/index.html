@@ -893,23 +893,10 @@
             return s.attempts ? (s.correct / s.attempts) : 0;
         }
 
-        function getStageGoal(kind) {
-            const cfg = GAME.stage[kind];
-            const n = getNFor(kind);
-            if (!n) {
-                return { needCorrect: 0, minAccuracy: cfg.minAccuracy };
-            }
-            return {
-                needCorrect: Math.max(1, Math.min(cfg.needCorrect, n)),
-                minAccuracy: cfg.minAccuracy
-            };
-        }
-
         function stageGoalMet(kind) {
-            const { needCorrect, minAccuracy } = getStageGoal(kind);
+            const cfg = GAME.stage[kind];
             const s = stageState[kind];
-            if (!needCorrect) return true;
-            return s.correct >= needCorrect && stageAccuracy(kind) >= minAccuracy;
+            return s.correct >= cfg.needCorrect && stageAccuracy(kind) >= cfg.minAccuracy;
         }
 
         function calcStars(kind) {
@@ -1144,7 +1131,7 @@
 
             btnNextEx.disabled = !stageState[kind].cleared;
 
-            const cfg = getStageGoal(kind);
+            const cfg = GAME.stage[kind];
             const s = stageState[kind];
             const acc = Math.round(stageAccuracy(kind) * 100);
             const needAcc = Math.round(cfg.minAccuracy * 100);
@@ -1155,7 +1142,7 @@
                     stageBarWrapEl.style.display = "none";
                 } else {
                     stageBarWrapEl.style.display = "block";
-                    const progress = cfg.needCorrect ? Math.max(0, Math.min(1, s.correct / cfg.needCorrect)) : 1;
+                    const progress = Math.max(0, Math.min(1, s.correct / cfg.needCorrect));
                     stageBarEl.style.width = `${Math.round(progress * 100)}%`;
                     const hue = Math.round(progress * 120); // 0=червоний, 120=зелений
                     stageBarEl.style.backgroundColor = `hsl(${hue}, 85%, 45%)`;
@@ -1187,407 +1174,641 @@
             }
         }
 
-        function flashScreen(color) {
+        function normalizeAnswer(str) {
+            return str
+                .toLowerCase()
+                .replace(/\s+/g, " ")
+                .trim()
+                .replace(/[.!?]+$/, "");
+        }
+
+        function flashScreen(type) {
+            const cls = type === "green" ? "flash-green" : "flash-red";
             document.body.classList.remove("flash-green", "flash-red");
-            if (color === "green") document.body.classList.add("flash-green");
-            if (color === "red") document.body.classList.add("flash-red");
+            // примусовий reflow
+            void document.body.offsetWidth;
+            document.body.classList.add(cls);
+
+            let duration = 500; // зелене за замовчуванням довше
+            if (type === "red") {
+                duration = 750; // 0.25 * 3 блимання
+            }
+
+            setTimeout(() => {
+                document.body.classList.remove(cls);
+            }, duration);
         }
 
         function clearAutoNext() {
-            if (autoNextTimeout) {
+            if (autoNextTimeout !== null) {
                 clearTimeout(autoNextTimeout);
                 autoNextTimeout = null;
             }
         }
 
-        function normalizeText(str) {
-            return (str || "")
-                .trim()
-                .toLowerCase()
-                .replace(/[’‘]/g, "'")
-                .replace(/\s+/g, " ");
-        }
-
-        // ====== РЕНДЕР ПАНЕЛІ + EXPLAIN ======
-        const blockSelectEl = document.getElementById("block-select");
+        /* ====== DOM ====== */
         const blockTitleEl = document.getElementById("block-title");
         const blockProgressTextEl = document.getElementById("block-progress-text");
-        const explainEl = document.getElementById("explain");
-        const btnToggleExplain = document.getElementById("btn-toggle-explain");
-        const topPanelEl = document.getElementById("topPanel");
-        const btnTopPanelEl = document.getElementById("btn-topPanel");
-        const btnTtsEl = document.getElementById("btn-tts");
-
+        const exerciseStepEl = document.getElementById("exercise-step");
         const stageBarWrapEl = document.getElementById("stage-bar-wrap");
         const stageBarEl = document.getElementById("stage-bar");
+        const explainEl = document.getElementById("explain");
+        const btnToggleExplain = document.getElementById("btn-toggle-explain");
 
-        const toastOverlayEl = document.createElement("div");
-        toastOverlayEl.id = "toastOverlay";
-        toastOverlayEl.className = "toast-overlay";
-        toastOverlayEl.setAttribute("aria-hidden", "true");
-        toastOverlayEl.innerHTML = '<div class="toast" id="toastMsg"></div>';
-        document.body.appendChild(toastOverlayEl);
+        const blockSelectEl = document.getElementById("block-select");
 
-        let currentBlockIndex = 0;
-        let currentExerciseStep = 0; // 0 = пояснення, 1/2/3 = етапи
-        let explainVisible = true;
-        let topPanelVisibleInPractice = false;
+        const ex1Card = document.getElementById("ex1");
+        const ex2Card = document.getElementById("ex2");
+        const ex3Card = document.getElementById("ex3");
 
-        // статистика (на сесію)
-        let stats = blocks.map(() => ({
-            mc: { correct: 0, total: 0 },
-            write: { correct: 0, total: 0 },
-            sent: { correct: 0, total: 0 }
-        }));
-
-        function buildBlockSelect() {
-            blockSelectEl.innerHTML = "";
-            blocks.forEach((b, idx) => {
-                const opt = document.createElement("option");
-                opt.value = idx;
-                opt.textContent = `${idx + 1}. ${b.title}`;
-                blockSelectEl.appendChild(opt);
-            });
-        }
-
-        function updateBlockHeader() {
-            const b = blocks[currentBlockIndex];
-            blockTitleEl.textContent = b.title;
-            blockProgressTextEl.textContent = `Вправа ${currentBlockIndex + 1} з ${blocks.length}`;
-            blockSelectEl.value = currentBlockIndex;
-        }
-
-        function updateStatsView() {
-            const s = stats[currentBlockIndex];
-            const totalCorrect = s.mc.correct + s.write.correct + s.sent.correct;
-            const totalAttempts = s.mc.total + s.write.total + s.sent.total;
-            const acc = totalAttempts ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
-            document.getElementById("stats").textContent =
-                `Всього: ${totalCorrect}/${totalAttempts} • Точність: ${acc}%`;
-        }
-
-        function updateExerciseVisibility() {
-            const ex1 = document.getElementById("ex1");
-            const ex2 = document.getElementById("ex2");
-            const ex3 = document.getElementById("ex3");
-
-            ex1.style.display = (currentExerciseStep === 1) ? "block" : "none";
-            ex2.style.display = (currentExerciseStep === 2) ? "block" : "none";
-            ex3.style.display = (currentExerciseStep === 3) ? "block" : "none";
-
-            explainEl.style.display = (currentExerciseStep === 0 && explainVisible) ? "block" : "none";
-            btnToggleExplain.style.display = (currentExerciseStep === 0) ? "inline-flex" : "inline-flex";
-        }
-
-        // ====== ПОСЛІДОВНІСТЬ ДЛЯ НЕПОВТОРЕННЯ ======
-        function makeSequence(n) {
-            const order = Array.from({ length: n }, (_, i) => i);
-            shuffle(order);
-            return { order, pos: 0, last: -1 };
-        }
-
-        const seq = {
-            mc: null,
-            write: null,
-            sent: null
-        };
-
-        function resetSeq(kind, n) {
-            seq[kind] = makeSequence(n);
-        }
-
-        function nextIndex(kind, n) {
-            if (!seq[kind] || seq[kind].order.length !== n) resetSeq(kind, n);
-            const s = seq[kind];
-            if (s.pos >= s.order.length) {
-                resetSeq(kind, n);
-            }
-            let idx = s.order[s.pos++];
-            if (idx === s.last && n > 1) {
-                idx = s.order[s.pos++ % s.order.length];
-            }
-            s.last = idx;
-            return idx;
-        }
-
-        // ====== EX1: Multiple Choice ======
+        // MC
         const mcQuestionEl = document.getElementById("mc-question");
         const mcOptionsEl = document.getElementById("mc-options");
         const mcFeedbackEl = document.getElementById("mc-feedback");
         const mcNextBtn = document.getElementById("mc-next");
-        let mcAnswer = "";
-        let lastVocabIndexMC = -1;
 
-        function loadMCQuestion() {
-            const vocab = blocks[currentBlockIndex].vocab;
-            if (!vocab || vocab.length === 0) return;
-
-            const idx = nextIndex("mc", vocab.length);
-            lastVocabIndexMC = idx;
-            const item = vocab[idx];
-            mcQuestionEl.textContent = item.ua;
-            mcAnswer = item.en;
-
-            // options = 1 correct + 3 random
-            const options = [item.en];
-            const otherItems = vocab.filter((_, i) => i !== idx);
-            shuffle(otherItems);
-            for (let i = 0; i < Math.min(3, otherItems.length); i++) {
-                options.push(otherItems[i].en);
-            }
-            shuffle(options);
-
-            mcOptionsEl.innerHTML = "";
-            options.forEach(opt => {
-                const btn = document.createElement("button");
-                btn.className = "option-btn";
-                btn.textContent = opt;
-                btn.onclick = () => checkMCAnswer(btn, opt);
-                mcOptionsEl.appendChild(btn);
-            });
-
-            mcFeedbackEl.textContent = "";
-            wrongAttemptsMC = 0;
-        }
-
-        function checkMCAnswer(btn, opt) {
-            const isCorrect = normalizeText(opt) === normalizeText(mcAnswer);
-
-            mcFeedbackEl.textContent = isCorrect ? "✅ Правильно!" : "❌ Неправильно";
-            mcFeedbackEl.className = "feedback " + (isCorrect ? "correct" : "wrong");
-
-            if (isCorrect) {
-                btn.classList.add("correct");
-                flashScreen("green");
-                onCorrect("mc");
-            } else {
-                btn.classList.add("wrong");
-                flashScreen("red");
-                onWrong("mc");
-                wrongAttemptsMC++;
-            }
-
-            if (isCorrect) {
-                autoNextTimeout = setTimeout(() => {
-                    loadMCQuestion();
-                }, 450);
-            } else if (wrongAttemptsMC >= 2) {
-                mcFeedbackEl.textContent = `❌ Неправильно. Правильна відповідь: ${mcAnswer}`;
-            }
-        }
-
-        mcNextBtn.addEventListener("click", () => {
-            loadMCQuestion();
-        });
-
-        // ====== EX2: Write Answer ======
+        // write
         const wQuestionEl = document.getElementById("w-question");
         const wInputEl = document.getElementById("w-input");
         const wFeedbackEl = document.getElementById("w-feedback");
         const wCheckBtn = document.getElementById("w-check");
         const wShowBtn = document.getElementById("w-show");
         const wNextBtn = document.getElementById("w-next");
-        let wAnswer = "";
-        let lastVocabIndexWrite = -1;
 
-        function loadWQuestion() {
-            const vocab = blocks[currentBlockIndex].vocab;
-            if (!vocab || vocab.length === 0) return;
-
-            const idx = nextIndex("write", vocab.length);
-            lastVocabIndexWrite = idx;
-            const item = vocab[idx];
-            wQuestionEl.textContent = item.ua;
-            wAnswer = item.en;
-            wInputEl.value = "";
-            wFeedbackEl.textContent = "";
-            wrongAttemptsWrite = 0;
-        }
-
-        function checkWriteAnswer() {
-            const user = normalizeText(wInputEl.value);
-            const correct = normalizeText(wAnswer);
-            const isCorrect = user === correct;
-
-            wFeedbackEl.textContent = isCorrect ? "✅ Правильно!" : "❌ Неправильно";
-            wFeedbackEl.className = "feedback " + (isCorrect ? "correct" : "wrong");
-
-            if (isCorrect) {
-                flashScreen("green");
-                onCorrect("write");
-                autoNextTimeout = setTimeout(() => {
-                    loadWQuestion();
-                }, 500);
-            } else {
-                flashScreen("red");
-                onWrong("write");
-                wrongAttemptsWrite++;
-            }
-        }
-
-        wCheckBtn.addEventListener("click", checkWriteAnswer);
-        wInputEl.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-                e.preventDefault();
-                checkWriteAnswer();
-            }
-        });
-
-        wShowBtn.addEventListener("click", () => {
-            wFeedbackEl.textContent = `✅ Правильна відповідь: ${wAnswer}`;
-            wFeedbackEl.className = "feedback correct";
-        });
-
-        wNextBtn.addEventListener("click", () => {
-            loadWQuestion();
-        });
-
-        // ====== EX3: Sentences ======
+        // sentences
         const sQuestionEl = document.getElementById("s-question");
         const sInputEl = document.getElementById("s-input");
         const sFeedbackEl = document.getElementById("s-feedback");
         const sCheckBtn = document.getElementById("s-check");
         const sShowBtn = document.getElementById("s-show");
         const sNextBtn = document.getElementById("s-next");
-        let sAnswer = "";
+
+        // навігація
+        const btnPrev = document.getElementById("btn-prev");
+        const btnNext = document.getElementById("btn-next");
+        const btnNextEx = document.getElementById("btn-next-ex");
+        const btnRestart = document.getElementById("btn-restart");
+
+        const statsEl = document.getElementById("stats");
+
+        const topPanelEl = document.getElementById("topPanel");
+        const btnTopPanelEl = document.getElementById("btn-topPanel");
+
+        // панель зверху: ховаємо під час практики, показуємо лише по кнопці
+        let topPanelVisibleInPractice = false;
+
+        /* ====== СТАН ====== */
+        let currentBlockIndex = 0;
+        // 0 – лише пояснення, 1 – вправа 1, 2 – вправа 2, 3 – вправа 3
+        let currentExerciseStep = 0;
+        let explainVisible = true;
+
+
+        // Щоб не повторювалося одне й те саме одразу підряд (мінімум через 1)
+        let lastVocabIndexMC = -1;
+        let lastVocabIndexWrite = -1;
         let lastSentenceIndex = -1;
+        // ===== Sequencer: 1 pass in-order through all items (N), then random drill K=N*3 (repeats allowed) =====
+        // Коміт: тепер це ОДИН потік всередині вправи: N по порядку, потім N*3 рандомом з тих самих N.
+        function makeSeq() { return { pos: 0, last: -1, n: 0 }; }
+        const seq = { mc: makeSeq(), write: makeSeq(), sent: makeSeq() };
 
-        function loadSentence() {
-            const sentences = blocks[currentBlockIndex].sentences;
-            if (!sentences || sentences.length === 0) return;
-
-            const idx = nextIndex("sent", sentences.length);
-            lastSentenceIndex = idx;
-            const item = sentences[idx];
-            sQuestionEl.textContent = item.ua;
-            sAnswer = item.en;
-            sInputEl.value = "";
-            sFeedbackEl.textContent = "";
-            wrongAttemptsSent = 0;
+        function resetSeq(kind, n) {
+            seq[kind] = makeSeq();
+            seq[kind].n = n || 0;
+            seq[kind].pos = 0;
+            seq[kind].last = -1;
         }
 
-        function checkSentence() {
-            const user = normalizeText(sInputEl.value);
-            const correct = normalizeText(sAnswer);
-            const isCorrect = user === correct;
+        function nextIndex(kind, n) {
+            if (!seq[kind] || seq[kind].n !== n) resetSeq(kind, n);
+            const s = seq[kind];
+            if (n <= 0) return 0;
 
-            sFeedbackEl.textContent = isCorrect ? "✅ Правильно!" : "❌ Неправильно";
-            sFeedbackEl.className = "feedback " + (isCorrect ? "correct" : "wrong");
-
-            if (isCorrect) {
-                flashScreen("green");
-                onCorrect("sent");
-                autoNextTimeout = setTimeout(() => {
-                    loadSentence();
-                }, 500);
+            let idx;
+            if (s.pos < n) {
+                // ordered pass
+                idx = s.pos;
             } else {
-                flashScreen("red");
-                onWrong("sent");
-                wrongAttemptsSent++;
+                // drill
+                idx = randIntExcept(n, s.last);
+            }
+            s.pos++;
+            s.last = idx;
+            return idx;
+        }
+        function randIntExcept(max, last) {
+            if (max <= 1) return 0;
+            let i = randInt(max);
+            if (i === last) {
+                // гарантируем другое значение
+                i = (i + 1 + randInt(max - 1)) % max;
+                if (i === last) i = (i + 1) % max;
+            }
+            return i;
+        }
+        let currentVocabIndexMC = 0;
+        let currentVocabIndexWrite = 0;
+        let currentSentenceIndex = 0;
+
+        const stats = {};
+
+        function ensureStatsForBlock(index) {
+            if (!stats[index]) {
+                stats[index] = {
+                    mc: { correct: 0, total: 0 },
+                    write: { correct: 0, total: 0 },
+                    sent: { correct: 0, total: 0 }
+                };
             }
         }
 
-        sCheckBtn.addEventListener("click", checkSentence);
-        sInputEl.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-                e.preventDefault();
-                checkSentence();
+        function updateStatsView() {
+            ensureStatsForBlock(currentBlockIndex);
+            const st = stats[currentBlockIndex];
+            statsEl.textContent =
+                `Статистика цієї вправи (лише за цю сесію): ` +
+                `вибір — ${st.mc.correct}/${st.mc.total}, ` +
+                `написання — ${st.write.correct}/${st.write.total}, ` +
+                `речення — ${st.sent.correct}/${st.sent.total}.`;
+        }
+
+        function updateExplainVisibility() {
+            if (currentExerciseStep === 0) {
+                // На етапі пояснення: завжди видно, кнопку блокуємо
+                explainVisible = true;
+                explainEl.style.display = "block";
+                btnToggleExplain.disabled = true;
+                btnToggleExplain.textContent = "Сховати пояснення";
+            } else {
+                // Під час вправ кнопку можна використовувати
+                btnToggleExplain.disabled = false;
+                explainEl.style.display = explainVisible ? "block" : "none";
+                btnToggleExplain.textContent = explainVisible
+                    ? "Сховати пояснення"
+                    : "Показати пояснення";
             }
-        });
+        }
 
-        sShowBtn.addEventListener("click", () => {
-            sFeedbackEl.textContent = `✅ Правильна відповідь: ${sAnswer}`;
-            sFeedbackEl.className = "feedback correct";
-        });
+        function updateExerciseVisibility() {
+            ex1Card.style.display = (currentExerciseStep === 1) ? "block" : "none";
+            ex2Card.style.display = (currentExerciseStep === 2) ? "block" : "none";
+            ex3Card.style.display = (currentExerciseStep === 3) ? "block" : "none";
 
-        sNextBtn.addEventListener("click", () => {
-            loadSentence();
-        });
+            if (currentExerciseStep === 0) {
+                exerciseStepEl.textContent = "Спочатку спокійно прочитай пояснення, потім натисни «Почати вправи».";
+                btnNextEx.textContent = "Почати вправи";
+            } else if (currentExerciseStep === 1) {
+                exerciseStepEl.textContent = "Етап 1 з 3: просто обери правильну фразу.";
+                btnNextEx.textContent = "Перейти до 2-го етапу";
+            } else if (currentExerciseStep === 2) {
+                exerciseStepEl.textContent = "Етап 2 з 3: напиши фразу сам.";
+                btnNextEx.textContent = "Перейти до 3-го етапу";
+            } else {
+                exerciseStepEl.textContent = "Етап 3 з 3: переклади маленькі речення.";
+                btnNextEx.textContent = "Усі етапи пройдені — можна перейти до наступної вправи";
+            }
 
-        // ====== Навігація по блокам і етапам ======
+            updateExplainVisibility();
+            updateGateUI();
+        }
+
+        function nextExerciseStep() {
+            clearAutoNext();
+            if (currentExerciseStep === 0) {
+                currentExerciseStep = 1;
+                explainVisible = false;
+                updateExerciseVisibility();
+                return;
+            }
+
+            if (currentExerciseStep < 3) {
+                currentExerciseStep++;
+                updateExerciseVisibility();
+            } else {
+                openModal({ title: "Вже останній етап", text: "Ця вправа вже на останньому етапі. Можна повторити її або перейти далі.", primaryText: "Ок" });
+            }
+        }
+
+        /* ====== ЗАВАНТАЖЕННЯ ВПРАВИ ====== */
         function loadBlock(index) {
+            clearAutoNext();
+
+            const total = blocks.length;
+            if (index < 0) index = 0;
+            if (index >= total) index = total - 1;
+
             currentBlockIndex = index;
             currentExerciseStep = 0;
             explainVisible = true;
             topPanelVisibleInPractice = false;
-
-            updateBlockHeader();
-            updateStatsView();
-
-            // Reset stage state for new block
             resetAllStages();
-            updateGateUI();
+            lastVocabIndexMC = -1;
+            lastVocabIndexWrite = -1;
+            lastSentenceIndex = -1;
+
+            // reset sequencers for this block
+            try {
+                const b = blocks[currentBlockIndex];
+                resetSeq("mc", (b.vocab && b.vocab.length) ? b.vocab.length : 0);
+                resetSeq("write", (b.vocab && b.vocab.length) ? b.vocab.length : 0);
+                resetSeq("sent", (b.sentences && b.sentences.length) ? b.sentences.length : 0);
+            } catch (e) { }
+
 
             const block = blocks[currentBlockIndex];
+
+            // Dynamic repetition rule (as requested):
+            // 1 pass through all N items in order + random drill K=N*3 from the same items.
+            // To prevent switching to the next exercise after the first pass, we require total correct = N*4.
+            try {
+                const nV = (block.vocab && block.vocab.length) ? block.vocab.length : 0;
+                const nS = (block.sentences && block.sentences.length) ? block.sentences.length : 0;
+                if (nV > 0) {
+                    GAME.stage.mc.needCorrect = nV * 4;
+                    GAME.stage.write.needCorrect = nV * 4;
+                }
+                if (nS > 0) {
+                    GAME.stage.sent.needCorrect = nS * 4;
+                }
+            } catch (e) { }
+
+            blockTitleEl.textContent = `Вправа ${currentBlockIndex + 1}. ${block.title}`;
+            blockProgressTextEl.textContent = `Вправа ${currentBlockIndex + 1} з ${total}`;
             explainEl.innerHTML = `
-                    ${block.explanation}
-                `;
+                                        ${block.topicTag ? `<div class="topic-tag">${block.topicTag}</div>` : ""}
+                                        ${block.explanation}
+                                    `;
 
-            updateExerciseVisibility();
+            blockSelectEl.value = String(currentBlockIndex);
 
-            // Reset sequences
-            resetSeq("mc", block.vocab ? block.vocab.length : 0);
-            resetSeq("write", block.vocab ? block.vocab.length : 0);
-            resetSeq("sent", block.sentences ? block.sentences.length : 0);
+            btnPrev.disabled = currentBlockIndex === 0;
+            btnNext.disabled = currentBlockIndex === total - 1;
 
             loadMCQuestion();
             loadWQuestion();
             loadSentence();
+
+            mcFeedbackEl.textContent = "";
+            mcFeedbackEl.className = "feedback";
+            wFeedbackEl.textContent = "";
+            wFeedbackEl.className = "feedback";
+            sFeedbackEl.textContent = "";
+            sFeedbackEl.className = "feedback";
+
+            ensureStatsForBlock(currentBlockIndex);
+            updateStatsView();
+            updateExerciseVisibility();
         }
 
-        function nextExerciseStep() {
-            if (currentExerciseStep < 3) {
-                currentExerciseStep++;
+        /* ====== ВПРАВА 1 – ВИБІР ====== */
+        function loadMCQuestion() {
+            clearAutoNext();
+            wrongAttemptsMC = 0; // скидання помилок для нового слова
+
+            const block = blocks[currentBlockIndex];
+            if (!block.vocab || !block.vocab.length) {
+                mcQuestionEl.textContent = "Для цієї вправи поки немає слів.";
+                mcOptionsEl.innerHTML = "";
+                return;
             }
-            updateExerciseVisibility();
-            updateGateUI();
+
+            currentVocabIndexMC = nextIndex('mc', block.vocab.length);
+            lastVocabIndexMC = currentVocabIndexMC;
+            const card = block.vocab[currentVocabIndexMC];
+
+            mcQuestionEl.textContent = card.ua;
+            mcFeedbackEl.textContent = "";
+            mcFeedbackEl.className = "feedback";
+
+            const maxOptions = Math.min(4, block.vocab.length);
+            const options = [card.en];
+
+            while (options.length < maxOptions) {
+                const idx = randInt(block.vocab.length);
+                const opt = block.vocab[idx].en;
+                if (!options.includes(opt)) {
+                    options.push(opt);
+                }
+            }
+
+            shuffle(options);
+
+            mcOptionsEl.innerHTML = "";
+            options.forEach(text => {
+                const btn = document.createElement("button");
+                btn.textContent = text;
+                btn.className = "option-btn";
+                btn.addEventListener("click", () => checkMCAnswer(btn, text, card.en));
+                mcOptionsEl.appendChild(btn);
+            });
         }
 
-        document.getElementById("btn-next-ex").addEventListener("click", () => {
-            if (currentExerciseStep === 0) {
-                currentExerciseStep = 1;
-            } else if (currentExerciseStep < 3) {
-                currentExerciseStep++;
+        function checkMCAnswer(button, chosen, correct) {
+            clearAutoNext();
+
+            ensureStatsForBlock(currentBlockIndex);
+            const st = stats[currentBlockIndex].mc;
+            st.total++;
+
+            if (normalizeAnswer(chosen) === normalizeAnswer(correct)) {
+                flashScreen("green");
+                mcFeedbackEl.textContent = "✅ Правильно!";
+                mcFeedbackEl.className = "feedback correct";
+                st.correct++;
+                onCorrect("mc");
+
+                speakEnglish(correct);
+                // позначаємо правильну кнопку зеленим
+                button.classList.add("correct");
+
+                updateStatsView();
+
+                autoNextTimeout = setTimeout(() => {
+                    loadMCQuestion();
+                }, 900);
+            } else {
+                wrongAttemptsMC++;
+                flashScreen("red");
+
+                if (wrongAttemptsMC >= 3) {
+                    mcFeedbackEl.textContent = "❌ Не зовсім. Підказка: правильна відповідь — " + correct;
+                    speakEnglish(correct);
+                } else {
+                    mcFeedbackEl.textContent = "❌ Не зовсім. Спробуй ще раз.";
+                }
+
+                mcFeedbackEl.className = "feedback wrong";
+                // підсвітити лише обрану кнопку, але не блокувати інші
+                button.classList.add("wrong");
+
+                onWrong("mc");
+                updateStatsView();
             }
-            updateExerciseVisibility();
-            updateGateUI();
-        });
+        }
 
-        document.getElementById("btn-prev").addEventListener("click", () => {
-            if (currentBlockIndex > 0) {
-                loadBlock(currentBlockIndex - 1);
+        mcNextBtn.addEventListener("click", loadMCQuestion);
+
+        /* ====== ВПРАВА 2 – НАПИСАТИ ====== */
+        function loadWQuestion() {
+            clearAutoNext();
+            wrongAttemptsWrite = 0; // скидання помилок при новому слові
+
+            const block = blocks[currentBlockIndex];
+            if (!block.vocab || !block.vocab.length) {
+                wQuestionEl.textContent = "Для цієї вправи поки немає слів.";
+                return;
             }
-        });
 
-        document.getElementById("btn-next").addEventListener("click", () => {
-            if (currentBlockIndex < blocks.length - 1) {
-                loadBlock(currentBlockIndex + 1);
+            currentVocabIndexWrite = nextIndex('write', block.vocab.length);
+            lastVocabIndexWrite = currentVocabIndexWrite;
+            const card = block.vocab[currentVocabIndexWrite];
+
+            wQuestionEl.textContent = card.ua;
+            wInputEl.value = "";
+            wFeedbackEl.textContent = "";
+            wFeedbackEl.className = "feedback";
+        }
+
+        function checkWAnswer() {
+            clearAutoNext();
+            const block = blocks[currentBlockIndex];
+            if (!block.vocab || !block.vocab.length) return;
+
+            const card = block.vocab[currentVocabIndexWrite];
+            const user = wInputEl.value;
+            if (!user.trim()) return;
+
+            ensureStatsForBlock(currentBlockIndex);
+            const st = stats[currentBlockIndex].write;
+            st.total++;
+
+            if (normalizeAnswer(user) === normalizeAnswer(card.en)) {
+                flashScreen("green");
+                wFeedbackEl.textContent = "✅ Чудово! Саме так і пишеться.";
+                wFeedbackEl.className = "feedback correct";
+                st.correct++;
+                onCorrect("write");
+                speakEnglish(card.en);
+                updateStatsView();
+
+                autoNextTimeout = setTimeout(() => {
+                    loadWQuestion();
+                }, 900);
+            } else {
+                wrongAttemptsWrite++;
+                flashScreen("red");
+
+                if (wrongAttemptsWrite >= 3) {
+                    wFeedbackEl.textContent = "❌ Трохи не так. Підказка: правильна відповідь — " + card.en;
+                    speakEnglish(card.en);
+                } else {
+                    wFeedbackEl.textContent = "❌ Трохи не так. Виправ і натисни ще раз.";
+                }
+
+                wFeedbackEl.className = "feedback wrong";
+                onWrong("write");
+                updateStatsView();
             }
+        }
+
+        function showWAnswer() {
+            clearAutoNext();
+            const block = blocks[currentBlockIndex];
+            if (!block.vocab || !block.vocab.length) return;
+
+            const card = block.vocab[currentVocabIndexWrite];
+            wFeedbackEl.textContent = "Правильна відповідь: " + card.en;
+            wFeedbackEl.className = "feedback";
+            speakEnglish(card.en);
+        }
+
+        wCheckBtn.addEventListener("click", checkWAnswer);
+        wShowBtn.addEventListener("click", showWAnswer);
+        wNextBtn.addEventListener("click", loadWQuestion);
+        wInputEl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") checkWAnswer();
         });
 
-        document.getElementById("btn-restart").addEventListener("click", () => {
-            restartCurrentBlock();
+        /* ====== ВПРАВА 3 – РЕЧЕННЯ ====== */
+        function loadSentence() {
+            clearAutoNext();
+            wrongAttemptsSent = 0; // скидання помилок
+
+            const block = blocks[currentBlockIndex];
+            if (!block.sentences || !block.sentences.length) {
+                sQuestionEl.textContent = "Для цієї вправи поки немає речень.";
+                sInputEl.value = "";
+                sFeedbackEl.textContent = "";
+                sFeedbackEl.className = "feedback";
+                return;
+            }
+
+            currentSentenceIndex = nextIndex('sent', block.sentences.length);
+            lastSentenceIndex = currentSentenceIndex;
+            const card = block.sentences[currentSentenceIndex];
+
+            sQuestionEl.textContent = card.ua;
+            sInputEl.value = "";
+            sFeedbackEl.textContent = "";
+            sFeedbackEl.className = "feedback";
+        }
+
+        function checkSentence() {
+            clearAutoNext();
+            const block = blocks[currentBlockIndex];
+            if (!block.sentences || !block.sentences.length) return;
+
+            const card = block.sentences[currentSentenceIndex];
+            const user = sInputEl.value;
+            if (!user.trim()) return;
+
+            ensureStatsForBlock(currentBlockIndex);
+            const st = stats[currentBlockIndex].sent;
+            st.total++;
+
+            if (normalizeAnswer(user) === normalizeAnswer(card.en)) {
+                flashScreen("green");
+                sFeedbackEl.textContent = "✅ Чудово! Речення перекладено точно.";
+                sFeedbackEl.className = "feedback correct";
+                st.correct++;
+                onCorrect("sent");
+                speakEnglish(card.en);
+                updateStatsView();
+
+                autoNextTimeout = setTimeout(() => {
+                    loadSentence();
+                }, 900);
+            } else {
+                wrongAttemptsSent++;
+                flashScreen("red");
+
+                if (wrongAttemptsSent >= 3) {
+                    sFeedbackEl.textContent = "❌ Трохи не так. Підказка: правильний варіант —\n" + card.en;
+                } else {
+                    sFeedbackEl.textContent = "❌ Трохи не так. Спробуй ще раз або натисни «Показати відповідь».";
+                }
+
+                sFeedbackEl.className = "feedback wrong";
+                onWrong("sent");
+                updateStatsView();
+            }
+        }
+
+        function showSentenceAnswer() {
+            clearAutoNext();
+            const block = blocks[currentBlockIndex];
+            if (!block.sentences || !block.sentences.length) return;
+
+            const card = block.sentences[currentSentenceIndex];
+            sFeedbackEl.textContent = "Правильний варіант:\n" + card.en;
+            sFeedbackEl.className = "feedback";
+            speakEnglish(card.en);
+        }
+
+        sCheckBtn.addEventListener("click", checkSentence);
+        sShowBtn.addEventListener("click", showSentenceAnswer);
+        sNextBtn.addEventListener("click", loadSentence);
+        sInputEl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) checkSentence();
         });
 
-        blockSelectEl.addEventListener("change", (e) => {
-            const idx = parseInt(e.target.value, 10);
-            loadBlock(idx);
+        /* ====== НАВІГАЦІЯ, ЕТАПИ, РЕСТАРТ ====== */
+        btnPrev.addEventListener("click", () => {
+            if (currentBlockIndex > 0) loadBlock(currentBlockIndex - 1);
         });
+
+        btnNext.addEventListener("click", () => {
+            if (currentBlockIndex < blocks.length - 1) loadBlock(currentBlockIndex + 1);
+        });
+
+        btnNextEx.addEventListener("click", nextExerciseStep);
 
         btnToggleExplain.addEventListener("click", () => {
+            if (currentExerciseStep === 0) {
+                explainVisible = true;
+                updateExplainVisibility();
+                return;
+            }
             explainVisible = !explainVisible;
-            explainEl.style.display = explainVisible ? "block" : "none";
-            btnToggleExplain.textContent = explainVisible ? "Сховати пояснення" : "Показати пояснення";
+            updateExplainVisibility();
         });
 
+
         btnTopPanelEl.addEventListener("click", () => {
+            // працює лише під час практики (етап 1–3)
+            if (currentExerciseStep === 0) return;
+
             topPanelVisibleInPractice = !topPanelVisibleInPractice;
             updateGateUI();
         });
 
-        // Init
-        buildBlockSelect();
-        loadBlock(0);
+        blockSelectEl.addEventListener("change", () => {
+            const idx = parseInt(blockSelectEl.value, 10);
+            loadBlock(idx);
+        });
+
+        btnRestart.addEventListener("click", () => {
+            clearAutoNext();
+            // скидання статистики лише для поточної вправи
+            stats[currentBlockIndex] = {
+                mc: { correct: 0, total: 0 },
+                write: { correct: 0, total: 0 },
+                sent: { correct: 0, total: 0 }
+            };
+            updateStatsView();
+            resetAllStages();
+            lastVocabIndexMC = -1;
+            lastVocabIndexWrite = -1;
+            lastSentenceIndex = -1;
+
+            // reset sequencers for this block
+            try {
+                const b = blocks[currentBlockIndex];
+                resetSeq("mc", (b.vocab && b.vocab.length) ? b.vocab.length : 0);
+                resetSeq("write", (b.vocab && b.vocab.length) ? b.vocab.length : 0);
+                resetSeq("sent", (b.sentences && b.sentences.length) ? b.sentences.length : 0);
+            } catch (e) { }
+
+            gameXP = 0;
+            // повернути на етап пояснення і перезавантажити питання
+            currentExerciseStep = 0;
+            explainVisible = true;
+            updateExerciseVisibility();
+            loadMCQuestion();
+            loadWQuestion();
+            loadSentence();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        /* ====== ІНІЦІАЛІЗАЦІЯ ====== */
+        (function init() {
+            blocks.forEach((b, i) => {
+                const opt = document.createElement("option");
+                opt.value = String(i);
+                opt.textContent = `${i + 1}. ${b.title}`;
+                blockSelectEl.appendChild(opt);
+            });
+            loadBlock(0);
+            try { resetStage('mc'); resetStage('write'); resetStage('sent'); } catch (e) { }
+
+        })();
+
+        // ===== English TTS: озвучка правильної відповіді =====
+        let TTS_ENABLED = true;
+        let TTS_LANG = "en-US"; // або "en-GB"
+
+        function speakEnglish(text) {
+            if (!TTS_ENABLED) return;
+            if (!("speechSynthesis" in window)) return;
+            try { window.speechSynthesis.cancel(); } catch (e) { }
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = TTS_LANG;
+            u.rate = 0.95;
+            u.pitch = 1.0;
+            window.speechSynthesis.speak(u);
+        }
+
     </script>
 </body>
 </html>
