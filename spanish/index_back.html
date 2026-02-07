@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spanish A0 – тренажер (SER/ESTAR)</title>
+    <title>Spanish A0 – тренажёр (SER/ESTAR)</title>
     <style>
         :root {
             --base-font: 16px;
@@ -287,7 +287,7 @@
         }
 
 
-        /* Смуга прогресу етапу (червона → жовта → зелена) */
+        /* Полоска прогресса этапа (красная → жёлтая → зелёная) */
         #stage-bar-wrap{
             height: 10px;
             width: 100%;
@@ -312,7 +312,7 @@
             text-align: center;
         }
 
-        /* Спалахи екрана */
+        /* Вспышки экрана */
         @keyframes flash-green {
             0% {
                 background-color: #c8f7c5;
@@ -333,7 +333,7 @@
             }
         }
 
-        /* зелене – один раз, але довше; червоне – 1 блимання */
+        /* зелёное – один раз, но дольше; красное – 1 мигания */
         body.flash-green {
             animation: flash-green 0.5s ease-out;
         }
@@ -411,8 +411,8 @@
                 text-align: left;
             }
         }
-
-        /* ====== MODAL (всередині сторінки, замість confirm/alert) ====== */
+    
+        /* ====== MODAL (внутри страницы, вместо confirm/alert) ====== */
         .modal-overlay{
             position: fixed;
             inset: 0;
@@ -466,18 +466,18 @@
     <div class="subtitle">Покрокові вправи: SER / ESTAR (Presente, Pasado, Futuro) + практика.</div>
 
     <div id="topPanel">
-        <div class="warning">
-            Краще проходити вправи по порядку. Можна стрибати по списку, але мозок буде сильніше втомлюватися 🙂
-        </div>
+<div class="warning">
+        Краще проходити вправи по порядку. Можна стрибати по списку, але мозок буде сильніше втомлюватися 🙂
+    </div>
 
-        <div class="top-row">
-            <div class="block-selector-label">Перейти до вправи:</div>
-            <select id="block-select"></select>
-        </div>
+    <div class="top-row">
+        <div class="block-selector-label">Перейти до вправи:</div>
+        <select id="block-select"></select>
+    </div>
 
-        <div class="block-header">
-            <div class="block-title" id="block-title"></div>
-        </div>
+    <div class="block-header">
+        <div class="block-title" id="block-title"></div>
+</div>
         <div class="block-progress">
             <span class="progress-dot"></span>
             <span id="block-progress-text"></span>
@@ -488,16 +488,16 @@
 
     <div class="exercise-step" id="exercise-step"></div>
 
-
+    
     <div id="stage-bar-wrap" aria-label="Прогресс этапа"><div id="stage-bar"></div></div>
-    <div class="toggle-explain-row">
+<div class="toggle-explain-row">
         <button id="btn-toggle-explain">Сховати пояснення</button>
     </div>
 
-    <!-- ПОЯСНЕННЯ ВПРАВИ -->
+    <!-- ОБЪЯСНЕНИЕ УПРАЖНЕНИЯ -->
     <div id="explain" class="explain"></div>
 
-    <!-- Вправа 1: вибір правильної фрази -->
+    <!-- Упражнение 1: выбор правильной фразы -->
     <div id="ex1" class="card" style="display:none;">
         <div class="card-title">1️⃣ Вибір правильної фрази</div>
         <div class="label">Українська фраза:</div>
@@ -510,7 +510,7 @@
         <button id="mc-next" class="primary">Наступне слово в цій вправі</button>
     </div>
 
-    <!-- Вправа 2: вписати фразу -->
+    <!-- Упражнение 2: вписать фразу -->
     <div id="ex2" class="card" style="display:none;">
         <div class="card-title">2️⃣ Написати фразу самому</div>
         <div class="label">Українська фраза:</div>
@@ -527,7 +527,7 @@
         <button id="w-next" class="primary">Наступне слово в цій вправі</button>
     </div>
 
-    <!-- Вправа 3: переклад речень -->
+    <!-- Упражнение 3: перевод предложений -->
     <div id="ex3" class="card" style="display:none;">
         <div class="card-title">3️⃣ Переклад маленьких речень</div>
         <div class="label">Український текст:</div>
@@ -551,7 +551,7 @@
 
     <div id="stats" class="stats"></div>
 
-    <!-- Навигація по вправам -->
+    <!-- Навигация по вправим -->
     <div class="nav-buttons">
         <button id="btn-prev">← Попередня вправа</button>
         <button id="btn-next">Наступна вправа →</button>
@@ -561,8 +561,8 @@
         Статистика зберігається лише поки сторінка відкрита.
     </div>
 
-
-    <!-- ====== MODAL (всередині сторінки) ====== -->
+    
+    <!-- ====== MODAL (внутри страницы) ====== -->
     <div id="modalOverlay" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="modal">
             <h2 id="modalTitle">Готово</h2>
@@ -570,32 +570,32 @@
             <div class="modal-actions">
                 <button id="modalSecondary">Спробувати ще раз</button>
                 <button id="modalPrimary" class="primary">Далі</button>
-
+            
                 <button id="modalTertiary" class="secondary">Повторити вправу</button>
             </div>
         </div>
     </div>
 
-    <script>
-        /* ====== ДДАНІ ВПРАВ ====== */
+<script>
+        /* ====== ДАННЫЕ УПРАЖНЕНИЙ ====== */
         const blocks = [
             {
                 title: "SER — теперішній час (Presente)",
                 topicTag: "🧩 ser = суть / хто це",
                 explanation: `
-                                            <div class="topic-tag">🧩 SER = постійне (хто/що це є)</div>
-                                            <h2>SER — Presente</h2>
-                                            <p><b>ser</b> — для «суті»: професія, національність, хто ти, що це таке.</p>
-                                            <ul>
-                                                <li><b>yo</b> <b>soy</b> … (я є)</li>
-                                                <li><b>tú</b> <b>eres</b> … (ти є)</li>
-                                                <li><b>él/ella</b> <b>es</b> … (він/вона є)</li>
-                                                <li><b>nosotros</b> <b>somos</b> … (ми є)</li>
-                                                <li><b>vosotros</b> <b>sois</b> … (ви є)</li>
-                                                <li><b>ellos/ellas</b> <b>son</b> … (вони є)</li>
-                                            </ul>
-                                            <p>Запам’ятай: <b>ser</b> = «хто/що це?»</p>
-                                        `,
+                        <div class="topic-tag">🧩 SER = постійне (хто/що це є)</div>
+                        <h2>SER — Presente</h2>
+                        <p><b>ser</b> — для «суті»: професія, національність, хто ти, що це таке.</p>
+                        <ul>
+                            <li><b>yo</b> <b>soy</b> … (я є)</li>
+                            <li><b>tú</b> <b>eres</b> … (ти є)</li>
+                            <li><b>él/ella</b> <b>es</b> … (він/вона є)</li>
+                            <li><b>nosotros</b> <b>somos</b> … (ми є)</li>
+                            <li><b>vosotros</b> <b>sois</b> … (ви є)</li>
+                            <li><b>ellos/ellas</b> <b>son</b> … (вони є)</li>
+                        </ul>
+                        <p>Запам’ятай: <b>ser</b> = «хто/що це?»</p>
+                    `,
                 vocab: [
                     { ru: "Я українець.", en: "Yo soy ucraniano." },
                     { ru: "Ти мій друг.", en: "Tú eres mi amigo." },
@@ -615,19 +615,19 @@
                 title: "ESTAR — теперішній час (Presente)",
                 topicTag: "📍 estar = стан / де",
                 explanation: `
-                                            <div class="topic-tag">📍 ESTAR = стан або місце</div>
-                                            <h2>ESTAR — Presente</h2>
-                                            <p><b>estar</b> — для «де?» та «як зараз?» (стан, емоції, локація).</p>
-                                            <ul>
-                                                <li><b>yo</b> <b>estoy</b> …</li>
-                                                <li><b>tú</b> <b>estás</b> …</li>
-                                                <li><b>él/ella</b> <b>está</b> …</li>
-                                                <li><b>nosotros</b> <b>estamos</b> …</li>
-                                                <li><b>vosotros</b> <b>estáis</b> …</li>
-                                                <li><b>ellos/ellas</b> <b>están</b> …</li>
-                                            </ul>
-                                            <p>Запам’ятай: <b>estar</b> = «де?» або «в якому стані?»</p>
-                                        `,
+                        <div class="topic-tag">📍 ESTAR = стан або місце</div>
+                        <h2>ESTAR — Presente</h2>
+                        <p><b>estar</b> — для «де?» та «як зараз?» (стан, емоції, локація).</p>
+                        <ul>
+                            <li><b>yo</b> <b>estoy</b> …</li>
+                            <li><b>tú</b> <b>estás</b> …</li>
+                            <li><b>él/ella</b> <b>está</b> …</li>
+                            <li><b>nosotros</b> <b>estamos</b> …</li>
+                            <li><b>vosotros</b> <b>estáis</b> …</li>
+                            <li><b>ellos/ellas</b> <b>están</b> …</li>
+                        </ul>
+                        <p>Запам’ятай: <b>estar</b> = «де?» або «в якому стані?»</p>
+                    `,
                 vocab: [
                     { ru: "Я втомлений.", en: "Yo estoy cansado." },
                     { ru: "Ти тут.", en: "Tú estás aquí." },
@@ -647,18 +647,18 @@
                 title: "SER — минулий час (Pretérito indefinido)",
                 topicTag: "⏱ ser (прош.) = fui/fuiste...",
                 explanation: `
-                                            <div class="topic-tag">⏱ SER у минулому (закінчена подія)</div>
-                                            <h2>SER — Pretérito indefinido</h2>
-                                            <p>Використовуй, коли «було» і <b>закінчилось</b>.</p>
-                                            <ul>
-                                                <li>yo <b>fui</b></li>
-                                                <li>tú <b>fuiste</b></li>
-                                                <li>él/ella <b>fue</b></li>
-                                                <li>nosotros <b>fuimos</b></li>
-                                                <li>vosotros <b>fuisteis</b></li>
-                                                <li>ellos/ellas <b>fueron</b></li>
-                                            </ul>
-                                        `,
+                        <div class="topic-tag">⏱ SER у минулому (закінчена подія)</div>
+                        <h2>SER — Pretérito indefinido</h2>
+                        <p>Використовуй, коли «було» і <b>закінчилось</b>.</p>
+                        <ul>
+                            <li>yo <b>fui</b></li>
+                            <li>tú <b>fuiste</b></li>
+                            <li>él/ella <b>fue</b></li>
+                            <li>nosotros <b>fuimos</b></li>
+                            <li>vosotros <b>fuisteis</b></li>
+                            <li>ellos/ellas <b>fueron</b></li>
+                        </ul>
+                    `,
                 vocab: [
                     { ru: "Я був студентом.", en: "Yo fui estudiante." },
                     { ru: "Ти був моїм начальником.", en: "Tú fuiste mi jefe." },
@@ -677,18 +677,18 @@
                 title: "ESTAR — минулий час (Pretérito indefinido)",
                 topicTag: "⏱ estar (прош.) = estuve/estuviste...",
                 explanation: `
-                                            <div class="topic-tag">⏱ ESTAR у минулому (де/стан тоді)</div>
-                                            <h2>ESTAR — Pretérito indefinido</h2>
-                                            <p>Коли «був/була» <b>в стані</b> або <b>в місці</b>, і це завершено.</p>
-                                            <ul>
-                                                <li>yo <b>estuve</b></li>
-                                                <li>tú <b>estuviste</b></li>
-                                                <li>él/ella <b>estuvo</b></li>
-                                                <li>nosotros <b>estuvimos</b></li>
-                                                <li>vosotros <b>estuvisteis</b></li>
-                                                <li>ellos/ellas <b>estuvieron</b></li>
-                                            </ul>
-                                        `,
+                        <div class="topic-tag">⏱ ESTAR у минулому (де/стан тоді)</div>
+                        <h2>ESTAR — Pretérito indefinido</h2>
+                        <p>Коли «був/була» <b>в стані</b> або <b>в місці</b>, і це завершено.</p>
+                        <ul>
+                            <li>yo <b>estuve</b></li>
+                            <li>tú <b>estuviste</b></li>
+                            <li>él/ella <b>estuvo</b></li>
+                            <li>nosotros <b>estuvimos</b></li>
+                            <li>vosotros <b>estuvisteis</b></li>
+                            <li>ellos/ellas <b>estuvieron</b></li>
+                        </ul>
+                    `,
                 vocab: [
                     { ru: "Я був хворий.", en: "Yo estuve enfermo." },
                     { ru: "Ти був там.", en: "Tú estuviste allí." },
@@ -707,18 +707,18 @@
                 title: "SER — майбутній час (Futuro simple)",
                 topicTag: "🔮 ser (майб.) = seré/serás...",
                 explanation: `
-                                            <div class="topic-tag">🔮 SER у майбутньому</div>
-                                            <h2>SER — Futuro simple</h2>
-                                            <p>Коли говориш «буду/будеш/буде» про <b>сутність</b>.</p>
-                                            <ul>
-                                                <li>yo <b>seré</b></li>
-                                                <li>tú <b>serás</b></li>
-                                                <li>él/ella <b>será</b></li>
-                                                <li>nosotros <b>seremos</b></li>
-                                                <li>vosotros <b>seréis</b></li>
-                                                <li>ellos/ellas <b>serán</b></li>
-                                            </ul>
-                                        `,
+                        <div class="topic-tag">🔮 SER у майбутньому</div>
+                        <h2>SER — Futuro simple</h2>
+                        <p>Коли говориш «буду/будеш/буде» про <b>сутність</b>.</p>
+                        <ul>
+                            <li>yo <b>seré</b></li>
+                            <li>tú <b>serás</b></li>
+                            <li>él/ella <b>será</b></li>
+                            <li>nosotros <b>seremos</b></li>
+                            <li>vosotros <b>seréis</b></li>
+                            <li>ellos/ellas <b>serán</b></li>
+                        </ul>
+                    `,
                 vocab: [
                     { ru: "Я буду дизайнером.", en: "Yo seré diseñador." },
                     { ru: "Ти будеш відомим.", en: "Tú serás famoso." },
@@ -737,18 +737,18 @@
                 title: "ESTAR — майбутній час (Futuro simple)",
                 topicTag: "🔮 estar (майб.) = estaré/estarás...",
                 explanation: `
-                                            <div class="topic-tag">🔮 ESTAR у майбутньому</div>
-                                            <h2>ESTAR — Futuro simple</h2>
-                                            <p>Коли «буду/будеш/буде» про <b>стан</b> або <b>місце</b>.</p>
-                                            <ul>
-                                                <li>yo <b>estaré</b></li>
-                                                <li>tú <b>estarás</b></li>
-                                                <li>él/ella <b>estará</b></li>
-                                                <li>nosotros <b>estaremos</b></li>
-                                                <li>vosotros <b>estaréis</b></li>
-                                                <li>ellos/ellas <b>estarán</b></li>
-                                            </ul>
-                                        `,
+                        <div class="topic-tag">🔮 ESTAR у майбутньому</div>
+                        <h2>ESTAR — Futuro simple</h2>
+                        <p>Коли «буду/будеш/буде» про <b>стан</b> або <b>місце</b>.</p>
+                        <ul>
+                            <li>yo <b>estaré</b></li>
+                            <li>tú <b>estarás</b></li>
+                            <li>él/ella <b>estará</b></li>
+                            <li>nosotros <b>estaremos</b></li>
+                            <li>vosotros <b>estaréis</b></li>
+                            <li>ellos/ellas <b>estarán</b></li>
+                        </ul>
+                    `,
                 vocab: [
                     { ru: "Я буду вдома.", en: "Yo estaré en casa." },
                     { ru: "Тобі буде добре.", en: "Tú estarás bien." },
@@ -767,20 +767,20 @@
                 title: "SER vs ESTAR — порівняння",
                 topicTag: "⚖️ різниця в значенні",
                 explanation: `
-                                            <div class="topic-tag">⚖️ SER vs ESTAR</div>
-                                            <h2>Головна різниця</h2>
-                                            <ul>
-                                                <li><b>SER</b> = «хто/що це є» (суть, постійне)</li>
-                                                <li><b>ESTAR</b> = «де/як зараз» (стан, місце)</li>
-                                            </ul>
-                                            <p>Критичні пари:</p>
-                                            <ul>
-                                                <li><b>Soy aburrido.</b> — я нудна людина (характер).</li>
-                                                <li><b>Estoy aburrido.</b> — мені зараз нудно (стан).</li>
-                                                <li><b>Es bueno.</b> — хороший взагалі.</li>
-                                                <li><b>Está bueno.</b> — смачний/добрий зараз.</li>
-                                            </ul>
-                                        `,
+                        <div class="topic-tag">⚖️ SER vs ESTAR</div>
+                        <h2>Головна різниця</h2>
+                        <ul>
+                            <li><b>SER</b> = «хто/що це є» (суть, постійне)</li>
+                            <li><b>ESTAR</b> = «де/як зараз» (стан, місце)</li>
+                        </ul>
+                        <p>Критичні пари:</p>
+                        <ul>
+                            <li><b>Soy aburrido.</b> — я нудна людина (характер).</li>
+                            <li><b>Estoy aburrido.</b> — мені зараз нудно (стан).</li>
+                            <li><b>Es bueno.</b> — хороший взагалі.</li>
+                            <li><b>Está bueno.</b> — смачний/добрий зараз.</li>
+                        </ul>
+                    `,
                 vocab: [
                     { ru: "Я нудна людина.", en: "Soy aburrido." },
                     { ru: "Мені зараз нудно.", en: "Estoy aburrido." },
@@ -801,9 +801,9 @@
         const GAME = {
             livesPerStage: 3,
             stage: {
-                mc: { needCorrect: 5, minAccuracy: 0.70 },
+                mc:    { needCorrect: 5, minAccuracy: 0.70 },
                 write: { needCorrect: 5, minAccuracy: 0.70 },
-                sent: { needCorrect: 3, minAccuracy: 0.60 }
+                sent:  { needCorrect: 3, minAccuracy: 0.60 }
             },
             stars: {
                 two: 0.85,
@@ -815,42 +815,42 @@
         let gameXP = 0;
 
         let stageState = {
-            mc: { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 },
+            mc:    { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 },
             write: { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 },
-            sent: { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 }
+            sent:  { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 }
         };
 
-
+        
         // ====== Коміти: штраф замість скидання ======
         // Правила:
         // - Якщо N <= 3: 3 життя, штраф = відкат на 3
         // - Якщо N > 3: 5 життів (макс), штраф = відкат на 5
         // - ЖОДНИХ повних скидів назад. Лише відкат correct і позиції показу.
-        function getNFor(kind) {
+        function getNFor(kind){
             const b = blocks[currentBlockIndex];
             if (kind === "sent") return (b.sentences && b.sentences.length) ? b.sentences.length : 0;
             return (b.vocab && b.vocab.length) ? b.vocab.length : 0;
         }
-        function getLivesMax(kind) {
+        function getLivesMax(kind){
             const n = getNFor(kind);
             return (n <= 3) ? 3 : 5;
         }
-        function getRollbackSteps(kind) {
+        function getRollbackSteps(kind){
             // штраф = 3 або 5 (не більше 5)
             const n = getNFor(kind);
             return (n <= 3) ? 3 : 5;
         }
 
-        function showToast(msg) {
+        function showToast(msg){
             const ov = document.getElementById("toastOverlay");
             const el = document.getElementById("toastMsg");
-            if (!ov || !el) return;
+            if(!ov || !el) return;
             el.textContent = msg;
             ov.classList.add("show");
-            ov.setAttribute("aria-hidden", "false");
-            setTimeout(() => {
+            ov.setAttribute("aria-hidden","false");
+            setTimeout(()=>{
                 ov.classList.remove("show");
-                ov.setAttribute("aria-hidden", "true");
+                ov.setAttribute("aria-hidden","true");
             }, 1200);
         }
 
@@ -870,9 +870,9 @@
             resetStage(kind);
 
             // сброс счётчика ошибок для подсказки
-            if (kind === "mc") { wrongAttemptsMC = 0; lastVocabIndexMC = -1; try { const b = blocks[currentBlockIndex]; resetSeq("mc", (b.vocab && b.vocab.length) ? b.vocab.length : 0); } catch (e) { } loadMCQuestion(); }
-            if (kind === "write") { wrongAttemptsWrite = 0; lastVocabIndexWrite = -1; try { const b = blocks[currentBlockIndex]; resetSeq("write", (b.vocab && b.vocab.length) ? b.vocab.length : 0); } catch (e) { } loadWQuestion(); }
-            if (kind === "sent") { wrongAttemptsSent = 0; lastSentenceIndex = -1; try { const b = blocks[currentBlockIndex]; resetSeq("sent", (b.sentences && b.sentences.length) ? b.sentences.length : 0); } catch (e) { } loadSentence(); }
+            if (kind === "mc") { wrongAttemptsMC = 0; lastVocabIndexMC = -1; try { const b=blocks[currentBlockIndex]; resetSeq("mc",(b.vocab&&b.vocab.length)?b.vocab.length:0);} catch(e){} loadMCQuestion(); }
+            if (kind === "write") { wrongAttemptsWrite = 0; lastVocabIndexWrite = -1; try { const b=blocks[currentBlockIndex]; resetSeq("write",(b.vocab&&b.vocab.length)?b.vocab.length:0);} catch(e){} loadWQuestion(); }
+            if (kind === "sent") { wrongAttemptsSent = 0; lastSentenceIndex = -1; try { const b=blocks[currentBlockIndex]; resetSeq("sent",(b.sentences&&b.sentences.length)?b.sentences.length:0);} catch(e){} loadSentence(); }
 
             updateExerciseVisibility();
             updateGateUI();
@@ -881,7 +881,7 @@
         function restartCurrentBlock() {
             clearAutoNext();
             // сброс всего вправи (и прогресса этапов)
-            try { if (typeof resetAllStages === "function") resetAllStages(); } catch (e) { }
+            try { if (typeof resetAllStages === "function") resetAllStages(); } catch (e) {}
 
             // статистику этой сессии (stats) трогаем только если она уже инициализирована
             try {
@@ -892,10 +892,10 @@
                         sent: { correct: 0, total: 0 }
                     };
                 }
-            } catch (e) { }
+            } catch (e) {}
 
             loadBlock(currentBlockIndex);
-            try { if (typeof updateStatsView === "function") updateStatsView(); } catch (e) { }
+            try { if (typeof updateStatsView === "function") updateStatsView(); } catch (e) {}
         }
 
         function goNextStep() {
@@ -940,7 +940,7 @@
             return null;
         }
 
-
+        
         // ====== MODAL helpers ======
         const modalOverlayEl = document.getElementById("modalOverlay");
         const modalTitleEl = document.getElementById("modalTitle");
@@ -995,14 +995,14 @@
             if (typeof fn === "function") fn();
         });
 
-
+        
 
         modalTertiaryEl.addEventListener("click", () => {
             const fn = modalTertiaryAction;
             closeModal();
             if (typeof fn === "function") fn();
         });
-        // закрытие кликом по затемнению
+// закрытие кликом по затемнению
         modalOverlayEl.addEventListener("click", (e) => {
             if (e.target === modalOverlayEl) {
                 closeModal();
@@ -1066,7 +1066,7 @@
                     restartStage(kind); // сброс прогресса текущего этапа
                 }
             });
-        }
+}
 
         function showFail(kind) {
             clearAutoNext();
@@ -1086,7 +1086,7 @@
                     seq[kind].pos = Math.max(0, (seq[kind].pos || 0) - rollback);
                     seq[kind].last = -1;
                 }
-            } catch (e) { }
+            } catch(e) {}
 
             // ігрове повідомлення + червона вспишка
             flashScreen("red");
@@ -1099,7 +1099,7 @@
             if (kind === "write") loadWQuestion();
             if (kind === "sent") loadSentence();
         }
-        function onCorrect(kind) {
+function onCorrect(kind) {
             const s = stageState[kind];
             s.attempts++;
             s.correct++;
@@ -1288,7 +1288,7 @@
         let currentExerciseStep = 0;
         let explainVisible = true;
 
-
+        
         // Чтобы не повторялось одно и то же сразу подряд (минимум через 1)
         let lastVocabIndexMC = -1;
         let lastVocabIndexWrite = -1;
@@ -1322,7 +1322,7 @@
             s.last = idx;
             return idx;
         }
-        function randIntExcept(max, last) {
+function randIntExcept(max, last) {
             if (max <= 1) return 0;
             let i = randInt(max);
             if (i === last) {
@@ -1332,7 +1332,7 @@
             }
             return i;
         }
-        let currentVocabIndexMC = 0;
+let currentVocabIndexMC = 0;
         let currentVocabIndexWrite = 0;
         let currentSentenceIndex = 0;
 
@@ -1411,7 +1411,7 @@
                 currentExerciseStep++;
                 updateExerciseVisibility();
             } else {
-                openModal({ title: "Вже останній етап", text: "Ця вправа вже на останньому етапі. Можна повторити її або перейти далі.", primaryText: "Ок" });
+                openModal({title:"Вже останній етап", text:"Ця вправа вже на останньому етапі. Можна повторити її або перейти далі.", primaryText:"Ок"});
             }
         }
 
@@ -1431,14 +1431,14 @@
             lastVocabIndexMC = -1;
             lastVocabIndexWrite = -1;
             lastSentenceIndex = -1;
-
+ 
             // reset sequencers for this block
             try {
                 const b = blocks[currentBlockIndex];
                 resetSeq("mc", (b.vocab && b.vocab.length) ? b.vocab.length : 0);
                 resetSeq("write", (b.vocab && b.vocab.length) ? b.vocab.length : 0);
                 resetSeq("sent", (b.sentences && b.sentences.length) ? b.sentences.length : 0);
-            } catch (e) { }
+            } catch (e) {}
 
 
             const block = blocks[currentBlockIndex];
@@ -1456,14 +1456,14 @@
                 if (nS > 0) {
                     GAME.stage.sent.needCorrect = nS * 4;
                 }
-            } catch (e) { }
+            } catch(e) {}
 
             blockTitleEl.textContent = `Упражнение ${currentBlockIndex + 1}. ${block.title}`;
             blockProgressTextEl.textContent = `Упражнение ${currentBlockIndex + 1} из ${total}`;
             explainEl.innerHTML = `
-                                        ${block.topicTag ? `<div class="topic-tag">${block.topicTag}</div>` : ""}
-                                        ${block.explanation}
-                                    `;
+                    ${block.topicTag ? `<div class="topic-tag">${block.topicTag}</div>` : ""}
+                    ${block.explanation}
+                `;
 
             blockSelectEl.value = String(currentBlockIndex);
 
@@ -1558,7 +1558,7 @@
 
                 if (wrongAttemptsMC >= 3) {
                     mcFeedbackEl.textContent = "❌ Не зовсім. Підказка: правильна відповідь — " + correct;
-                    speakSpanish(correct);
+                speakSpanish(correct);
                 } else {
                     mcFeedbackEl.textContent = "❌ Не зовсім. Спробуй ще раз.";
                 }
@@ -1626,7 +1626,7 @@
 
                 if (wrongAttemptsWrite >= 3) {
                     wFeedbackEl.textContent = "❌ Трохи не так. Підказка: правильна відповідь — " + card.en;
-                    speakSpanish(card.en);
+                speakSpanish(card.en);
                 } else {
                     wFeedbackEl.textContent = "❌ Трохи не так. Виправ і натисни ще раз.";
                 }
@@ -1786,14 +1786,14 @@
             lastVocabIndexMC = -1;
             lastVocabIndexWrite = -1;
             lastSentenceIndex = -1;
-
+ 
             // reset sequencers for this block
             try {
                 const b = blocks[currentBlockIndex];
                 resetSeq("mc", (b.vocab && b.vocab.length) ? b.vocab.length : 0);
                 resetSeq("write", (b.vocab && b.vocab.length) ? b.vocab.length : 0);
                 resetSeq("sent", (b.sentences && b.sentences.length) ? b.sentences.length : 0);
-            } catch (e) { }
+            } catch (e) {}
 
             gameXP = 0;
             // вернуть на этап объяснения и перезагрузить вопросы
@@ -1815,10 +1815,10 @@
                 blockSelectEl.appendChild(opt);
             });
             loadBlock(0);
-            try { resetStage('mc'); resetStage('write'); resetStage('sent'); } catch (e) { }
+            try { resetStage('mc'); resetStage('write'); resetStage('sent'); } catch(e) {}
 
         })();
-
+    
         // ===== Spanish TTS: озвучка правильної відповіді =====
         let TTS_ENABLED = true;
         let TTS_LANG = "es-ES"; // або "es-MX"
@@ -1826,7 +1826,7 @@
         function speakSpanish(text) {
             if (!TTS_ENABLED) return;
             if (!("speechSynthesis" in window)) return;
-            try { window.speechSynthesis.cancel(); } catch (e) { }
+            try { window.speechSynthesis.cancel(); } catch(e) {}
             const u = new SpeechSynthesisUtterance(text);
             u.lang = TTS_LANG;
             u.rate = 0.95;
@@ -1834,6 +1834,6 @@
             window.speechSynthesis.speak(u);
         }
 
-    </script>
+</script>
 </body>
 </html>
