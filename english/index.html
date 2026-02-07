@@ -473,7 +473,6 @@
         <div class="top-row">
             <div class="block-selector-label">Перейти до вправи:</div>
             <select id="block-select"></select>
-            <button id="btn-tts" type="button">🔊 Озвучка: увімкнена</button>
         </div>
 
         <div class="block-header">
@@ -1209,21 +1208,6 @@
                 .replace(/\s+/g, " ");
         }
 
-        // ====== TTS (English) ======
-        let ttsEnabled = true;
-        const ttsLanguage = "en-US";
-
-        function speakEnglish(text) {
-            if (!ttsEnabled) return;
-            if (!("speechSynthesis" in window)) return;
-            try { window.speechSynthesis.cancel(); } catch (e) { }
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = ttsLanguage;
-            utterance.rate = 0.95;
-            utterance.pitch = 1.0;
-            window.speechSynthesis.speak(utterance);
-        }
-
         // ====== РЕНДЕР ПАНЕЛІ + EXPLAIN ======
         const blockSelectEl = document.getElementById("block-select");
         const blockTitleEl = document.getElementById("block-title");
@@ -1376,7 +1360,6 @@
                 btn.classList.add("correct");
                 flashScreen("green");
                 onCorrect("mc");
-                speakEnglish(mcAnswer);
             } else {
                 btn.classList.add("wrong");
                 flashScreen("red");
@@ -1432,7 +1415,6 @@
             if (isCorrect) {
                 flashScreen("green");
                 onCorrect("write");
-                speakEnglish(wAnswer);
                 autoNextTimeout = setTimeout(() => {
                     loadWQuestion();
                 }, 500);
@@ -1495,7 +1477,6 @@
             if (isCorrect) {
                 flashScreen("green");
                 onCorrect("sent");
-                speakEnglish(sAnswer);
                 autoNextTimeout = setTimeout(() => {
                     loadSentence();
                 }, 500);
@@ -1602,11 +1583,6 @@
         btnTopPanelEl.addEventListener("click", () => {
             topPanelVisibleInPractice = !topPanelVisibleInPractice;
             updateGateUI();
-        });
-
-        btnTtsEl.addEventListener("click", () => {
-            ttsEnabled = !ttsEnabled;
-            btnTtsEl.textContent = ttsEnabled ? "🔊 Озвучка: увімкнена" : "🔇 Озвучка: вимкнена";
         });
 
         // Init
