@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spanish A0 – тренажер (SER/ESTAR)</title>
+    <title>Spanish A0 – Pretérito indefinido</title>
     <style>
         :root {
             --base-font: 16px;
@@ -462,8 +462,8 @@
 </style>
 </head>
 <body>
-    <h1>Spanish A0 – тренажер (SER / ESTAR)</h1>
-    <div class="subtitle">Покрокові вправи: SER / ESTAR (Presente, Pasado, Futuro) + практика.</div>
+    <h1>Spanish A0 – Pretérito indefinido</h1>
+    <div class="subtitle">Покрокові вправи: закінчена дія в минулому, корисні вирази та практика.</div>
 
     <div id="topPanel">
         <div class="warning">
@@ -580,218 +580,124 @@
         /* ====== ДАНІ ВПРАВ ====== */
         const blocks = [
             {
-                title: "SER — теперішній час (Presente)",
-                topicTag: "🧩 ser = суть / хто це",
+                title: "Pretérito indefinido — правило та закінчення",
+                topicTag: "✅ завершена дія",
                 explanation: `
-                                            <div class="topic-tag">🧩 SER = постійне (хто/що це є)</div>
-                                            <h2>SER — Presente</h2>
-                                            <p><b>ser</b> — для «суті»: професія, національність, хто ти, що це таке.</p>
+                                            <div class="topic-tag">✅ Pretérito indefinido = завершена дія</div>
+                                            <h2>Головне правило</h2>
+                                            <p><b>Pretérito indefinido</b> — це завершена дія в минулому.</p>
                                             <ul>
-                                                <li><b>yo</b> <b>soy</b> … (я є)</li>
-                                                <li><b>tú</b> <b>eres</b> … (ти є)</li>
-                                                <li><b>él/ella</b> <b>es</b> … (він/вона є)</li>
-                                                <li><b>nosotros</b> <b>somos</b> … (ми є)</li>
-                                                <li><b>vosotros</b> <b>sois</b> … (ви є)</li>
-                                                <li><b>ellos/ellas</b> <b>son</b> … (вони є)</li>
+                                                <li><b>-ar</b> → yo закінчується на <b>-é</b> (trabaj<b>é</b>)</li>
+                                                <li><b>-er / -ir</b> → yo закінчується на <b>-í</b> (viv<b>í</b>, aprend<b>í</b>)</li>
                                             </ul>
-                                            <p>Запам’ятай: <b>ser</b> = «хто/що це?»</p>
+                                            <p>Фокус: дія вже завершилась.</p>
                                         `,
                 vocab: [
-                    { ua: "Я українець.", en: "Yo soy ucraniano." },
-                    { ua: "Ти мій друг.", en: "Tú eres mi amigo." },
-                    { ua: "Він лікар.", en: "Él es médico." },
-                    { ua: "Вона розумна.", en: "Ella es inteligente." },
-                    { ua: "Ми студенти.", en: "Nosotros somos estudiantes." },
-                    { ua: "Ви іспанці.", en: "Vosotros sois españoles." },
-                    { ua: "Вони інженери.", en: "Ellos son ingenieros." }
+                    { ua: "Я працював.", en: "Yo trabajé." },
+                    { ua: "Я навчався.", en: "Yo estudié." },
+                    { ua: "Я гуляв.", en: "Yo caminé." },
+                    { ua: "Я подорожував.", en: "Yo viajé." },
+                    { ua: "Я приготував.", en: "Yo cociné." },
+                    { ua: "Я відпочивав.", en: "Yo descansé." },
+                    { ua: "Я чекав.", en: "Yo esperé." },
+                    { ua: "Я закінчив.", en: "Yo terminé." }
                 ],
                 sentences: [
-                    { ua: "Я українець. Ти мій друг.", en: "Yo soy ucraniano. Tú eres mi amigo." },
-                    { ua: "Він лікар, а вона розумна.", en: "Él es médico y ella es inteligente." },
-                    { ua: "Ми студенти. Вони інженери.", en: "Nosotros somos estudiantes. Ellos son ingenieros." }
+                    { ua: "Вчора я працював весь день.", en: "Ayer trabajé todo el día." },
+                    { ua: "У суботу я навчався для іспиту.", en: "El sábado estudié para un examen." },
+                    { ua: "Вчора я гуляв центром.", en: "Ayer caminé por el centro." }
                 ]
             },
             {
-                title: "ESTAR — теперішній час (Presente)",
-                topicTag: "📍 estar = стан / де",
+                title: "Важливі вирази часу та місця",
+                topicTag: "🗓️ маркери минулого",
                 explanation: `
-                                            <div class="topic-tag">📍 ESTAR = стан або місце</div>
-                                            <h2>ESTAR — Presente</h2>
-                                            <p><b>estar</b> — для «де?» та «як зараз?» (стан, емоції, локація).</p>
+                                            <div class="topic-tag">🗓️ Маркери Pretérito indefinido</div>
+                                            <h2>Ключові вирази</h2>
                                             <ul>
-                                                <li><b>yo</b> <b>estoy</b> …</li>
-                                                <li><b>tú</b> <b>estás</b> …</li>
-                                                <li><b>él/ella</b> <b>está</b> …</li>
-                                                <li><b>nosotros</b> <b>estamos</b> …</li>
-                                                <li><b>vosotros</b> <b>estáis</b> …</li>
-                                                <li><b>ellos/ellas</b> <b>están</b> …</li>
+                                                <li><b>desde</b> — з / від</li>
+                                                <li><b>en la entrada</b> — біля входу</li>
+                                                <li><b>terminar de + verbo</b> — закінчити робити щось</li>
+                                                <li><b>en vez de</b> — замість</li>
+                                                <li><b>por la mañana</b> — вранці</li>
+                                                <li><b>por la tarde</b> — вдень / ввечері</li>
+                                                <li><b>el año pasado</b> — минулого року</li>
+                                                <li><b>el fin de semana</b> — на вихідних</li>
                                             </ul>
-                                            <p>Запам’ятай: <b>estar</b> = «де?» або «в якому стані?»</p>
                                         `,
                 vocab: [
-                    { ua: "Я втомлений.", en: "Yo estoy cansado." },
-                    { ua: "Ти тут.", en: "Tú estás aquí." },
-                    { ua: "Він вдома.", en: "Él está en casa." },
-                    { ua: "Вона сумна.", en: "Ella está triste." },
-                    { ua: "Ми готові.", en: "Nosotros estamos listos." },
-                    { ua: "Ви зайняті.", en: "Vosotros estáis ocupados." },
-                    { ua: "Вони на роботі.", en: "Ellos están en el trabajo." }
+                    { ua: "з / від", en: "desde" },
+                    { ua: "біля входу", en: "en la entrada" },
+                    { ua: "закінчити робити щось", en: "terminar de + verbo" },
+                    { ua: "замість", en: "en vez de" },
+                    { ua: "вранці", en: "por la mañana" },
+                    { ua: "вдень / ввечері", en: "por la tarde" },
+                    { ua: "минулого року", en: "el año pasado" },
+                    { ua: "на вихідних", en: "el fin de semana" }
                 ],
                 sentences: [
-                    { ua: "Я втомлений, а ти тут.", en: "Yo estoy cansado y tú estás aquí." },
-                    { ua: "Він вдома. Вона сумна.", en: "Él está en casa. Ella está triste." },
-                    { ua: "Ми готові. Вони на роботі.", en: "Nosotros estamos listos. Ellos están en el trabajo." }
+                    { ua: "Я чекав друга біля входу.", en: "Esperé a mi amigo en la entrada." },
+                    { ua: "Я віддав перевагу йти пішки замість того, щоб взяти таксі.", en: "Preferí caminar en vez de tomar un taxi." },
+                    { ua: "Минулого року я подорожував до Іспанії.", en: "El año pasado viajé a España." },
+                    { ua: "На вихідних я трохи працював.", en: "El fin de semana trabajé un poco." }
                 ]
             },
             {
-                title: "SER — минулий час (Pretérito indefinido)",
-                topicTag: "⏱ ser (прош.) = fui/fuiste...",
+                title: "Дієслова в формі yo",
+                topicTag: "🧠 ключові дієслова",
                 explanation: `
-                                            <div class="topic-tag">⏱ SER у минулому (закінчена подія)</div>
-                                            <h2>SER — Pretérito indefinido</h2>
-                                            <p>Використовуй, коли «було» і <b>закінчилось</b>.</p>
+                                            <div class="topic-tag">🧠 Pretérito indefinido (yo)</div>
+                                            <h2>Корисні дієслова</h2>
+                                            <p>Запам’ятай ці форми, щоб швидко будувати речення про минуле.</p>
                                             <ul>
-                                                <li>yo <b>fui</b></li>
-                                                <li>tú <b>fuiste</b></li>
-                                                <li>él/ella <b>fue</b></li>
-                                                <li>nosotros <b>fuimos</b></li>
-                                                <li>vosotros <b>fuisteis</b></li>
-                                                <li>ellos/ellas <b>fueron</b></li>
+                                                <li>viv<b>í</b> — я жив</li>
+                                                <li>pens<b>é</b> — я думав</li>
+                                                <li>entend<b>í</b> — я зрозумів</li>
+                                                <li>empec<b>é</b> — я почав</li>
+                                                <li>perd<b>í</b> — я загубив</li>
+                                                <li>volv<b>í</b> — я повернувся</li>
+                                                <li>dorm<b>í</b> — я спав</li>
+                                                <li>prefer<b>í</b> — я віддав перевагу</li>
                                             </ul>
                                         `,
                 vocab: [
-                    { ua: "Я був студентом.", en: "Yo fui estudiante." },
-                    { ua: "Ти був моїм начальником.", en: "Tú fuiste mi jefe." },
-                    { ua: "Він був викладачем.", en: "Él fue profesor." },
-                    { ua: "Вона була дуже ввічлива.", en: "Ella fue muy amable." },
-                    { ua: "Ми були друзями.", en: "Nosotros fuimos amigos." },
-                    { ua: "Ви були сусідами.", en: "Vosotros fuisteis vecinos." },
-                    { ua: "Вони були щасливі.", en: "Ellos fueron felices." }
+                    { ua: "Я жив.", en: "Yo viví." },
+                    { ua: "Я думав.", en: "Yo pensé." },
+                    { ua: "Я зрозумів.", en: "Yo entendí." },
+                    { ua: "Я почав.", en: "Yo empecé." },
+                    { ua: "Я загубив.", en: "Yo perdí." },
+                    { ua: "Я повернувся.", en: "Yo volví." },
+                    { ua: "Я спав.", en: "Yo dormí." },
+                    { ua: "Я віддав перевагу.", en: "Yo preferí." }
                 ],
                 sentences: [
-                    { ua: "Я був студентом. Вона була ввічлива.", en: "Yo fui estudiante. Ella fue muy amable." },
-                    { ua: "Ми були друзями. Вони були щасливі.", en: "Nosotros fuimos amigos. Ellos fueron felices." }
+                    { ua: "Вчора я багато думав про свої плани.", en: "Ayer pensé mucho en mis planes." },
+                    { ua: "Вчора я загубив ключі.", en: "Ayer perdí mis llaves." },
+                    { ua: "Вчора я дуже добре спав.", en: "Ayer dormí muy bien." }
                 ]
             },
             {
-                title: "ESTAR — минулий час (Pretérito indefinido)",
-                topicTag: "⏱ estar (прош.) = estuve/estuviste...",
+                title: "Практика: приклади речень",
+                topicTag: "📝 повні фрази",
                 explanation: `
-                                            <div class="topic-tag">⏱ ESTAR у минулому (де/стан тоді)</div>
-                                            <h2>ESTAR — Pretérito indefinido</h2>
-                                            <p>Коли «був/була» <b>в стані</b> або <b>в місці</b>, і це завершено.</p>
-                                            <ul>
-                                                <li>yo <b>estuve</b></li>
-                                                <li>tú <b>estuviste</b></li>
-                                                <li>él/ella <b>estuvo</b></li>
-                                                <li>nosotros <b>estuvimos</b></li>
-                                                <li>vosotros <b>estuvisteis</b></li>
-                                                <li>ellos/ellas <b>estuvieron</b></li>
-                                            </ul>
+                                            <div class="topic-tag">📝 Повні речення</div>
+                                            <h2>Тренування на готових фразах</h2>
+                                            <p>Використовуй ці приклади як шаблони для власних історій.</p>
                                         `,
                 vocab: [
-                    { ua: "Я був хворий.", en: "Yo estuve enfermo." },
-                    { ua: "Ти був там.", en: "Tú estuviste allí." },
-                    { ua: "Він був втомлений.", en: "Él estuvo cansado." },
-                    { ua: "Вона була в Мадриді.", en: "Ella estuvo en Madrid." },
-                    { ua: "Ми були разом.", en: "Nosotros estuvimos juntos." },
-                    { ua: "Ви були тут.", en: "Vosotros estuvisteis aquí." },
-                    { ua: "Вони були вдома.", en: "Ellos estuvieron en casa." }
+                    { ua: "Я поснідав вдома.", en: "Ayer desayuné en casa." },
+                    { ua: "Я повечеряв з сім’єю.", en: "Ayer cené con mi familia." },
+                    { ua: "Я провів день вдома.", en: "Ayer pasé el día en casa." },
+                    { ua: "Я відвідав свою сім’ю.", en: "Ayer visité a mi familia." },
+                    { ua: "Я купив новий одяг.", en: "Compré ropa nueva." },
+                    { ua: "Я подзвонив начальнику вранці.", en: "Llamé a mi jefe por la mañana." },
+                    { ua: "Я чекав автобус десять хвилин.", en: "Ayer esperé el autobús diez minutos." },
+                    { ua: "Я закінчив роботу пізно.", en: "Ayer terminé el trabajo tarde." }
                 ],
                 sentences: [
-                    { ua: "Я був хворий. Ти був там.", en: "Yo estuve enfermo. Tú estuviste allí." },
-                    { ua: "Вона була в Мадриді. Ми були разом.", en: "Ella estuvo en Madrid. Nosotros estuvimos juntos." }
-                ]
-            },
-            {
-                title: "SER — майбутній час (Futuro simple)",
-                topicTag: "🔮 ser (майб.) = seré/serás...",
-                explanation: `
-                                            <div class="topic-tag">🔮 SER у майбутньому</div>
-                                            <h2>SER — Futuro simple</h2>
-                                            <p>Коли говориш «буду/будеш/буде» про <b>сутність</b>.</p>
-                                            <ul>
-                                                <li>yo <b>seré</b></li>
-                                                <li>tú <b>serás</b></li>
-                                                <li>él/ella <b>será</b></li>
-                                                <li>nosotros <b>seremos</b></li>
-                                                <li>vosotros <b>seréis</b></li>
-                                                <li>ellos/ellas <b>serán</b></li>
-                                            </ul>
-                                        `,
-                vocab: [
-                    { ua: "Я буду дизайнером.", en: "Yo seré diseñador." },
-                    { ua: "Ти будеш відомим.", en: "Tú serás famoso." },
-                    { ua: "Він буде лікарем.", en: "Él será médico." },
-                    { ua: "Вона буде мамою.", en: "Ella será madre." },
-                    { ua: "Ми будемо вільні.", en: "Nosotros seremos libres." },
-                    { ua: "Ви будете сильні.", en: "Vosotros seréis fuertes." },
-                    { ua: "Вони будуть щасливі.", en: "Ellos serán felices." }
-                ],
-                sentences: [
-                    { ua: "Я буду дизайнером. Ти будеш відомим.", en: "Yo seré diseñador. Tú serás famoso." },
-                    { ua: "Ми будемо вільні. Вони будуть щасливі.", en: "Nosotros seremos libres. Ellos serán felices." }
-                ]
-            },
-            {
-                title: "ESTAR — майбутній час (Futuro simple)",
-                topicTag: "🔮 estar (майб.) = estaré/estarás...",
-                explanation: `
-                                            <div class="topic-tag">🔮 ESTAR у майбутньому</div>
-                                            <h2>ESTAR — Futuro simple</h2>
-                                            <p>Коли «буду/будеш/буде» про <b>стан</b> або <b>місце</b>.</p>
-                                            <ul>
-                                                <li>yo <b>estaré</b></li>
-                                                <li>tú <b>estarás</b></li>
-                                                <li>él/ella <b>estará</b></li>
-                                                <li>nosotros <b>estaremos</b></li>
-                                                <li>vosotros <b>estaréis</b></li>
-                                                <li>ellos/ellas <b>estarán</b></li>
-                                            </ul>
-                                        `,
-                vocab: [
-                    { ua: "Я буду вдома.", en: "Yo estaré en casa." },
-                    { ua: "Тобі буде добре.", en: "Tú estarás bien." },
-                    { ua: "Він буде зайнятий.", en: "Él estará ocupado." },
-                    { ua: "Вона буде тут завтра.", en: "Ella estará aquí mañana." },
-                    { ua: "Ми будемо готові.", en: "Nosotros estaremos listos." },
-                    { ua: "Ви будете втомлені.", en: "Vosotros estaréis cansados." },
-                    { ua: "Вони будуть на роботі.", en: "Ellos estarán en el trabajo." }
-                ],
-                sentences: [
-                    { ua: "Я буду вдома завтра. Він буде зайнятий.", en: "Yo estaré en casa mañana. Él estará ocupado." },
-                    { ua: "Ми будемо готові. Вони будуть на роботі.", en: "Nosotros estaremos listos. Ellos estarán en el trabajo." }
-                ]
-            },
-            {
-                title: "SER vs ESTAR — порівняння",
-                topicTag: "⚖️ різниця в значенні",
-                explanation: `
-                                            <div class="topic-tag">⚖️ SER vs ESTAR</div>
-                                            <h2>Головна різниця</h2>
-                                            <ul>
-                                                <li><b>SER</b> = «хто/що це є» (суть, постійне)</li>
-                                                <li><b>ESTAR</b> = «де/як зараз» (стан, місце)</li>
-                                            </ul>
-                                            <p>Критичні пари:</p>
-                                            <ul>
-                                                <li><b>Soy aburrido.</b> — я нудна людина (характер).</li>
-                                                <li><b>Estoy aburrido.</b> — мені зараз нудно (стан).</li>
-                                                <li><b>Es bueno.</b> — хороший взагалі.</li>
-                                                <li><b>Está bueno.</b> — смачний/добрий зараз.</li>
-                                            </ul>
-                                        `,
-                vocab: [
-                    { ua: "Я нудна людина.", en: "Soy aburrido." },
-                    { ua: "Мені зараз нудно.", en: "Estoy aburrido." },
-                    { ua: "Це хороше (взагалі).", en: "Es bueno." },
-                    { ua: "Це смачне (зараз).", en: "Está bueno." },
-                    { ua: "Я українець.", en: "Soy ucraniano." },
-                    { ua: "Я в Україні.", en: "Estoy en Ucrania." }
-                ],
-                sentences: [
-                    { ua: "Я українець. Я в Україні.", en: "Soy ucraniano. Estoy en Ucrania." },
-                    { ua: "Він хороший (взагалі), але зараз втомлений.", en: "Él es bueno, pero ahora está cansado." }
+                    { ua: "Я поснідав з другом. Я повечеряв дуже пізно.", en: "Desayuné con un amigo. Cené muy tarde." },
+                    { ua: "Я провів час з друзями. Я добре провів вихідні.", en: "Pasé tiempo con mis amigos. Pasé un buen fin de semana." },
+                    { ua: "Я відвідав нову кав’ярню. Я купив подарунок для друга.", en: "Visité una nueva cafetería. Compré un regalo para mi amigo." }
                 ]
             }
         ];
