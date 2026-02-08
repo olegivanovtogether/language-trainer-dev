@@ -1,42 +1,56 @@
 /* ====== ДИНАМІЧНЕ ЗАВАНТАЖЕННЯ ВПРАВ ====== */
 let blocks = [];
-const EXERCISE_FILES = ["ex1.js", "ex2.js", "ex3.js", "ex4.js", "ex5.js", "ex6.js", "ex7.js", "ex8.js"];
+
+function getExercisesBaseUrl() {
+    const s = document.currentScript && document.currentScript.src;
+    if (s) {
+        const i = s.lastIndexOf("/");
+        return i >= 0 ? s.slice(0, i + 1) : "";
+    }
+    return "";
+}
 
 function loadScript(src, callback) {
     const script = document.createElement("script");
     script.src = src;
-    script.onload = callback;
-    script.onerror = function () { callback(); };
+    script.onload = function () { callback(true); };
+    script.onerror = function () { callback(false); };
     document.head.appendChild(script);
 }
 
-function loadExercises(callback) {
-    const base = (function () {
-        const s = document.currentScript && document.currentScript.src;
-        if (s) {
-            const i = s.lastIndexOf("/");
-            return i >= 0 ? s.slice(0, i + 1) : "";
-        }
-        return "";
-    })();
+async function loadExercises() {
+    const base = getExercisesBaseUrl();
     const dir = base ? base + "../exercises/" : "exercises/";
-    let i = 0;
-    function next() {
-        if (i >= EXERCISE_FILES.length) {
-            if (typeof callback === "function") callback();
-            return;
-        }
-        const src = dir + EXERCISE_FILES[i];
-        i++;
-        loadScript(src, function () {
-            if (window.exerciseData) {
-                blocks.push(window.exerciseData);
-                window.exerciseData = null;
-            }
-            next();
+    const manifestUrl = dir + "manifest.json";
+
+    function loadOne(fileName) {
+        return new Promise(function (resolve) {
+            loadScript(dir + fileName, function (success) {
+                if (success && window.exerciseData) {
+                    blocks.push(window.exerciseData);
+                    window.exerciseData = null;
+                }
+                resolve(success);
+            });
         });
     }
-    next();
+
+    try {
+        const res = await fetch(manifestUrl);
+        if (!res.ok) throw new Error("manifest not ok");
+        const fileList = await res.json();
+        if (!Array.isArray(fileList)) throw new Error("manifest not array");
+        for (let i = 0; i < fileList.length; i++) {
+            await loadOne(fileList[i]);
+        }
+    } catch (e) {
+        let n = 1;
+        while (true) {
+            const ok = await loadOne("ex" + n + ".js");
+            if (!ok) break;
+            n++;
+        }
+    }
 }
 
 /* ====== ІГРОВА ЛОГІКА (цілі етапів) ====== */
@@ -843,4 +857,4 @@ function init() {
     try { resetStage("mc"); resetStage("write"); resetStage("sent"); } catch (e) { }
 }
 
-loadExercises(init);
+loadExercises().then(init);
