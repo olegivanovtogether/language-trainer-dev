@@ -21,6 +21,7 @@ function loadScript(src, callback) {
 async function loadExercises() {
     const base = getExercisesBaseUrl();
     const dir = base ? base + "../exercises/" : "exercises/";
+    const manifestUrl = dir + "manifest.json";
 
     function loadOne(fileName) {
         return new Promise(function (resolve) {
@@ -34,11 +35,21 @@ async function loadExercises() {
         });
     }
 
-    let n = 1;
-    while (true) {
-        const ok = await loadOne("ex" + n + ".js");
-        if (!ok) break;
-        n++;
+    try {
+        const res = await fetch(manifestUrl);
+        if (!res.ok) throw new Error("manifest not ok");
+        const fileList = await res.json();
+        if (!Array.isArray(fileList)) throw new Error("manifest not array");
+        for (let i = 0; i < fileList.length; i++) {
+            await loadOne(fileList[i]);
+        }
+    } catch (e) {
+        let n = 1;
+        while (true) {
+            const ok = await loadOne("ex" + n + ".js");
+            if (!ok) break;
+            n++;
+        }
     }
 }
 
