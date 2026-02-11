@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenador de idioma — Ruso</title>
+    <style>
+        :root {
+            --base-font: 16px;
+            --accent: #ffb74d;
+            --accent-soft: #fff4e0;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 12px 12px 24px;
+            line-height: 1.5;
+            font-size: var(--base-font);
+            box-sizing: border-box;
+            background: #f5f5f5;
+            transition: background-color 0.15s;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 16px 0 4px;
+            font-size: 1.4rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .warning {
+            font-size: 0.85rem;
+            color: #a15a00;
+            background: var(--accent-soft);
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin-bottom: 10px;
+        }
+
+        .top-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .block-selector-label {
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        select {
+            padding: 6px 8px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 0.9rem;
+            background: #fff;
+        }
+
+        .block-header {
+            margin: 8px 0 4px;
+        }
+
+        .block-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .block-progress {
+            font-size: 0.85rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--accent);
+        }
+
+        .exercise-step {
+            font-size: 0.9rem;
+            margin: 6px 0 8px;
+            color: #333;
+        }
+
+        .explain {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+        }
+
+        .topic-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #eef4ff;
+            color: #244272;
+            margin-bottom: 4px;
+        }
+
+        .explain h2 {
+            margin: 2px 0 6px;
+            font-size: 1rem;
+        }
+
+        .explain p {
+            margin: 4px 0;
+        }
+
+        .explain ul {
+            margin: 4px 0 4px 18px;
+            padding: 0;
+        }
+
+        .explain li {
+            margin-bottom: 3px;
+        }
+
+        .toggle-explain-row {
+            margin-bottom: 6px;
+            text-align: right;
+        }
+
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: var(--card-bg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .label {
+            font-size: 0.83rem;
+            color: #555;
+            margin-bottom: 4px;
+        }
+
+        .question {
+            font-size: 1.05rem;
+            margin-bottom: 8px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .option-btn {
+            text-align: left;
+            width: 100%;
+            border-radius: 999px;
+            padding-left: 14px;
+        }
+
+            .option-btn.correct {
+                border-color: #2e7d32;
+                background: #e6f7e6;
+            }
+
+            .option-btn.wrong {
+                border-color: #c62828;
+                background: #ffecec;
+            }
+
+        .feedback {
+            min-height: 20px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.92rem;
+        }
+
+            .feedback.correct {
+                color: #2e7d32;
+            }
+
+            .feedback.wrong {
+                color: #c62828;
+            }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            flex-wrap: nowrap;
+        }
+
+        input[type="text"], textarea {
+            flex: 1 1 auto;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            font-size: 0.95rem;
+            min-width: 0;
+            font-family: inherit;
+            resize: vertical;
+            background: #fafafa;
+        }
+
+        button {
+            padding: 9px 13px;
+            border-radius: 999px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            font-size: 0.9rem;
+            background: #fff;
+            transition: background 0.15s, transform 0.05s, box-shadow 0.1s;
+            touch-action: manipulation;
+        }
+
+            button:hover:enabled {
+                background: #f5f5f5;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+
+            button:active:enabled {
+                transform: scale(0.97);
+            }
+
+            button.primary {
+                border-color: #333;
+                background: #f0f0f0;
+                font-weight: 600;
+            }
+
+            button:disabled {
+                opacity: 0.6;
+                cursor: default;
+                box-shadow: none;
+            }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+            .nav-buttons button {
+                flex: 1 1 0;
+            }
+
+        .next-ex-btn-wrap {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+            margin-top: 4px;
+        }
+
+        .stats {
+            font-size: 0.8rem;
+            color: #555;
+            background: #ffffff;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 6px 8px;
+            margin-top: 6px;
+        }
+
+
+        #stage-bar-wrap{
+            height: 10px;
+            width: 100%;
+            border-radius: 999px;
+            background: #e6e6e6;
+            overflow: hidden;
+            margin: 10px 0 8px;
+            border: 1px solid #ddd;
+        }
+        #stage-bar{
+            height: 100%;
+            width: 0%;
+            background: #ff4d4d;
+            border-radius: 999px;
+            transition: width 0.25s ease, background-color 0.25s ease;
+        }
+
+        .small {
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 6px;
+            text-align: center;
+        }
+
+        @keyframes flash-green {
+            0% { background-color: #c8f7c5; }
+            100% { background-color: #f5f5f5; }
+        }
+
+        @keyframes flash-red {
+            0% { background-color: #ffb3b3; }
+            100% { background-color: #f5f5f5; }
+        }
+
+        body.flash-green {
+            animation: flash-green 0.5s ease-out;
+        }
+
+        .toast-overlay{
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .15s ease;
+            z-index: 9999;
+        }
+        .toast-overlay.show{ opacity: 1; }
+        .toast{
+            max-width: 90vw;
+            background: rgba(30,30,30,0.92);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        }
+
+        body.flash-red {
+            animation: flash-red 0.5s ease-out 1;
+        }
+
+        .small-toggle{
+            display:none;
+            margin: 6px 0 10px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 10px; font-size: 15px; }
+            h1 { font-size: 1.2rem; margin-top: 12px; }
+            .input-row { flex-direction: column; }
+            .input-row button { width: 100%; }
+            .nav-buttons { flex-direction: column; }
+            .top-row { flex-direction: column; align-items: stretch; }
+            select { width: 100%; }
+            .toggle-explain-row { text-align: left; }
+        }
+
+        .modal-overlay{
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 16px;
+        }
+        .modal{
+            width: min(520px, 100%);
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 18px 60px rgba(0,0,0,0.25);
+            padding: 18px 18px 14px;
+        }
+        .modal h2{ margin: 0 0 10px; font-size: 1.2rem; }
+        .modal p{ margin: 0 0 14px; line-height: 1.35; white-space: pre-wrap; }
+        .modal-actions{ display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+        .modal-actions button{
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #cfcfcf;
+            background: #fff;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .modal-actions button.primary{
+            border-color: #222;
+            background: #222;
+            color: #fff;
+        }
+
+</style>
+</head>
+<body>
+    <h1>Entrenador de idioma — Ruso</h1>
+    <div class="subtitle">Ejercicios paso a paso: español → ruso.</div>
+
+    <div id="topPanel">
+        <div class="warning">
+            Es mejor hacer los ejercicios en orden. Puedes saltar de uno a otro, pero te cansarás más 🙂
+        </div>
+
+        <div class="top-row">
+            <div class="block-selector-label">Ir al ejercicio:</div>
+            <select id="block-select"></select>
+        </div>
+
+        <div class="block-header">
+            <div class="block-title" id="block-title"></div>
+        </div>
+        <div class="block-progress">
+            <span class="progress-dot"></span>
+            <span id="block-progress-text"></span>
+        </div>
+    </div>
+
+    <button id="btn-topPanel" class="small-toggle">Mostrar panel</button>
+
+    <div class="exercise-step" id="exercise-step"></div>
+
+    <div id="stage-bar-wrap" aria-label="Progreso de la etapa"><div id="stage-bar"></div></div>
+    <div class="toggle-explain-row">
+        <button id="btn-toggle-explain">Ocultar explicación</button>
+    </div>
+
+    <div id="explain" class="explain"></div>
+
+    <div id="ex1" class="card" style="display:none;">
+        <div class="card-title">1️⃣ Elegir la frase correcta</div>
+        <div class="label">Frase en español:</div>
+        <div id="mc-question" class="question"></div>
+        <div class="label">Elige la traducción al ruso:</div>
+        <div id="mc-options" class="options"></div>
+        <div id="mc-feedback" class="feedback"></div>
+        <button id="mc-next" class="primary">Siguiente palabra</button>
+    </div>
+
+    <div id="ex2" class="card" style="display:none;">
+        <div class="card-title">2️⃣ Escribir la frase</div>
+        <div class="label">Frase en español:</div>
+        <div id="w-question" class="question"></div>
+        <div class="label">Escribe la traducción al ruso:</div>
+        <div class="input-row">
+            <input id="w-input" type="text" autocomplete="off">
+            <button id="w-check">Comprobar</button>
+        </div>
+        <div id="w-feedback" class="feedback"></div>
+        <button id="w-show">Mostrar respuesta</button>
+        <button id="w-next" class="primary">Siguiente palabra</button>
+    </div>
+
+    <div id="ex3" class="card" style="display:none;">
+        <div class="card-title">3️⃣ Traducir oraciones</div>
+        <div class="label">Texto en español:</div>
+        <div id="s-question" class="question"></div>
+        <div class="label">Traduce al ruso:</div>
+        <div class="input-row">
+            <textarea id="s-input" rows="3" autocomplete="off"></textarea>
+            <button id="s-check">Comprobar</button>
+        </div>
+        <div id="s-feedback" class="feedback"></div>
+        <button id="s-show">Mostrar respuesta</button>
+        <button id="s-next" class="primary">Siguiente oración</button>
+    </div>
+
+    <div class="next-ex-btn-wrap">
+        <button id="btn-restart" class="primary">Reiniciar este ejercicio</button>
+        <button id="btn-next-ex" class="primary">Empezar ejercicios</button>
+    </div>
+
+    <div id="stats" class="stats"></div>
+
+    <div class="nav-buttons">
+        <button id="btn-prev">← Ejercicio anterior</button>
+        <button id="btn-next">Siguiente ejercicio →</button>
+    </div>
+
+    <div class="small">
+        La estadística se guarda solo mientras la página esté abierta.
+    </div>
+
+    <div id="toastOverlay" class="toast-overlay" aria-hidden="true">
+        <div id="toastMsg" class="toast"></div>
+    </div>
+
+    <div id="modalOverlay" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal">
+            <h2 id="modalTitle">Listo</h2>
+            <p id="modalText"></p>
+            <div class="modal-actions">
+                <button id="modalSecondary">Intentar de nuevo</button>
+                <button id="modalPrimary" class="primary">Continuar</button>
+                <button id="modalTertiary" class="secondary">Repetir ejercicio</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+
+</body>
+</html>
