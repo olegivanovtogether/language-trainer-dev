@@ -15,7 +15,7 @@ window.exerciseData = {
                                             <p>Запам'ятай: регулярні дієслова мають однакові закінчення для -er та -ir.</p>
                                         `,
     vocab: [
-        { ua: "Я працював допізна.", en: "Ayer trabajé hasta tarde." },
+        { ua: "Вчора я працював допізна.", en: "Ayer trabajé hasta tarde." },
         { ua: "Я навчався після роботи.", en: "Estudié después del trabajo." },
         { ua: "Я гуляв вдень.", en: "Caminé por la tarde." },
         { ua: "Я відвідав друга, який живе поруч.", en: "Visité a un amigo que vive cerca." },
@@ -24,7 +24,7 @@ window.exerciseData = {
         { ua: "Я приготував пасту ввечері.", en: "Cociné pasta por la noche." },
         { ua: "Я подзвонив другу, щоб поговорити.", en: "Llamé a un amigo para hablar un rato." },
         { ua: "Я відпочивав вдома весь день.", en: "Descansé en casa todo el día." },
-        { ua: "Я чекав друга біля входу.", en: "Esperé a mi amigo en la entrada." },
+        { ua: "Я чекав свого друга біля входу.", en: "Esperé a mi amigo en la entrada." },
         { ua: "Я закінчив роботу пізно.", en: "Terminé el trabajo tarde." },
         { ua: "Я поснідав вдома.", en: "Desayuné en casa." },
         { ua: "Я повечеряв з моєю сім'єю.", en: "Cené con mi familia." },
