@@ -22,7 +22,7 @@ window.exerciseData = {
         { ua: "Я подорожував до Іспанії минулого року.", en: "Viajé a España el año pasado." },
         { ua: "Я купив подарунок для мого друга.", en: "Compré un regalo para mi amigo." },
         { ua: "Я приготував пасту ввечері.", en: "Cociné pasta por la noche." },
-        { ua: "Я подзвонив другу, щоб поговорити.", en: "Llamé a un amigo para hablar un rato." },
+        { ua: "Я подзвонив другу, щоб поговорити трохи.", en: "Llamé a un amigo para hablar un rato." },
         { ua: "Я відпочивав вдома весь день.", en: "Descansé en casa todo el día." },
         { ua: "Я чекав свого друга біля входу.", en: "Esperé a mi amigo en la entrada." },
         { ua: "Я закінчив роботу пізно.", en: "Terminé el trabajo tarde." },
