@@ -34,10 +34,10 @@ window.exerciseData = {
         { ua: "Я багато думав про мої плани.", en: "Pensé mucho en mis planes." },
         { ua: "Я почав новий курс.", en: "Empecé un curso nuevo." },
         { ua: "Я втратив багато часу в трафіку.", en: "Perdí mucho tiempo en el tráfico." },
-        { ua: "Я повернувся додому пізно.", en: "Volví tarde a casa." }
+        { ua: "Я повернувся пізно додому.", en: "Volví tarde a casa." }
     ],
     sentences: [
-        { ua: "Я працював допізна і повернувся додому пізно.", en: "Trabajé hasta tarde y volví tarde a casa." },
+        { ua: "Я працював допізна і повернувся пізно додому.", en: "Trabajé hasta tarde y volví tarde a casa." },
         { ua: "Я навчався після роботи і відпочивав вдома.", en: "Estudié después del trabajo y descansé en casa." },
         { ua: "Я подорожував до Іспанії і відвідав друга.", en: "Viajé a España y visité a un amigo." },
         { ua: "Я купив подарунок і подзвонив другу.", en: "Compré un regalo y llamé a un amigo." }
