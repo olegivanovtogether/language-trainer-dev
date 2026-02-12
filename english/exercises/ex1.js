@@ -1,5 +1,5 @@
 window.exerciseData = {
-    title: "English A0 — merged (ex1–ex9)",
+    title: "English A0 — Present Simple (Video 01)",
     topicTag: "merged",
     explanation: `
                                             <div class="topic-tag">🧩 I + verb</div>
