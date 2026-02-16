@@ -51,6 +51,7 @@ window.COURSE_CONFIG = {
         courseSwitcherLabel: "Курс",
         courseOptionEnglish: "Англійська",
         courseOptionSpanish: "Іспанська",
-        courseOptionRussian: "Російська"
+        courseOptionRussian: "Російська",
+        themeToggleLabel: "Тема"
     }
 };

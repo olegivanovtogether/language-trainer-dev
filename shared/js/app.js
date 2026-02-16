@@ -35,6 +35,41 @@
         return "/" + segments.slice(0, i).join("/");
     }
 
+    function getTheme() {
+        try {
+            var name = (typeof localStorage !== "undefined" && localStorage.getItem("ui-theme")) || "classic";
+            return (name === "cyberpunk" || name === "classic") ? name : "classic";
+        } catch (e) {
+            return "classic";
+        }
+    }
+
+    function setTheme(name) {
+        try {
+            if (typeof localStorage !== "undefined") localStorage.setItem("ui-theme", name);
+        } catch (e) { }
+        var link = document.getElementById("theme-css");
+        if (link) {
+            var base = getBasePrefix();
+            link.href = (window.location.origin || "") + (base ? base : "") + "/shared/css/theme-" + name + ".css";
+        }
+    }
+
+    function ensureThemeLink() {
+        var link = document.getElementById("theme-css");
+        if (!link) {
+            link = document.createElement("link");
+            link.id = "theme-css";
+            link.rel = "stylesheet";
+            document.head.appendChild(link);
+        }
+        var theme = getTheme();
+        var base = getBasePrefix();
+        link.href = (window.location.origin || "") + (base ? base : "") + "/shared/css/theme-" + theme + ".css";
+    }
+
+    ensureThemeLink();
+
     function loadScript(src, callback) {
         const script = document.createElement("script");
         script.src = src;
@@ -877,6 +912,19 @@
             });
             topRow.appendChild(courseLabel);
             topRow.appendChild(courseSelect);
+        }
+
+        if (topRow) {
+            var themeBtn = document.createElement("button");
+            themeBtn.type = "button";
+            themeBtn.textContent = ui.themeToggleLabel || "Theme";
+            themeBtn.addEventListener("click", function () {
+                var next = getTheme() === "classic" ? "cyberpunk" : "classic";
+                setTheme(next);
+                var msg = next === "cyberpunk" ? "Cyberpunk" : "Classic";
+                showToast(msg);
+            });
+            topRow.appendChild(themeBtn);
         }
 
         loadBlock(0);

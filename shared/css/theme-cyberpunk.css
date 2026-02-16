@@ -1,0 +1,277 @@
+/* theme-cyberpunk: dark, neon glow, scanline effect */
+:root {
+    --base-font: 16px;
+    --neon-cyan: #0ff;
+    --neon-magenta: #f0f;
+    --neon-green: #0f8;
+    --dark-bg: #0a0a12;
+    --panel-bg: rgba(15, 15, 25, 0.85);
+    --panel-border: rgba(0, 255, 255, 0.4);
+}
+
+body {
+    background: var(--dark-bg);
+    color: #e0e0f0;
+    position: relative;
+}
+
+/* Light scanline overlay (pure CSS) */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.15) 2px,
+        rgba(0, 0, 0, 0.15) 4px
+    );
+    opacity: 0.6;
+}
+
+/* Subtle noise texture via box-shadow trick */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9997;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 1;
+}
+
+h1, .subtitle, .block-title, .block-progress, .exercise-step, .label, .question {
+    color: #e0e0f0;
+}
+
+.subtitle, .block-progress, .label, .small {
+    color: #a0a0b8;
+}
+
+.warning {
+    background: rgba(0, 255, 136, 0.08);
+    border: 1px solid var(--neon-green);
+    color: #0f8;
+}
+
+.top-row .block-selector-label {
+    color: #a0a0b8;
+}
+
+.explain,
+.card,
+.stats {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.1);
+}
+
+.card {
+    box-shadow: 0 0 16px rgba(0, 255, 255, 0.08), inset 0 0 0 1px rgba(0, 255, 255, 0.1);
+}
+
+.topic-tag {
+    background: rgba(0, 255, 255, 0.15);
+    color: var(--neon-cyan);
+}
+
+.explain h2 {
+    color: var(--neon-cyan);
+}
+
+select {
+    background: rgba(10, 10, 20, 0.9);
+    border: 1px solid var(--neon-cyan);
+    color: #e0e0f0;
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.2);
+}
+
+select:hover,
+select:focus {
+    outline: none;
+    box-shadow: 0 0 12px var(--neon-cyan);
+}
+
+input[type="text"],
+textarea {
+    background: rgba(10, 10, 20, 0.9);
+    border: 1px solid rgba(0, 255, 255, 0.5);
+    color: #e0e0f0;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.5);
+}
+
+button {
+    background: rgba(15, 15, 30, 0.9);
+    border: 1px solid var(--neon-cyan);
+    color: #e0e0f0;
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.2);
+}
+
+button:hover:enabled {
+    background: rgba(0, 255, 255, 0.1);
+    box-shadow: 0 0 16px var(--neon-cyan);
+}
+
+button.primary {
+    border-color: var(--neon-magenta);
+    box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+}
+
+button.primary:hover:enabled {
+    box-shadow: 0 0 20px var(--neon-magenta);
+}
+
+#stage-bar-wrap {
+    background: rgba(20, 20, 35, 0.9);
+    border: 1px solid var(--neon-cyan);
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.15);
+}
+
+#stage-bar {
+    background: linear-gradient(90deg, var(--neon-magenta), var(--neon-cyan));
+    box-shadow: 0 0 12px var(--neon-cyan);
+}
+
+.progress-dot {
+    background: var(--neon-cyan);
+    box-shadow: 0 0 6px var(--neon-cyan);
+}
+
+.option-btn {
+    border: 1px solid rgba(0, 255, 255, 0.4);
+    background: rgba(15, 15, 30, 0.8);
+    color: #e0e0f0;
+}
+
+.option-btn:hover {
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.option-btn.correct {
+    border-color: var(--neon-green);
+    background: rgba(0, 255, 136, 0.15);
+    box-shadow: 0 0 12px rgba(0, 255, 136, 0.4);
+}
+
+.option-btn.wrong {
+    border-color: #f44;
+    background: rgba(255, 50, 50, 0.15);
+    box-shadow: 0 0 10px rgba(255, 50, 50, 0.3);
+}
+
+.feedback.correct {
+    color: var(--neon-green);
+    text-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+}
+
+.feedback.wrong {
+    color: #f66;
+    text-shadow: 0 0 6px rgba(255, 80, 80, 0.5);
+}
+
+.stats {
+    border-color: var(--panel-border);
+    color: #a0a0b8;
+}
+
+.modal {
+    background: var(--panel-bg);
+    border: 1px solid var(--neon-cyan);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+}
+
+.modal h2 {
+    color: var(--neon-cyan);
+}
+
+.modal p {
+    color: #e0e0f0;
+}
+
+.modal-actions button.primary {
+    background: rgba(255, 0, 255, 0.2);
+    color: #fff;
+}
+
+body.flash-green {
+    animation: none;
+}
+
+body.flash-green {
+    background-color: rgba(0, 255, 136, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+body.flash-red {
+    background-color: rgba(255, 50, 50, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+.toast {
+    background: rgba(10, 10, 25, 0.95);
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+/* FIX: default button state — dark background, white text, neon border (override inline/base styles) */
+button,
+#btn-prev,
+#btn-next,
+#btn-restart,
+#btn-next-ex,
+#mc-next,
+#w-check,
+#w-show,
+#w-next,
+#s-check,
+#s-show,
+#s-next,
+.option-btn {
+    background: rgba(15, 15, 30, 0.9) !important;
+    color: #fff !important;
+    border: 1px solid var(--neon-cyan) !important;
+}
+
+button.primary,
+#btn-prev,
+#btn-next,
+#btn-restart,
+#btn-next-ex {
+    border-color: var(--neon-magenta) !important;
+}
+
+.option-btn {
+    background: rgba(15, 15, 30, 0.8) !important;
+    color: #fff !important;
+}
+
+.option-btn.correct {
+    background: rgba(0, 255, 136, 0.15) !important;
+    border-color: var(--neon-green) !important;
+}
+
+.option-btn.wrong {
+    background: rgba(255, 50, 50, 0.15) !important;
+    border-color: #f44 !important;
+}
+
+/* keep hover glow */
+button:hover:enabled,
+.option-btn:hover {
+    background: rgba(0, 255, 255, 0.1) !important;
+    box-shadow: 0 0 16px var(--neon-cyan) !important;
+}
+
+button.primary:hover:enabled {
+    box-shadow: 0 0 20px var(--neon-magenta) !important;
+}
