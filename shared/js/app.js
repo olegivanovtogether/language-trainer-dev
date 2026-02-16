@@ -37,10 +37,11 @@
 
     function getTheme() {
         try {
-            var name = (typeof localStorage !== "undefined" && localStorage.getItem("ui-theme")) || "classic";
-            return (name === "cyberpunk" || name === "classic") ? name : "classic";
+            var name = typeof localStorage !== "undefined" ? localStorage.getItem("ui-theme") : null;
+            if (!name || (typeof name === "string" && name.trim() === "")) return "cyberpunk";
+            return (name === "cyberpunk" || name === "classic") ? name : "cyberpunk";
         } catch (e) {
-            return "classic";
+            return "cyberpunk";
         }
     }
 
@@ -991,8 +992,9 @@
                             onSecondary: function () { }
                         });
                     } else {
-                        showToast(ui.devModeWrongCode || "Wrong code.");
-                        if (!document.getElementById("toastOverlay")) alert(ui.devModeWrongCode || "Wrong code.");
+                        var wrongMsg = ui.devModeWrongCode || "Невідома команда";
+                        showToast(wrongMsg);
+                        if (!document.getElementById("toastOverlay")) alert(wrongMsg);
                     }
                 }
             });

@@ -60,7 +60,7 @@ window.COURSE_CONFIG = {
         devModePromptText: "Introduce el código:",
         devModeConfirmEnable: "¿Seguro que quieres activar el modo desarrollador?",
         devModeConfirmDisable: "¿Desactivar el modo desarrollador?",
-        devModeWrongCode: "Código incorrecto.",
+        devModeWrongCode: "Comando desconocido",
         devModeCancel: "Cancelar"
     }
 };

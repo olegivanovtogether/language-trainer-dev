@@ -58,7 +58,7 @@ window.COURSE_CONFIG = {
         devModePromptText: "Введи чіт-код:",
         devModeConfirmEnable: "Ти впевнений, що хочеш перейти в режим розробника?",
         devModeConfirmDisable: "Вимкнути режим розробника?",
-        devModeWrongCode: "Неправильний код.",
+        devModeWrongCode: "Невідома команда",
         devModeCancel: "Скасувати"
     }
 };
