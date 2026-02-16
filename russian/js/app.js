@@ -38,8 +38,7 @@ async function loadExercises() {
     try {
         const res = await fetch(manifestUrl);
         if (!res.ok) throw new Error("manifest not ok");
-        let fileList = await res.json();
-        if (fileList && typeof fileList === "object" && Array.isArray(fileList.exercises)) fileList = fileList.exercises;
+        const fileList = await res.json();
         if (!Array.isArray(fileList)) throw new Error("manifest not array");
         for (let i = 0; i < fileList.length; i++) {
             await loadOne(fileList[i]);
