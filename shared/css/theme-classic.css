@@ -75,3 +75,10 @@ button.primary {
     border-radius: 14px;
     box-shadow: 0 18px 60px rgba(0,0,0,0.25);
 }
+
+/* Dev Mode toggle button when active */
+button.dev-mode-active,
+#btn-dev-mode.dev-mode-active {
+    border-color: #2e7d32;
+    box-shadow: 0 0 8px rgba(46, 125, 50, 0.5);
+}

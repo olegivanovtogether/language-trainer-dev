@@ -52,6 +52,13 @@ window.COURSE_CONFIG = {
         courseOptionEnglish: "Англійська",
         courseOptionSpanish: "Іспанська",
         courseOptionRussian: "Російська",
-        themeToggleLabel: "Тема"
+        themeToggleLabel: "Тема",
+        devModeEnterCodeLabel: "Ввести чіт-код",
+        devModeButtonLabel: "Режим розробника",
+        devModePromptText: "Введи чіт-код:",
+        devModeConfirmEnable: "Ти впевнений, що хочеш перейти в режим розробника?",
+        devModeConfirmDisable: "Вимкнути режим розробника?",
+        devModeWrongCode: "Неправильний код.",
+        devModeCancel: "Скасувати"
     }
 };

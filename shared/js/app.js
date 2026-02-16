@@ -70,6 +70,24 @@
 
     ensureThemeLink();
 
+    var DEV_MODE_KEY = "dev-mode-enabled";
+    var DEV_CODE = "19337";
+
+    function isDevMode() {
+        try {
+            return (typeof localStorage !== "undefined" && localStorage.getItem(DEV_MODE_KEY)) === "1";
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function setDevMode(enabled) {
+        try {
+            if (typeof localStorage !== "undefined") localStorage.setItem(DEV_MODE_KEY, enabled ? "1" : "0");
+        } catch (e) { }
+        if (enabled) document.body.classList.add("dev-mode"); else document.body.classList.remove("dev-mode");
+    }
+
     function loadScript(src, callback) {
         const script = document.createElement("script");
         script.src = src;
@@ -474,7 +492,8 @@
             btnNextEx.disabled = false;
             return;
         }
-        btnNextEx.disabled = !stageState[kind].cleared;
+        var stageCleared = stageState[kind].cleared;
+        btnNextEx.disabled = !stageCleared && !isDevMode();
         const cfg = GAME.stage[kind];
         const s = stageState[kind];
         const acc = Math.round(stageAccuracy(kind) * 100);
@@ -878,16 +897,15 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
-    function init() {
-        blocks.forEach(function (b, i) {
-            const opt = document.createElement("option");
-            opt.value = String(i);
-            opt.textContent = (i + 1) + ". " + b.title;
-            blockSelectEl.appendChild(opt);
-        });
+    function createTopToolbar() {
+        var toolbar = document.getElementById("app-toolbar");
+        if (toolbar) return;
+        toolbar = document.createElement("div");
+        toolbar.id = "app-toolbar";
+        toolbar.className = "top-row";
+        toolbar.setAttribute("aria-label", "Course, theme, and developer options");
 
-        var topRow = blockSelectEl && blockSelectEl.parentNode;
-        if (topRow && (ui.courseSwitcherLabel || ui.courseOptionEnglish)) {
+        if (ui.courseSwitcherLabel || ui.courseOptionEnglish) {
             var courseLabel = document.createElement("span");
             courseLabel.className = "block-selector-label";
             courseLabel.textContent = (ui.courseSwitcherLabel || "Course") + " ";
@@ -910,22 +928,96 @@
                 var target = (base ? base + "/" : "/") + courseSelect.value + "/index.html";
                 window.location.href = target;
             });
-            topRow.appendChild(courseLabel);
-            topRow.appendChild(courseSelect);
+            toolbar.appendChild(courseLabel);
+            toolbar.appendChild(courseSelect);
         }
 
-        if (topRow) {
-            var themeBtn = document.createElement("button");
-            themeBtn.type = "button";
-            themeBtn.textContent = ui.themeToggleLabel || "Theme";
-            themeBtn.addEventListener("click", function () {
-                var next = getTheme() === "classic" ? "cyberpunk" : "classic";
-                setTheme(next);
-                var msg = next === "cyberpunk" ? "Cyberpunk" : "Classic";
-                showToast(msg);
+        var themeBtn = document.createElement("button");
+        themeBtn.type = "button";
+        themeBtn.id = "btn-theme";
+        themeBtn.textContent = ui.themeToggleLabel || "Theme";
+        themeBtn.addEventListener("click", function toggleTheme() {
+            var next = getTheme() === "classic" ? "cyberpunk" : "classic";
+            setTheme(next);
+            var msg = next === "cyberpunk" ? "Cyberpunk" : "Classic";
+            showToast(msg);
+        });
+        toolbar.appendChild(themeBtn);
+
+        if (ui.devModeButtonLabel !== undefined || ui.devModeEnterCodeLabel !== undefined) {
+            var devModeBtn = document.createElement("button");
+            devModeBtn.type = "button";
+            devModeBtn.id = "btn-dev-mode";
+
+            function updateDevModeButton() {
+                if (isDevMode()) {
+                    devModeBtn.textContent = ui.devModeButtonLabel || "Dev";
+                    devModeBtn.classList.add("dev-mode-active");
+                } else {
+                    devModeBtn.textContent = ui.devModeEnterCodeLabel || "Code";
+                    devModeBtn.classList.remove("dev-mode-active");
+                }
+            }
+            updateDevModeButton();
+
+            devModeBtn.addEventListener("click", function () {
+                if (isDevMode()) {
+                    openModal({
+                        title: ui.devModeButtonLabel || "Dev",
+                        text: ui.devModeConfirmDisable || "",
+                        primaryText: ui.ok || "OK",
+                        secondaryText: ui.devModeCancel || "Cancel",
+                        onPrimary: function () {
+                            setDevMode(false);
+                            updateDevModeButton();
+                            updateGateUI();
+                        },
+                        onSecondary: function () { }
+                    });
+                } else {
+                    var input = window.prompt(ui.devModePromptText || "Code:");
+                    if (input === null) return;
+                    if (input.trim() === DEV_CODE) {
+                        openModal({
+                            title: ui.devModeButtonLabel || "Dev",
+                            text: ui.devModeConfirmEnable || "",
+                            primaryText: ui.ok || "OK",
+                            secondaryText: ui.devModeCancel || "Cancel",
+                            onPrimary: function () {
+                                setDevMode(true);
+                                updateDevModeButton();
+                                updateGateUI();
+                            },
+                            onSecondary: function () { }
+                        });
+                    } else {
+                        showToast(ui.devModeWrongCode || "Wrong code.");
+                        if (!document.getElementById("toastOverlay")) alert(ui.devModeWrongCode || "Wrong code.");
+                    }
+                }
             });
-            topRow.appendChild(themeBtn);
+            toolbar.appendChild(devModeBtn);
         }
+
+        var topPanelEl = document.getElementById("topPanel");
+        if (topPanelEl && topPanelEl.parentNode) {
+            topPanelEl.parentNode.insertBefore(toolbar, topPanelEl);
+        } else {
+            document.body.insertBefore(toolbar, document.body.firstChild);
+        }
+    }
+
+    function init() {
+        if (isDevMode()) document.body.classList.add("dev-mode");
+
+        createTopToolbar();
+
+        blocks.forEach(function (b, i) {
+            const opt = document.createElement("option");
+            opt.value = String(i);
+            opt.textContent = (i + 1) + ". " + b.title;
+            blockSelectEl.appendChild(opt);
+        });
 
         loadBlock(0);
         try { resetStage("mc"); resetStage("write"); resetStage("sent"); } catch (e) { }

@@ -275,3 +275,10 @@ button:hover:enabled,
 button.primary:hover:enabled {
     box-shadow: 0 0 20px var(--neon-magenta) !important;
 }
+
+/* Dev Mode toggle button when active */
+button.dev-mode-active,
+#btn-dev-mode.dev-mode-active {
+    border-color: var(--neon-green) !important;
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.6) !important;
+}

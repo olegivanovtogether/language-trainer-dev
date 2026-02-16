@@ -54,6 +54,13 @@ window.COURSE_CONFIG = {
         courseOptionEnglish: "Inglés",
         courseOptionSpanish: "Español",
         courseOptionRussian: "Ruso",
-        themeToggleLabel: "Tema"
+        themeToggleLabel: "Tema",
+        devModeEnterCodeLabel: "Introducir código",
+        devModeButtonLabel: "Modo desarrollador",
+        devModePromptText: "Introduce el código:",
+        devModeConfirmEnable: "¿Seguro que quieres activar el modo desarrollador?",
+        devModeConfirmDisable: "¿Desactivar el modo desarrollador?",
+        devModeWrongCode: "Código incorrecto.",
+        devModeCancel: "Cancelar"
     }
 };
