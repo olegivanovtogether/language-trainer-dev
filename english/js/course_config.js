@@ -47,6 +47,10 @@ window.COURSE_CONFIG = {
         sWrongHint: "❌ Трохи не так. Підказка: правильний варіант —\n",
         sWrongTry: "❌ Трохи не так. Спробуй ще раз або натисни «Показати відповідь».",
         sShowAnswer: "Правильний варіант:\n",
-        statsTemplate: "Статистика цієї вправи (лише за цю сесію): вибір — %mc%, написання — %write%, речення — %sent%."
+        statsTemplate: "Статистика цієї вправи (лише за цю сесію): вибір — %mc%, написання — %write%, речення — %sent%.",
+        courseSwitcherLabel: "Курс",
+        courseOptionEnglish: "Англійська",
+        courseOptionSpanish: "Іспанська",
+        courseOptionRussian: "Російська"
     }
 };

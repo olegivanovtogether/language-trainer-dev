@@ -18,6 +18,23 @@
         return (window.location.origin || "") + "/" + coursePath + "/exercises/";
     }
 
+    function getCurrentCourse() {
+        const path = (window.location && window.location.pathname) || "";
+        const normalized = path.replace(/\/index\.html$/i, "").replace(/\/$/, "") || "/";
+        const segments = normalized.split("/").filter(Boolean);
+        const i = segments.findIndex(function (s) { return s === "english" || s === "spanish" || s === "russian"; });
+        return i >= 0 ? segments[i] : "english";
+    }
+
+    function getBasePrefix() {
+        const path = (window.location && window.location.pathname) || "";
+        const normalized = path.replace(/\/index\.html$/i, "").replace(/\/$/, "") || "/";
+        const segments = normalized.split("/").filter(Boolean);
+        const i = segments.findIndex(function (s) { return s === "english" || s === "spanish" || s === "russian"; });
+        if (i < 0 || i === 0) return "";
+        return "/" + segments.slice(0, i).join("/");
+    }
+
     function loadScript(src, callback) {
         const script = document.createElement("script");
         script.src = src;
@@ -833,6 +850,35 @@
             opt.textContent = (i + 1) + ". " + b.title;
             blockSelectEl.appendChild(opt);
         });
+
+        var topRow = blockSelectEl && blockSelectEl.parentNode;
+        if (topRow && (ui.courseSwitcherLabel || ui.courseOptionEnglish)) {
+            var courseLabel = document.createElement("span");
+            courseLabel.className = "block-selector-label";
+            courseLabel.textContent = (ui.courseSwitcherLabel || "Course") + " ";
+            var courseSelect = document.createElement("select");
+            courseSelect.id = "course-select";
+            var opts = [
+                { value: "english", text: ui.courseOptionEnglish || "English" },
+                { value: "spanish", text: ui.courseOptionSpanish || "Spanish" },
+                { value: "russian", text: ui.courseOptionRussian || "Russian" }
+            ];
+            opts.forEach(function (o) {
+                var opt = document.createElement("option");
+                opt.value = o.value;
+                opt.textContent = o.text;
+                courseSelect.appendChild(opt);
+            });
+            courseSelect.value = getCurrentCourse();
+            courseSelect.addEventListener("change", function () {
+                var base = getBasePrefix();
+                var target = (base ? base + "/" : "/") + courseSelect.value + "/index.html";
+                window.location.href = target;
+            });
+            topRow.appendChild(courseLabel);
+            topRow.appendChild(courseSelect);
+        }
+
         loadBlock(0);
         try { resetStage("mc"); resetStage("write"); resetStage("sent"); } catch (e) { }
     }

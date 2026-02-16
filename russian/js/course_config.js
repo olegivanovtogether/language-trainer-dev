@@ -49,6 +49,10 @@ window.COURSE_CONFIG = {
         sWrongHint: "❌ Casi. Pista: la opción correcta es:\n",
         sWrongTry: "❌ Casi. Intenta de nuevo o pulsa «Mostrar respuesta».",
         sShowAnswer: "Opción correcta:\n",
-        statsTemplate: "Estadística de este ejercicio (solo esta sesión): elegir — %mc%, escribir — %write%, oraciones — %sent%."
+        statsTemplate: "Estadística de este ejercicio (solo esta sesión): elegir — %mc%, escribir — %write%, oraciones — %sent%.",
+        courseSwitcherLabel: "Curso",
+        courseOptionEnglish: "Inglés",
+        courseOptionSpanish: "Español",
+        courseOptionRussian: "Ruso"
     }
 };
