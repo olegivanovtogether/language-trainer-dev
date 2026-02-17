@@ -209,6 +209,11 @@
             link.href = (window.location.origin || "") + (base ? base : "") + "/shared/css/theme-" + name + ".css";
         }
         updateThemeBodyClass();
+        if (name === "cyberpunk" && typeof cpScheduleNext === "function") {
+            if (typeof window.matchMedia === "undefined" || !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                if (!cpScheduleTimer) cpScheduleNext();
+            }
+        }
     }
 
     function updateThemeBodyClass() {
@@ -231,52 +236,75 @@
     ensureThemeLink();
 
     var CP_GLYPHS = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜ0123456789#$%&*";
-    var CP_CAPS = { far: 25, mid: 18, near: 12 };
-    var cpCounts = { far: 0, mid: 0, near: 0 };
-    var cpDurations = { far: "8s", mid: "5.5s", near: "3.5s" };
+    var MAX_STREAMS_TOTAL = 40;
+    var cpStreamCount = 0;
+    var cpScheduleTimer = null;
+    var cpSpawnLogged = false;
 
     function createCyberpunkMatrixContainer() {
         if (document.getElementById("cp-matrix")) return;
         var matrix = document.createElement("div");
         matrix.id = "cp-matrix";
         matrix.setAttribute("aria-hidden", "true");
-        matrix.innerHTML = "<div class=\"cp-layer cp-layer-far\"></div><div class=\"cp-layer cp-layer-mid\"></div><div class=\"cp-layer cp-layer-near\"></div>";
         document.body.appendChild(matrix);
     }
 
+    function cpRandomGlyphString(len) {
+        var s = "";
+        for (var i = 0; i < len; i++) s += CP_GLYPHS[Math.floor(Math.random() * CP_GLYPHS.length)];
+        return s;
+    }
+
     function cpSpawnStream() {
-        if (getTheme() !== "cyberpunk") return;
+        var theme = getTheme();
+        if (theme !== "cyberpunk") return;
         if (typeof window.matchMedia !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        if (document.hidden) return;
+        if (cpStreamCount >= MAX_STREAMS_TOTAL) return;
         var matrix = document.getElementById("cp-matrix");
-        if (!matrix) return;
-        var layers = ["far", "mid", "near"];
-        var r = Math.random();
-        var layer = r < 0.4 ? "far" : r < 0.75 ? "mid" : "near";
-        if (cpCounts[layer] >= CP_CAPS[layer]) return;
-        var len = 8 + Math.floor(Math.random() * 17);
-        var str = "";
-        for (var i = 0; i < len; i++) str += CP_GLYPHS[Math.floor(Math.random() * CP_GLYPHS.length)];
-        var span = document.createElement("span");
-        span.className = "cp-stream";
-        span.textContent = str;
-        span.style.left = (Math.random() * 100) + "vw";
-        span.style.setProperty("--dur", cpDurations[layer]);
-        var layerEl = matrix.querySelector(".cp-layer-" + layer);
-        if (!layerEl) return;
-        cpCounts[layer]++;
-        span.addEventListener("animationend", function () {
-            if (span.parentNode) span.parentNode.removeChild(span);
-            cpCounts[layer]--;
+        if (!matrix || matrix.parentNode !== document.body) return;
+        var vertical = Math.random() < 0.8;
+        var len = vertical ? (18 + Math.floor(Math.random() * 23)) : (14 + Math.floor(Math.random() * 15));
+        var el = document.createElement("span");
+        el.className = "cp-stream " + (vertical ? "cp-vert" : "cp-horiz");
+        el.textContent = cpRandomGlyphString(len);
+        el.style.setProperty("--dur", (Math.random() * 5 + 6).toFixed(2) + "s");
+        el.style.setProperty("--op", (Math.random() * 0.12 + 0.12).toFixed(2));
+        el.style.fontSize = (Math.random() * 10 + 12).toFixed(0) + "px";
+        if (vertical) {
+            el.style.left = (Math.random() * 100).toFixed(2) + "vw";
+            el.style.top = "-25vh";
+        } else {
+            el.style.top = (Math.random() * 100).toFixed(2) + "vh";
+            el.style.left = "-35vw";
+        }
+        cpStreamCount++;
+        el.addEventListener("animationend", function () {
+            if (el.parentNode) el.parentNode.removeChild(el);
+            cpStreamCount--;
         });
-        layerEl.appendChild(span);
+        matrix.appendChild(el);
+        if (typeof isDevMode === "function" && isDevMode() && !cpSpawnLogged) {
+            cpSpawnLogged = true;
+            console.log("[cp] spawn active", { theme: theme, count: cpStreamCount });
+        }
     }
 
     function cpScheduleNext() {
         if (typeof window.matchMedia !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-        setTimeout(function () {
+        if (getTheme() !== "cyberpunk") return;
+        cpScheduleTimer = setTimeout(function () {
             cpSpawnStream();
             cpScheduleNext();
-        }, 250 + Math.random() * 350);
+        }, 420);
+    }
+
+    function cpOnVisibilityChange() {
+        if (document.hidden) {
+            if (cpScheduleTimer) { clearTimeout(cpScheduleTimer); cpScheduleTimer = null; }
+        } else {
+            if (!cpScheduleTimer && getTheme() === "cyberpunk") cpScheduleNext();
+        }
     }
 
     var DEV_MODE_KEY = "dev-mode-enabled";
@@ -1269,7 +1297,10 @@
         createCyberpunkMatrixContainer();
         var reducedMotion = typeof window.matchMedia !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         document.body.classList.toggle("cp-reduced-motion", !!reducedMotion);
-        if (!reducedMotion) cpScheduleNext();
+        if (!reducedMotion) {
+            cpScheduleNext();
+            document.addEventListener("visibilitychange", cpOnVisibilityChange);
+        }
 
         createTopToolbar();
 

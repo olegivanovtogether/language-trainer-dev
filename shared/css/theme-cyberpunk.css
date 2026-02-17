@@ -15,15 +15,13 @@ body {
     position: relative;
 }
 
-/* Glyph rain background (3D parallax layers) — fullscreen, only when theme is cyberpunk */
+/* Glyph rain — fullscreen, behind UI; only when theme is cyberpunk */
 #cp-matrix {
     display: none;
     position: fixed;
     inset: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
     z-index: 0;
+    pointer-events: none;
     overflow: hidden;
 }
 
@@ -35,9 +33,10 @@ body.cp-reduced-motion #cp-matrix {
     display: none !important;
 }
 
-/* Main UI root above matrix */
+/* UI above matrix */
 #app,
-.container {
+.container,
+#ui {
     position: relative;
     z-index: 5;
 }
@@ -47,55 +46,46 @@ body.theme-cyberpunk > *:not(#modalOverlay):not(#cp-matrix) {
     z-index: 5;
 }
 
-.cp-layer {
-    position: absolute;
-    inset: 0;
-}
-
-.cp-layer-far {
-    opacity: 0.1;
-    filter: blur(1.2px);
-    transform: translateZ(-60px) scale(1.05);
-}
-
-.cp-layer-mid {
-    opacity: 0.18;
-    filter: blur(0.6px);
-    transform: translateZ(-30px) scale(1.02);
-}
-
-.cp-layer-near {
-    opacity: 0.26;
-    filter: blur(0);
-    transform: translateZ(0) scale(1);
-}
-
+/* Streams — minimal, guaranteed-working animation */
 .cp-stream {
     position: absolute;
-    top: -20vh;
-    white-space: pre;
+    opacity: 0;
+    pointer-events: none;
     font-family: ui-monospace, monospace;
-    color: rgba(0, 255, 225, 0.9);
-    text-shadow: 0 0 8px rgba(0, 255, 225, 0.6);
     letter-spacing: 2px;
+    color: rgba(0, 255, 225, 0.65);
+    text-shadow: 0 0 6px rgba(0, 255, 225, 0.35);
+}
+
+.cp-vert {
     writing-mode: vertical-rl;
-    animation-name: cp-fall, cp-flicker;
-    animation-duration: var(--dur, 6s), 1.8s;
-    animation-timing-function: linear, ease;
-    animation-fill-mode: forwards, none;
-    animation-iteration-count: 1, infinite;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 60%, transparent 100%);
+    animation: cp-write-vert var(--dur, 8s) linear forwards;
+    opacity: var(--op, 0.18);
 }
 
-@keyframes cp-fall {
-    to {
-        transform: translateY(140vh);
-        opacity: 0;
-    }
+@keyframes cp-write-vert {
+    0%   { transform: translateY(-25vh); }
+    100% { transform: translateY(130vh); }
 }
 
-@keyframes cp-flicker {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.75; }
+.cp-horiz {
+    white-space: nowrap;
+    mask-image: linear-gradient(to right, transparent 0%, black 12%, black 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 60%, transparent 100%);
+    animation: cp-write-horiz var(--dur, 8s) linear forwards;
+    opacity: var(--op, 0.18);
+}
+
+@keyframes cp-write-horiz {
+    0%   { transform: translateX(-35vw); }
+    100% { transform: translateX(130vw); }
+}
+
+body.cp-bad .cp-stream {
+    color: rgba(255, 80, 80, 0.65);
+    text-shadow: 0 0 6px rgba(255, 40, 40, 0.35);
 }
 
 @media (prefers-reduced-motion: reduce) {
