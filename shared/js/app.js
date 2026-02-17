@@ -1229,8 +1229,8 @@
     function updateMinimalToggleButtons() {
         var isMinimal = document.body.classList.contains("ui-minimal");
         var label = isMinimal
-            ? (ui.normalModeLabel !== undefined ? ui.normalModeLabel : "Розширений режим")
-            : (ui.minimalModeLabel !== undefined ? ui.minimalModeLabel : "Мінімалізм");
+            ? (ui.normalModeLabel !== undefined ? ui.normalModeLabel : "Перейти в розширений режим")
+            : (ui.minimalModeLabel !== undefined ? ui.minimalModeLabel : "Перейти в мінімальний режим");
         var buttons = document.querySelectorAll(".btn-minimal-toggle");
         buttons.forEach(function (btn) {
             btn.textContent = label;
