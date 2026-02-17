@@ -395,6 +395,20 @@
     function normalizeAnswer(str) {
         return str.toLowerCase().replace(/\s+/g, " ").trim().replace(/[.!?]+$/, "");
     }
+    function triggerCyberpunkRipple(isCorrect, sourceEl) {
+        if (!sourceEl) {
+            document.documentElement.style.setProperty("--fx-x", "50vw");
+            document.documentElement.style.setProperty("--fx-y", "50vh");
+        } else {
+            var rect = sourceEl.getBoundingClientRect();
+            document.documentElement.style.setProperty("--fx-x", (rect.left + rect.width / 2) + "px");
+            document.documentElement.style.setProperty("--fx-y", (rect.top + rect.height / 2) + "px");
+        }
+        document.body.classList.remove("cp-ok", "cp-bad");
+        void document.body.offsetWidth;
+        document.body.classList.add(isCorrect ? "cp-ok" : "cp-bad");
+    }
+
     function showFeedback(isCorrect, sourceEl) {
         var x, y;
         if (sourceEl && sourceEl.getBoundingClientRect) {
@@ -414,8 +428,9 @@
         } else {
             document.body.classList.add("fx-bad", "flash-red");
         }
+        triggerCyberpunkRipple(isCorrect, sourceEl);
         setTimeout(function () {
-            document.body.classList.remove("fx-ok", "fx-bad", "flash-green", "flash-red");
+            document.body.classList.remove("fx-ok", "fx-bad", "flash-green", "flash-red", "cp-ok", "cp-bad");
         }, isCorrect ? 500 : 750);
     }
 
