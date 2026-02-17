@@ -26,6 +26,160 @@
         return i >= 0 ? segments[i] : "english";
     }
 
+    function getProgressKey() {
+        return "progress-" + getCurrentCourse();
+    }
+
+    function saveProgress() {
+        try {
+            if (typeof localStorage === "undefined") return;
+            const p = {
+                blockIndex: currentBlockIndex,
+                step: currentExerciseStep,
+                mcPos: currentVocabIndexMC,
+                writePos: currentVocabIndexWrite,
+                sentPos: currentSentenceIndex,
+                ts: Date.now(),
+                seqMC: seq.mc ? seq.mc.pos : 0,
+                seqWrite: seq.write ? seq.write.pos : 0,
+                seqSent: seq.sent ? seq.sent.pos : 0,
+                stageState: {
+                    mc: stageState.mc ? { correct: stageState.mc.correct, attempts: stageState.mc.attempts, streak: stageState.mc.streak, lives: stageState.mc.lives, cleared: stageState.mc.cleared, stars: stageState.mc.stars } : { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 },
+                    write: stageState.write ? { correct: stageState.write.correct, attempts: stageState.write.attempts, streak: stageState.write.streak, lives: stageState.write.lives, cleared: stageState.write.cleared, stars: stageState.write.stars } : { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 },
+                    sent: stageState.sent ? { correct: stageState.sent.correct, attempts: stageState.sent.attempts, streak: stageState.sent.streak, lives: stageState.sent.lives, cleared: stageState.sent.cleared, stars: stageState.sent.stars } : { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 }
+                }
+            };
+            localStorage.setItem(getProgressKey(), JSON.stringify(p));
+        } catch (e) { }
+    }
+
+    function loadProgress() {
+        try {
+            if (typeof localStorage === "undefined") return null;
+            const raw = localStorage.getItem(getProgressKey());
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch (e) { return null; }
+    }
+
+    function clearProgress() {
+        try {
+            if (typeof localStorage !== "undefined") localStorage.removeItem(getProgressKey());
+        } catch (e) { }
+    }
+
+    function getResumePreview(progress) {
+        const block = blocks[progress.blockIndex];
+        if (!block) return "";
+        const step = progress.step;
+        if (step === 1 && block.vocab && block.vocab.length) {
+            const pos = Math.max(0, Math.min(progress.mcPos, block.vocab.length - 1));
+            return (block.vocab[pos] && block.vocab[pos].ua) ? block.vocab[pos].ua : "";
+        }
+        if (step === 2 && block.vocab && block.vocab.length) {
+            const pos = Math.max(0, Math.min(progress.writePos, block.vocab.length - 1));
+            return (block.vocab[pos] && block.vocab[pos].ua) ? block.vocab[pos].ua : "";
+        }
+        if (step === 3 && block.sentences && block.sentences.length) {
+            const pos = Math.max(0, Math.min(progress.sentPos, block.sentences.length - 1));
+            return (block.sentences[pos] && block.sentences[pos].ua) ? block.sentences[pos].ua : "";
+        }
+        return "";
+    }
+
+    function showResumeModal(progress) {
+        const block = blocks[progress.blockIndex];
+        if (!block) { loadBlock(0); return; }
+        const stageNames = (ui.stageNames && ui.stageNames.length >= 4) ? ui.stageNames : ["Вступ", "Вибір", "Вписати", "Речення"];
+        const stage = stageNames[progress.step] || ("Етап " + progress.step);
+        const preview = getResumePreview(progress);
+        let k = 0;
+        if (progress.step === 1) k = (progress.mcPos || 0) + 1;
+        else if (progress.step === 2) k = (progress.writePos || 0) + 1;
+        else if (progress.step === 3) k = (progress.sentPos || 0) + 1;
+        const body = (ui.resumeBodyTemplate || "Продовжити з: {exerciseTitle}\nЕтап: {stage}\nКартка: {k}\n«{preview}»")
+            .replace(/\{exerciseTitle\}/g, block.title)
+            .replace(/\{stage\}/g, stage)
+            .replace(/\{k\}/g, String(k))
+            .replace(/\{preview\}/g, preview);
+        openModal({
+            title: ui.resumeTitle || "Продовжити?",
+            text: body,
+            primaryText: ui.resumeContinue || "Продовжити",
+            secondaryText: ui.resumeRestart || "З початку",
+            onPrimary: function () { applyResumeState(progress); },
+            onSecondary: function () {
+                clearProgress();
+                loadBlock(0);
+            }
+        });
+    }
+
+    function applyResumeState(progress) {
+        const block = blocks[progress.blockIndex];
+        if (!block) { loadBlock(0); return; }
+        currentBlockIndex = progress.blockIndex;
+        currentExerciseStep = progress.step;
+        explainVisible = (progress.step === 0);
+        const nV = (block.vocab && block.vocab.length) ? block.vocab.length : 0;
+        const nS = (block.sentences && block.sentences.length) ? block.sentences.length : 0;
+        if (progress.stageState) {
+            ["mc", "write", "sent"].forEach(function (k) {
+                const saved = progress.stageState[k];
+                if (saved && stageState[k]) {
+                    stageState[k].correct = saved.correct != null ? saved.correct : 0;
+                    stageState[k].attempts = saved.attempts != null ? saved.attempts : 0;
+                    stageState[k].streak = saved.streak != null ? saved.streak : 0;
+                    stageState[k].lives = saved.lives != null ? saved.lives : getLivesMax(k);
+                    stageState[k].cleared = !!saved.cleared;
+                    stageState[k].stars = saved.stars != null ? saved.stars : 0;
+                }
+            });
+        } else {
+            resetAllStages();
+        }
+        lastVocabIndexMC = -1;
+        lastVocabIndexWrite = -1;
+        lastSentenceIndex = -1;
+        resetSeq("mc", nV);
+        resetSeq("write", nV);
+        resetSeq("sent", nS);
+        const seqMC = progress.seqMC !== undefined ? progress.seqMC : (progress.mcPos != null ? progress.mcPos : 0);
+        const seqWrite = progress.seqWrite !== undefined ? progress.seqWrite : (progress.writePos != null ? progress.writePos : 0);
+        const seqSent = progress.seqSent !== undefined ? progress.seqSent : (progress.sentPos != null ? progress.sentPos : 0);
+        seq.mc.pos = Math.max(0, Math.min(seqMC, nV));
+        seq.mc.last = -1;
+        seq.write.pos = Math.max(0, Math.min(seqWrite, nV));
+        seq.write.last = -1;
+        seq.sent.pos = Math.max(0, Math.min(seqSent, nS));
+        seq.sent.last = -1;
+        if (nV > 0) {
+            GAME.stage.mc.needCorrect = nV * 4;
+            GAME.stage.write.needCorrect = nV * 4;
+        }
+        if (nS > 0) GAME.stage.sent.needCorrect = nS * 4;
+        const total = blocks.length;
+        blockTitleEl.textContent = (ui.blockTitlePrefix || "Вправа ") + (currentBlockIndex + 1) + (ui.blockTitleSuffix || ". ") + block.title;
+        blockProgressTextEl.textContent = (ui.blockTitlePrefix || "Вправа ") + (currentBlockIndex + 1) + (ui.blockProgressOf || " з ") + total;
+        explainEl.innerHTML = (block.topicTag ? "<div class=\"topic-tag\">" + block.topicTag + "</div>" : "") + (block.explanation || "");
+        blockSelectEl.value = String(currentBlockIndex);
+        btnPrev.disabled = currentBlockIndex === 0;
+        btnNext.disabled = currentBlockIndex === total - 1;
+        mcFeedbackEl.textContent = "";
+        mcFeedbackEl.className = "feedback";
+        wFeedbackEl.textContent = "";
+        wFeedbackEl.className = "feedback";
+        sFeedbackEl.textContent = "";
+        sFeedbackEl.className = "feedback";
+        ensureStatsForBlock(currentBlockIndex);
+        updateStatsView();
+        updateExerciseVisibility();
+        if (currentExerciseStep === 1) loadMCQuestion();
+        else if (currentExerciseStep === 2) loadWQuestion();
+        else if (currentExerciseStep === 3) loadSentence();
+        updateGateUI();
+    }
+
     function getBasePrefix() {
         const path = (window.location && window.location.pathname) || "";
         const normalized = path.replace(/\/index\.html$/i, "").replace(/\/$/, "") || "/";
@@ -342,6 +496,7 @@
         const exerciseDone = isFinalStage && stageState.mc.cleared && stageState.write.cleared && stageState.sent.cleared;
         const stars = calcStars(kind);
         stageState[kind].stars = stars;
+        saveProgress();
 
         if (exerciseDone) {
             openModal({
@@ -385,6 +540,7 @@
         if (kind === "mc") loadMCQuestion();
         if (kind === "write") loadWQuestion();
         if (kind === "sent") loadSentence();
+        saveProgress();
     }
 
     function onCorrect(kind) {
@@ -401,6 +557,7 @@
             return;
         }
         updateGateUI();
+        saveProgress();
     }
     function onWrong(kind) {
         const s = stageState[kind];
@@ -412,6 +569,7 @@
             return;
         }
         updateGateUI();
+        saveProgress();
     }
 
     const blockTitleEl = document.getElementById("block-title");
@@ -541,11 +699,13 @@
             currentExerciseStep = 1;
             explainVisible = false;
             updateExerciseVisibility();
+            saveProgress();
             return;
         }
         if (currentExerciseStep < 3) {
             currentExerciseStep++;
             updateExerciseVisibility();
+            saveProgress();
         } else {
             openModal({ title: ui.lastStageTitle || "", text: ui.lastStageText || "", primaryText: ui.ok || "OK" });
         }
@@ -668,6 +828,7 @@
         ensureStatsForBlock(currentBlockIndex);
         updateStatsView();
         updateExerciseVisibility();
+        saveProgress();
     }
 
     function loadMCQuestion() {
@@ -701,6 +862,7 @@
             btn.addEventListener("click", function () { checkMCAnswer(btn, text, card.en); });
             mcOptionsEl.appendChild(btn);
         });
+        saveProgress();
     }
 
     function checkMCAnswer(button, chosen, correct) {
@@ -747,6 +909,7 @@
         wInputEl.value = "";
         wFeedbackEl.textContent = "";
         wFeedbackEl.className = "feedback";
+        saveProgress();
     }
 
     function checkWAnswer() {
@@ -812,6 +975,7 @@
         sInputEl.value = "";
         sFeedbackEl.textContent = "";
         sFeedbackEl.className = "feedback";
+        saveProgress();
     }
 
     function checkSentence() {
@@ -1021,7 +1185,12 @@
             blockSelectEl.appendChild(opt);
         });
 
-        loadBlock(0);
+        const p = loadProgress();
+        if (p && typeof p.blockIndex === "number" && p.blockIndex >= 0 && p.blockIndex < blocks.length) {
+            showResumeModal(p);
+        } else {
+            loadBlock(0);
+        }
         try { resetStage("mc"); resetStage("write"); resetStage("sent"); } catch (e) { }
     }
 

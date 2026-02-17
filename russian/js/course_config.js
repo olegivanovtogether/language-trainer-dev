@@ -61,6 +61,11 @@ window.COURSE_CONFIG = {
         devModeConfirmEnable: "¿Seguro que quieres activar el modo desarrollador?",
         devModeConfirmDisable: "¿Desactivar el modo desarrollador?",
         devModeWrongCode: "Comando desconocido",
-        devModeCancel: "Cancelar"
+        devModeCancel: "Cancelar",
+        resumeTitle: "¿Continuar?",
+        resumeBodyTemplate: "Continuar desde: {exerciseTitle}\nEtapa: {stage}\nTarjeta: {k}\n«{preview}»",
+        resumeContinue: "Continuar",
+        resumeRestart: "Empezar de nuevo",
+        stageNames: ["Inicio", "Opción", "Escribir", "Frases"]
     }
 };

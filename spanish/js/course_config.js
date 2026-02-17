@@ -59,6 +59,11 @@ window.COURSE_CONFIG = {
         devModeConfirmEnable: "Ти впевнений, що хочеш перейти в режим розробника?",
         devModeConfirmDisable: "Вимкнути режим розробника?",
         devModeWrongCode: "Невідома команда",
-        devModeCancel: "Скасувати"
+        devModeCancel: "Скасувати",
+        resumeTitle: "Продовжити?",
+        resumeBodyTemplate: "Продовжити з: {exerciseTitle}\nЕтап: {stage}\nКартка: {k}\n«{preview}»",
+        resumeContinue: "Продовжити",
+        resumeRestart: "З початку",
+        stageNames: ["Вступ", "Вибір", "Вписати", "Речення"]
     }
 };
