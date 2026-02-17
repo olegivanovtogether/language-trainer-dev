@@ -15,11 +15,13 @@ body {
     position: relative;
 }
 
-/* Glyph rain background (3D parallax layers) — only when theme is cyberpunk */
+/* Glyph rain background (3D parallax layers) — fullscreen, only when theme is cyberpunk */
 #cp-matrix {
     display: none;
     position: fixed;
     inset: 0;
+    width: 100vw;
+    height: 100vh;
     pointer-events: none;
     z-index: 0;
     overflow: hidden;
@@ -33,9 +35,16 @@ body.cp-reduced-motion #cp-matrix {
     display: none !important;
 }
 
-body.theme-cyberpunk > * {
+/* Main UI root above matrix */
+#app,
+.container {
     position: relative;
-    z-index: 2;
+    z-index: 5;
+}
+
+body.theme-cyberpunk > *:not(#modalOverlay):not(#cp-matrix) {
+    position: relative;
+    z-index: 5;
 }
 
 .cp-layer {

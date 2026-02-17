@@ -241,7 +241,7 @@
         matrix.id = "cp-matrix";
         matrix.setAttribute("aria-hidden", "true");
         matrix.innerHTML = "<div class=\"cp-layer cp-layer-far\"></div><div class=\"cp-layer cp-layer-mid\"></div><div class=\"cp-layer cp-layer-near\"></div>";
-        document.body.insertBefore(matrix, document.body.firstChild);
+        document.body.appendChild(matrix);
     }
 
     function cpSpawnStream() {
