@@ -546,3 +546,47 @@ button.dev-mode-active,
     border-color: var(--neon-green) !important;
     box-shadow: 0 0 10px rgba(0, 255, 136, 0.6) !important;
 }
+
+/* Settings page - Cyberpunk theme */
+body.theme-cyberpunk .settings-content {
+    background: var(--panel-bg) !important;
+    border: 1px solid var(--panel-border) !important;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2) !important;
+    color: #e0e0f0 !important;
+}
+
+body.theme-cyberpunk .settings-content h1 {
+    color: rgba(230, 255, 255, 0.92) !important;
+}
+
+body.theme-cyberpunk .settings-content select,
+body.theme-cyberpunk .settings-content .settings-btn {
+    background: rgba(6, 10, 14, 0.92) !important;
+    color: rgba(230, 255, 255, 0.92) !important;
+    border: 1px solid rgba(0, 255, 225, 0.4) !important;
+}
+
+body.theme-cyberpunk .settings-content select:hover,
+body.theme-cyberpunk .settings-content .settings-btn:hover:enabled {
+    border-color: rgba(0, 255, 225, 0.75) !important;
+    box-shadow: 0 0 12px rgba(0, 255, 225, 0.35) !important;
+}
+
+body.theme-cyberpunk .settings-content .settings-btn.dev-mode-active {
+    background: rgba(0, 255, 136, 0.2) !important;
+    border-color: var(--neon-green) !important;
+    color: var(--neon-green) !important;
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.6) !important;
+}
+
+body.theme-cyberpunk .settings-content #btn-settings-back {
+    background: rgba(6, 10, 14, 0.92) !important;
+    color: rgba(230, 255, 255, 0.92) !important;
+    border: 1px solid rgba(255, 0, 255, 0.6) !important;
+    box-shadow: 0 0 10px rgba(255, 0, 255, 0.3) !important;
+}
+
+body.theme-cyberpunk .settings-content #btn-settings-back:hover {
+    border-color: rgba(255, 0, 255, 0.95) !important;
+    box-shadow: 0 0 16px rgba(255, 0, 255, 0.5) !important;
+}

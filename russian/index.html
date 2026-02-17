@@ -30,24 +30,45 @@
         }
 
         .settings-content {
-            max-width: 600px;
-            margin: 0 auto;
+            max-width: 500px;
+            margin: 40px auto;
+            background: var(--card-bg, #fff);
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 40px 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #settings-page .settings-content h1 {
+            text-align: center;
+            margin: 0 0 40px 0;
+            font-size: 1.5rem;
+        }
+
+        #settings-toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 40px;
         }
 
         .settings-group {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .settings-group label {
-            min-width: 80px;
+            justify-content: center;
+            width: 100%;
         }
 
         .settings-group select,
         .settings-group .settings-btn {
-            flex: 1;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        #btn-settings-back {
+            display: block;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 300px;
         }
 
         h1 {
@@ -561,13 +582,12 @@
 
     <!-- Сторінка налаштувань -->
     <div id="settings-page" class="page" style="display:none;">
-        <h1>Configuración</h1>
-        
         <div class="settings-content">
-            <div id="settings-toolbar" class="top-row">
+            <h1>Configuración</h1>
+            
+            <div id="settings-toolbar">
                 <!-- Курс -->
                 <div class="settings-group">
-                    <label class="block-selector-label">Curso:</label>
                     <select id="settings-course-select"></select>
                 </div>
 
@@ -582,9 +602,7 @@
                 </div>
             </div>
 
-            <div style="margin-top: 24px;">
-                <button id="btn-settings-back" class="primary">Atrás</button>
-            </div>
+            <button id="btn-settings-back" class="primary">Atrás</button>
         </div>
     </div>
     <!-- Кінець сторінки налаштувань -->
