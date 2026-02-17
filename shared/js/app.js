@@ -395,12 +395,32 @@
     function normalizeAnswer(str) {
         return str.toLowerCase().replace(/\s+/g, " ").trim().replace(/[.!?]+$/, "");
     }
-    function flashScreen(type) {
-        const cls = type === "green" ? "flash-green" : "flash-red";
-        document.body.classList.remove("flash-green", "flash-red");
+    function showFeedback(isCorrect, sourceEl) {
+        var x, y;
+        if (sourceEl && sourceEl.getBoundingClientRect) {
+            var r = sourceEl.getBoundingClientRect();
+            x = r.left + r.width / 2;
+            y = r.top + r.height / 2;
+        } else {
+            x = (window.innerWidth || document.documentElement.clientWidth) / 2;
+            y = (window.innerHeight || document.documentElement.clientHeight) / 2;
+        }
+        document.documentElement.style.setProperty("--fx-x", x + "px");
+        document.documentElement.style.setProperty("--fx-y", y + "px");
+        document.body.classList.remove("flash-green", "flash-red", "fx-ok", "fx-bad");
         void document.body.offsetWidth;
-        document.body.classList.add(cls);
-        setTimeout(function () { document.body.classList.remove(cls); }, type === "red" ? 750 : 500);
+        if (isCorrect) {
+            document.body.classList.add("fx-ok", "flash-green");
+        } else {
+            document.body.classList.add("fx-bad", "flash-red");
+        }
+        setTimeout(function () {
+            document.body.classList.remove("fx-ok", "fx-bad", "flash-green", "flash-red");
+        }, isCorrect ? 500 : 750);
+    }
+
+    function flashScreen(type) {
+        showFeedback(type === "green", null);
     }
     function clearAutoNext() {
         if (autoNextTimeout !== null) {
@@ -534,7 +554,7 @@
                 seq[kind].last = -1;
             }
         } catch (e) { }
-        flashScreen("red");
+        showFeedback(false, null);
         showToast((ui.toastPenalty || "") + rollback);
         updateGateUI();
         if (kind === "mc") loadMCQuestion();
@@ -871,7 +891,7 @@
         const st = stats[currentBlockIndex].mc;
         st.total++;
         if (normalizeAnswer(chosen) === normalizeAnswer(correct)) {
-            flashScreen("green");
+            showFeedback(true, button);
             mcFeedbackEl.textContent = ui.mcCorrect || "✅";
             mcFeedbackEl.className = "feedback correct";
             st.correct++;
@@ -882,7 +902,7 @@
             autoNextTimeout = setTimeout(loadMCQuestion, 900);
         } else {
             wrongAttemptsMC++;
-            flashScreen("red");
+            showFeedback(false, button);
             mcFeedbackEl.textContent = (wrongAttemptsMC >= 3) ? (ui.mcWrongHint || "") + correct : (ui.mcWrongTry || "");
             if (wrongAttemptsMC >= 3) speak(correct);
             mcFeedbackEl.className = "feedback wrong";
@@ -923,7 +943,7 @@
         const st = stats[currentBlockIndex].write;
         st.total++;
         if (normalizeAnswer(user) === normalizeAnswer(card.en)) {
-            flashScreen("green");
+            showFeedback(true, wCheckBtn);
             wFeedbackEl.textContent = ui.wCorrect || "";
             wFeedbackEl.className = "feedback correct";
             st.correct++;
@@ -933,7 +953,7 @@
             autoNextTimeout = setTimeout(loadWQuestion, 900);
         } else {
             wrongAttemptsWrite++;
-            flashScreen("red");
+            showFeedback(false, wCheckBtn);
             wFeedbackEl.textContent = (wrongAttemptsWrite >= 3) ? (ui.wWrongHint || "") + card.en : (ui.wWrongTry || "");
             if (wrongAttemptsWrite >= 3) speak(card.en);
             wFeedbackEl.className = "feedback wrong";
@@ -989,7 +1009,7 @@
         const st = stats[currentBlockIndex].sent;
         st.total++;
         if (normalizeAnswer(user) === normalizeAnswer(card.en)) {
-            flashScreen("green");
+            showFeedback(true, sCheckBtn);
             sFeedbackEl.textContent = ui.sCorrect || "";
             sFeedbackEl.className = "feedback correct";
             st.correct++;
@@ -999,7 +1019,7 @@
             autoNextTimeout = setTimeout(loadSentence, 900);
         } else {
             wrongAttemptsSent++;
-            flashScreen("red");
+            showFeedback(false, sCheckBtn);
             sFeedbackEl.textContent = (wrongAttemptsSent >= 3) ? (ui.sWrongHint || "") + card.en : (ui.sWrongTry || "");
             sFeedbackEl.className = "feedback wrong";
             onWrong("sent");
