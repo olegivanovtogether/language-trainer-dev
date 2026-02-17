@@ -184,3 +184,8 @@ button.dev-mode-active,
     border-color: #34c759;
     box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.25);
 }
+
+/* Hide cyberpunk glyph matrix when classic theme is active */
+#cp-matrix {
+    display: none !important;
+}

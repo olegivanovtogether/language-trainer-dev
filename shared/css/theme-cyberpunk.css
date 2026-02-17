@@ -15,6 +15,86 @@ body {
     position: relative;
 }
 
+/* Glyph rain background (3D parallax layers) — only when theme is cyberpunk */
+#cp-matrix {
+    display: none;
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+body.theme-cyberpunk #cp-matrix {
+    display: block;
+}
+
+body.cp-reduced-motion #cp-matrix {
+    display: none !important;
+}
+
+body.theme-cyberpunk > * {
+    position: relative;
+    z-index: 2;
+}
+
+.cp-layer {
+    position: absolute;
+    inset: 0;
+}
+
+.cp-layer-far {
+    opacity: 0.1;
+    filter: blur(1.2px);
+    transform: translateZ(-60px) scale(1.05);
+}
+
+.cp-layer-mid {
+    opacity: 0.18;
+    filter: blur(0.6px);
+    transform: translateZ(-30px) scale(1.02);
+}
+
+.cp-layer-near {
+    opacity: 0.26;
+    filter: blur(0);
+    transform: translateZ(0) scale(1);
+}
+
+.cp-stream {
+    position: absolute;
+    top: -20vh;
+    white-space: pre;
+    font-family: ui-monospace, monospace;
+    color: rgba(0, 255, 225, 0.9);
+    text-shadow: 0 0 8px rgba(0, 255, 225, 0.6);
+    letter-spacing: 2px;
+    writing-mode: vertical-rl;
+    animation-name: cp-fall, cp-flicker;
+    animation-duration: var(--dur, 6s), 1.8s;
+    animation-timing-function: linear, ease;
+    animation-fill-mode: forwards, none;
+    animation-iteration-count: 1, infinite;
+}
+
+@keyframes cp-fall {
+    to {
+        transform: translateY(140vh);
+        opacity: 0;
+    }
+}
+
+@keyframes cp-flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.75; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cp-stream {
+        animation: none;
+    }
+}
+
 /* Light scanline overlay (pure CSS) */
 body::after {
     content: "";
