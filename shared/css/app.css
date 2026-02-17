@@ -26,6 +26,11 @@
     background: rgba(240, 240, 240, 0.95);
 }
 
+/* Приховати старий блок налаштувань на основній сторінці (тепер він на сторінці налаштувань) */
+#app-toolbar {
+    display: none !important;
+}
+
 /* ----- When minimal: hide UI noise, keep HUD + exercise cards + modal ----- */
 body.ui-minimal h1,
 body.ui-minimal .subtitle,

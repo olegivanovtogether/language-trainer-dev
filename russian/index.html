@@ -24,6 +24,32 @@
             transition: background-color 0.15s;
         }
 
+        /* Сторінки (основна та налаштування) */
+        .page {
+            width: 100%;
+        }
+
+        .settings-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .settings-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .settings-group label {
+            min-width: 80px;
+        }
+
+        .settings-group select,
+        .settings-group .settings-btn {
+            flex: 1;
+        }
+
         h1 {
             text-align: center;
             margin: 16px 0 4px;
@@ -265,6 +291,31 @@
                 cursor: not-allowed;
             }
 
+            .settings-btn {
+                padding: 9px 13px;
+                border-radius: 999px;
+                border: 1px solid #ccc;
+                cursor: pointer;
+                font-size: 0.9rem;
+                background: #fff;
+                transition: background 0.15s, transform 0.05s, box-shadow 0.1s;
+            }
+
+            .settings-btn:hover:enabled {
+                background: #f5f5f5;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+
+            .settings-btn:active:enabled {
+                transform: scale(0.97);
+            }
+
+            .settings-btn.dev-mode-active {
+                border-color: #222;
+                background: #f0f0f0;
+                font-weight: 600;
+            }
+
         .nav-buttons {
             display: flex;
             justify-content: space-between;
@@ -416,10 +467,12 @@
 </style>
 </head>
 <body>
-    <h1>Entrenador de idioma — Ruso</h1>
-    <div class="subtitle">Ejercicios paso a paso: español → ruso.</div>
+    <!-- Основна сторінка -->
+    <div id="main-page" class="page">
+        <h1>Entrenador de idioma — Ruso</h1>
+        <div class="subtitle">Ejercicios paso a paso: español → ruso.</div>
 
-    <div id="topPanel">
+        <div id="topPanel">
         <div class="warning">
             Es mejor hacer los ejercicios en orden. Puedes saltar de uno a otro, pero te cansarás más 🙂
         </div>
@@ -445,7 +498,7 @@
     <div id="stage-bar-wrap" aria-label="Progreso de la etapa"><div id="stage-bar"></div></div>
     <div class="toggle-explain-row">
         <button id="btn-toggle-explain">Ocultar explicación</button>
-        <button id="btn-settings" disabled>Configuración</button>
+        <button id="btn-settings">Configuración</button>
     </div>
 
     <div id="explain" class="explain"></div>
@@ -503,6 +556,38 @@
     <div class="small">
         La estadística se guarda solo mientras la página esté abierta.
     </div>
+    </div>
+    <!-- Кінець основної сторінки -->
+
+    <!-- Сторінка налаштувань -->
+    <div id="settings-page" class="page" style="display:none;">
+        <h1>Configuración</h1>
+        
+        <div class="settings-content">
+            <div id="settings-toolbar" class="top-row">
+                <!-- Курс -->
+                <div class="settings-group">
+                    <label class="block-selector-label">Curso:</label>
+                    <select id="settings-course-select"></select>
+                </div>
+
+                <!-- Тема -->
+                <div class="settings-group">
+                    <button type="button" id="settings-theme-btn" class="settings-btn">Tema</button>
+                </div>
+
+                <!-- Режим розробника -->
+                <div class="settings-group">
+                    <button type="button" id="settings-dev-mode-btn" class="settings-btn">Introducir código</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 24px;">
+                <button id="btn-settings-back" class="primary">Atrás</button>
+            </div>
+        </div>
+    </div>
+    <!-- Кінець сторінки налаштувань -->
 
     <div id="toastOverlay" class="toast-overlay" aria-hidden="true">
         <div id="toastMsg" class="toast"></div>
@@ -522,6 +607,136 @@
 
     <script src="js/course_config.js"></script>
     <script src="../shared/js/app.js"></script>
+    <script>
+        // Перемикання між сторінками
+        (function() {
+            const mainPage = document.getElementById("main-page");
+            const settingsPage = document.getElementById("settings-page");
+            const btnSettings = document.getElementById("btn-settings");
+            const btnSettingsBack = document.getElementById("btn-settings-back");
+            const settingsCourseSelect = document.getElementById("settings-course-select");
+            const settingsThemeBtn = document.getElementById("settings-theme-btn");
+            const settingsDevModeBtn = document.getElementById("settings-dev-mode-btn");
+
+            // Функція показу сторінки налаштувань
+            function showSettingsPage() {
+                mainPage.style.display = "none";
+                settingsPage.style.display = "block";
+                initSettingsPage();
+            }
+
+            // Функція показу основної сторінки
+            function showMainPage() {
+                settingsPage.style.display = "none";
+                mainPage.style.display = "block";
+            }
+
+            // Ініціалізація сторінки налаштувань
+            function initSettingsPage() {
+                const ui = window.COURSE_CONFIG?.ui || {};
+                const DEV_CODE = "dev2024";
+
+                // Курс
+                if (settingsCourseSelect) {
+                    const currentCourse = window.getCurrentCourse ? window.getCurrentCourse() : "russian";
+                    const courses = [
+                        { value: "english", text: ui.courseOptionEnglish || "Inglés" },
+                        { value: "spanish", text: ui.courseOptionSpanish || "Español" },
+                        { value: "russian", text: ui.courseOptionRussian || "Ruso" }
+                    ];
+                    settingsCourseSelect.innerHTML = "";
+                    courses.forEach(function(c) {
+                        const opt = document.createElement("option");
+                        opt.value = c.value;
+                        opt.textContent = c.text;
+                        settingsCourseSelect.appendChild(opt);
+                    });
+                    settingsCourseSelect.value = currentCourse;
+                    settingsCourseSelect.addEventListener("change", function() {
+                        const base = window.getBasePrefix ? window.getBasePrefix() : "";
+                        const target = (base ? base + "/" : "/") + settingsCourseSelect.value + "/index.html";
+                        window.location.href = target;
+                    });
+                }
+
+                // Тема
+                if (settingsThemeBtn) {
+                    function updateThemeButton() {
+                        const currentTheme = window.getTheme ? window.getTheme() : "classic";
+                        settingsThemeBtn.textContent = currentTheme === "classic" ? "Cyberpunk" : "Classic";
+                    }
+                    updateThemeButton();
+                    settingsThemeBtn.onclick = function() {
+                        if (window.setTheme) {
+                            const currentTheme = window.getTheme ? window.getTheme() : "classic";
+                            const next = currentTheme === "classic" ? "cyberpunk" : "classic";
+                            window.setTheme(next);
+                            updateThemeButton();
+                        }
+                    };
+                }
+
+                // Режим розробника
+                if (settingsDevModeBtn) {
+                    function updateDevModeButton() {
+                        const isDev = window.isDevMode ? window.isDevMode() : false;
+                        if (isDev) {
+                            settingsDevModeBtn.textContent = ui.devModeButtonLabel || "Modo desarrollador";
+                            settingsDevModeBtn.classList.add("dev-mode-active");
+                        } else {
+                            settingsDevModeBtn.textContent = ui.devModeEnterCodeLabel || "Introducir código";
+                            settingsDevModeBtn.classList.remove("dev-mode-active");
+                        }
+                    }
+                    updateDevModeButton();
+                    settingsDevModeBtn.onclick = function() {
+                        if (window.isDevMode && window.setDevMode && window.openModal) {
+                            const isDev = window.isDevMode();
+                            if (isDev) {
+                                window.openModal({
+                                    title: ui.devModeButtonLabel || "Dev",
+                                    text: ui.devModeConfirmDisable || "",
+                                    primaryText: ui.ok || "OK",
+                                    secondaryText: ui.devModeCancel || "Cancel",
+                                    onPrimary: function() {
+                                        window.setDevMode(false);
+                                        updateDevModeButton();
+                                    },
+                                    onSecondary: function() {}
+                                });
+                            } else {
+                                const input = window.prompt(ui.devModePromptText || "Code:");
+                                if (input === null) return;
+                                if (input.trim() === DEV_CODE) {
+                                    window.openModal({
+                                        title: ui.devModeButtonLabel || "Dev",
+                                        text: ui.devModeConfirmEnable || "",
+                                        primaryText: ui.ok || "OK",
+                                        secondaryText: ui.devModeCancel || "Cancel",
+                                        onPrimary: function() {
+                                            window.setDevMode(true);
+                                            updateDevModeButton();
+                                        },
+                                        onSecondary: function() {}
+                                    });
+                                } else {
+                                    alert(ui.devModeWrongCode || "Comando desconocido");
+                                }
+                            }
+                        }
+                    };
+                }
+            }
+
+            // Обробники подій
+            if (btnSettings) {
+                btnSettings.addEventListener("click", showSettingsPage);
+            }
+            if (btnSettingsBack) {
+                btnSettingsBack.addEventListener("click", showMainPage);
+            }
+        })();
+    </script>
 
 </body>
 </html>

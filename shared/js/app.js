@@ -1434,5 +1434,14 @@
         try { resetStage("mc"); resetStage("write"); resetStage("sent"); } catch (e) { }
     }
 
+    // Експортуємо функції глобально для доступу зі сторінки налаштувань
+    window.getCurrentCourse = getCurrentCourse;
+    window.getBasePrefix = getBasePrefix;
+    window.getTheme = getTheme;
+    window.setTheme = setTheme;
+    window.isDevMode = isDevMode;
+    window.setDevMode = setDevMode;
+    window.openModal = openModal;
+
     loadExercises().then(init);
 })();
