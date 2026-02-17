@@ -267,9 +267,14 @@
         var len = vertical ? (18 + Math.floor(Math.random() * 23)) : (14 + Math.floor(Math.random() * 15));
         var el = document.createElement("span");
         el.className = "cp-stream " + (vertical ? "cp-vert" : "cp-horiz");
-        el.textContent = cpRandomGlyphString(len);
-        el.style.setProperty("--dur", (Math.random() * 5 + 6).toFixed(2) + "s");
-        el.style.setProperty("--op", (Math.random() * 0.12 + 0.12).toFixed(2));
+        var text = cpRandomGlyphString(len);
+        el.dataset.text = text;
+        el.textContent = text;
+        var duration = (Math.random() * 5 + 6).toFixed(2);
+        el.style.setProperty("--dur", duration + "s");
+        el.style.setProperty("--flow", (Math.random() * 1.2 + 0.9).toFixed(2) + "s");
+        el.style.setProperty("--baseOp", (Math.random() * 0.06 + 0.06).toFixed(2));
+        el.style.setProperty("--hiOp", (Math.random() * 0.35 + 0.35).toFixed(2));
         el.style.fontSize = (Math.random() * 10 + 12).toFixed(0) + "px";
         if (vertical) {
             el.style.left = (Math.random() * 100).toFixed(2) + "vw";

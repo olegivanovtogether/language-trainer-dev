@@ -46,23 +46,30 @@ body.theme-cyberpunk > *:not(#modalOverlay):not(#cp-matrix) {
     z-index: 5;
 }
 
-/* Streams — minimal, guaranteed-working animation */
+/* Streams — faint base + flowing highlight band (performant: no per-char DOM, no base shadow) */
 .cp-stream {
     position: absolute;
-    opacity: 0;
     pointer-events: none;
     font-family: ui-monospace, monospace;
     letter-spacing: 2px;
-    color: rgba(0, 255, 225, 0.65);
-    text-shadow: 0 0 6px rgba(0, 255, 225, 0.35);
+    color: rgba(0, 255, 225, 0.22);
+    opacity: var(--baseOp, 0.08);
+    text-shadow: none;
 }
 
 .cp-vert {
     writing-mode: vertical-rl;
-    mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 60%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 60%, transparent 100%);
+    mask-image: linear-gradient(to bottom,
+        transparent 0%,
+        black 10%,
+        black 70%,
+        transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom,
+        transparent 0%,
+        black 10%,
+        black 70%,
+        transparent 100%);
     animation: cp-write-vert var(--dur, 8s) linear forwards;
-    opacity: var(--op, 0.18);
 }
 
 @keyframes cp-write-vert {
@@ -72,10 +79,17 @@ body.theme-cyberpunk > *:not(#modalOverlay):not(#cp-matrix) {
 
 .cp-horiz {
     white-space: nowrap;
-    mask-image: linear-gradient(to right, transparent 0%, black 12%, black 60%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 60%, transparent 100%);
+    mask-image: linear-gradient(to right,
+        transparent 0%,
+        black 10%,
+        black 70%,
+        transparent 100%);
+    -webkit-mask-image: linear-gradient(to right,
+        transparent 0%,
+        black 10%,
+        black 70%,
+        transparent 100%);
     animation: cp-write-horiz var(--dur, 8s) linear forwards;
-    opacity: var(--op, 0.18);
 }
 
 @keyframes cp-write-horiz {
@@ -83,13 +97,86 @@ body.theme-cyberpunk > *:not(#modalOverlay):not(#cp-matrix) {
     100% { transform: translateX(130vw); }
 }
 
+/* Highlight overlay: same text, flowing band (tail -> head) */
+.cp-stream::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    color: rgba(200, 255, 255, 0.95);
+    opacity: var(--hiOp, 0.55);
+    pointer-events: none;
+    text-shadow: 0 0 10px rgba(0, 255, 225, 0.55);
+}
+
+.cp-vert::after {
+    writing-mode: vertical-rl;
+    -webkit-mask-image: linear-gradient(to bottom,
+        transparent 0%,
+        transparent 35%,
+        black 48%,
+        black 52%,
+        transparent 65%,
+        transparent 100%);
+    -webkit-mask-size: 100% 300%;
+    -webkit-mask-position: 0% 100%;
+    mask-image: linear-gradient(to bottom,
+        transparent 0%,
+        transparent 35%,
+        black 48%,
+        black 52%,
+        transparent 65%,
+        transparent 100%);
+    mask-size: 100% 300%;
+    mask-position: 0% 100%;
+    animation: cp-flow-vert var(--flow, 1.2s) ease-in-out infinite;
+}
+
+@keyframes cp-flow-vert {
+    0%   { -webkit-mask-position: 0% 100%; mask-position: 0% 100%; }
+    100% { -webkit-mask-position: 0% 0%;   mask-position: 0% 0%; }
+}
+
+.cp-horiz::after {
+    white-space: nowrap;
+    -webkit-mask-image: linear-gradient(to right,
+        transparent 0%,
+        transparent 35%,
+        black 48%,
+        black 52%,
+        transparent 65%,
+        transparent 100%);
+    -webkit-mask-size: 300% 100%;
+    -webkit-mask-position: 100% 0%;
+    mask-image: linear-gradient(to right,
+        transparent 0%,
+        transparent 35%,
+        black 48%,
+        black 52%,
+        transparent 65%,
+        transparent 100%);
+    mask-size: 300% 100%;
+    mask-position: 100% 0%;
+    animation: cp-flow-horiz var(--flow, 1.2s) ease-in-out infinite;
+}
+
+@keyframes cp-flow-horiz {
+    0%   { -webkit-mask-position: 100% 0%; mask-position: 100% 0%; }
+    100% { -webkit-mask-position: 0% 0%;   mask-position: 0% 0%; }
+}
+
 body.cp-bad .cp-stream {
-    color: rgba(255, 80, 80, 0.65);
-    text-shadow: 0 0 6px rgba(255, 40, 40, 0.35);
+    color: rgba(255, 80, 80, 0.2);
+}
+body.cp-bad .cp-stream::after {
+    color: rgba(255, 220, 220, 0.95);
+    text-shadow: 0 0 10px rgba(255, 40, 40, 0.55);
 }
 
 @media (prefers-reduced-motion: reduce) {
     .cp-stream {
+        animation: none;
+    }
+    .cp-stream::after {
         animation: none;
     }
 }
