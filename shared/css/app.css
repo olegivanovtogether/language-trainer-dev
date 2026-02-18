@@ -46,6 +46,16 @@ body.ui-minimal .small {
     display: none !important;
 }
 
+/* In minimal mode on intro step: show Start button and Settings row so user is not stuck */
+body.ui-minimal.exercise-step-intro .next-ex-btn-wrap,
+body.ui-minimal.exercise-step-intro .toggle-explain-row {
+    display: flex !important;
+}
+body.ui-minimal.exercise-step-intro .next-ex-btn-wrap {
+    justify-content: flex-start;
+    margin-top: 12px;
+}
+
 /* Remove margins/padding from hidden elements to avoid empty gaps */
 body.ui-minimal h1,
 body.ui-minimal .subtitle,

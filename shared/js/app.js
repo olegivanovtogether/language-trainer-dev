@@ -797,6 +797,7 @@
     }
 
     function updateExerciseVisibility() {
+        document.body.classList.toggle("exercise-step-intro", currentExerciseStep === 0);
         ex1Card.style.display = (currentExerciseStep === 1) ? "block" : "none";
         ex2Card.style.display = (currentExerciseStep === 2) ? "block" : "none";
         ex3Card.style.display = (currentExerciseStep === 3) ? "block" : "none";
@@ -829,8 +830,8 @@
             var minimalEnabled = null;
             try { minimalEnabled = localStorage.getItem(minimalKey); } catch (e) { }
             if (minimalEnabled === null) {
-                minimalEnabled = "1";
-                try { localStorage.setItem(minimalKey, "1"); } catch (e) { }
+                minimalEnabled = "0";
+                try { localStorage.setItem(minimalKey, "0"); } catch (e) { }
             }
             applyMinimalState();
             return;
@@ -967,8 +968,8 @@
         var minimalEnabled = null;
         try { minimalEnabled = localStorage.getItem(minimalKey); } catch (e) { }
         if (minimalEnabled === null) {
-            minimalEnabled = "1";
-            try { localStorage.setItem(minimalKey, "1"); } catch (e) { }
+            minimalEnabled = "0";
+            try { localStorage.setItem(minimalKey, "0"); } catch (e) { }
         }
         applyMinimalState();
     }
@@ -1211,8 +1212,8 @@
         try {
             var minimalEnabled = localStorage.getItem(UI_MINIMAL_KEY);
             if (minimalEnabled === null) {
-                minimalEnabled = "1";
-                localStorage.setItem(UI_MINIMAL_KEY, "1");
+                minimalEnabled = "0";
+                localStorage.setItem(UI_MINIMAL_KEY, "0");
             }
             on = minimalEnabled === "1";
         } catch (e) { }

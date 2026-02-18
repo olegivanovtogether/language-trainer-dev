@@ -659,7 +659,7 @@
 
                 <!-- Тема -->
                 <div class="settings-group">
-                    <button type="button" id="settings-theme-btn" class="settings-btn">Тема</button>
+                    <select id="settings-theme-select"></select>
                 </div>
 
                 <!-- Режим розробника -->
@@ -702,7 +702,7 @@
             const btnSettings = document.getElementById("btn-settings");
             const btnSettingsBack = document.getElementById("btn-settings-back");
             const settingsCourseSelect = document.getElementById("settings-course-select");
-            const settingsThemeBtn = document.getElementById("settings-theme-btn");
+            const settingsThemeSelect = document.getElementById("settings-theme-select");
             const settingsDevModeBtn = document.getElementById("settings-dev-mode-btn");
 
             // Функція показу сторінки налаштувань
@@ -747,20 +747,25 @@
                 }
 
                 // Тема
-                if (settingsThemeBtn) {
-                    function updateThemeButton() {
-                        const currentTheme = window.getTheme ? window.getTheme() : "classic";
-                        settingsThemeBtn.textContent = currentTheme === "classic" ? "Cyberpunk" : "Classic";
-                    }
-                    updateThemeButton();
-                    settingsThemeBtn.onclick = function() {
+                if (settingsThemeSelect) {
+                    const themes = [
+                        { value: "classic", text: "Classic" },
+                        { value: "cyberpunk", text: "Cyberpunk" }
+                    ];
+                    settingsThemeSelect.innerHTML = "";
+                    themes.forEach(function(t) {
+                        const opt = document.createElement("option");
+                        opt.value = t.value;
+                        opt.textContent = t.text;
+                        settingsThemeSelect.appendChild(opt);
+                    });
+                    const currentTheme = window.getTheme ? window.getTheme() : "classic";
+                    settingsThemeSelect.value = currentTheme;
+                    settingsThemeSelect.addEventListener("change", function() {
                         if (window.setTheme) {
-                            const currentTheme = window.getTheme ? window.getTheme() : "classic";
-                            const next = currentTheme === "classic" ? "cyberpunk" : "classic";
-                            window.setTheme(next);
-                            updateThemeButton();
+                            window.setTheme(settingsThemeSelect.value);
                         }
-                    };
+                    });
                 }
 
                 // Режим розробника
