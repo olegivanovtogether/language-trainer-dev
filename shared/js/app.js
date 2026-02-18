@@ -797,7 +797,6 @@
     }
 
     function updateExerciseVisibility() {
-        document.body.classList.toggle("exercise-step-intro", currentExerciseStep === 0);
         ex1Card.style.display = (currentExerciseStep === 1) ? "block" : "none";
         ex2Card.style.display = (currentExerciseStep === 2) ? "block" : "none";
         ex3Card.style.display = (currentExerciseStep === 3) ? "block" : "none";
@@ -825,15 +824,6 @@
             explainVisible = false;
             updateExerciseVisibility();
             saveProgress();
-            
-            var minimalKey = "ui_minimal_mode";
-            var minimalEnabled = null;
-            try { minimalEnabled = localStorage.getItem(minimalKey); } catch (e) { }
-            if (minimalEnabled === null) {
-                minimalEnabled = "0";
-                try { localStorage.setItem(minimalKey, "0"); } catch (e) { }
-            }
-            applyMinimalState();
             return;
         }
         if (currentExerciseStep < 3) {
@@ -963,15 +953,6 @@
         updateStatsView();
         updateExerciseVisibility();
         saveProgress();
-        
-        var minimalKey = "ui_minimal_mode";
-        var minimalEnabled = null;
-        try { minimalEnabled = localStorage.getItem(minimalKey); } catch (e) { }
-        if (minimalEnabled === null) {
-            minimalEnabled = "0";
-            try { localStorage.setItem(minimalKey, "0"); } catch (e) { }
-        }
-        applyMinimalState();
     }
 
     function loadMCQuestion() {
@@ -1205,80 +1186,6 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
-    var UI_MINIMAL_KEY = "ui_minimal_mode";
-
-    function applyMinimalState() {
-        var on = false;
-        try {
-            var minimalEnabled = localStorage.getItem(UI_MINIMAL_KEY);
-            if (minimalEnabled === null) {
-                minimalEnabled = "0";
-                localStorage.setItem(UI_MINIMAL_KEY, "0");
-            }
-            on = minimalEnabled === "1";
-        } catch (e) { }
-        document.body.classList.toggle("ui-minimal", !!on);
-        updateMinimalToggleButtons();
-    }
-
-    function setMinimalMode(on) {
-        try { localStorage.setItem(UI_MINIMAL_KEY, on ? "1" : "0"); } catch (e) { }
-        document.body.classList.toggle("ui-minimal", !!on);
-        updateMinimalToggleButtons();
-    }
-
-    function updateMinimalToggleButtons() {
-        var isMinimal = document.body.classList.contains("ui-minimal");
-        var label = isMinimal
-            ? (ui.normalModeLabel !== undefined ? ui.normalModeLabel : "Перейти в розширений режим")
-            : (ui.minimalModeLabel !== undefined ? ui.minimalModeLabel : "Перейти в мінімальний режим");
-        var buttons = document.querySelectorAll(".btn-minimal-toggle");
-        buttons.forEach(function (btn) {
-            btn.textContent = label;
-        });
-    }
-
-    function ensureHudBar() {
-        var exerciseStep = document.getElementById("exercise-step");
-        var stageBarWrap = document.getElementById("stage-bar-wrap");
-        if (!exerciseStep || !stageBarWrap) return;
-        if (document.getElementById("hudBar")) return;
-
-        var hudBar = document.createElement("div");
-        hudBar.id = "hudBar";
-        exerciseStep.parentNode.insertBefore(hudBar, exerciseStep);
-
-        var blockProgressText = document.getElementById("block-progress-text");
-        if (blockProgressText && blockProgressText.parentElement && blockProgressText.parentElement.classList.contains("block-progress")) {
-            hudBar.appendChild(blockProgressText.parentElement);
-        }
-        hudBar.appendChild(exerciseStep);
-        hudBar.appendChild(stageBarWrap);
-    }
-
-    function ensureMinimalToggleInCards() {
-        var cardIds = ["ex1", "ex2", "ex3"];
-        cardIds.forEach(function (cardId) {
-            var card = document.getElementById(cardId);
-            if (!card) return;
-            var cardTitle = card.querySelector(".card-title");
-            if (!cardTitle) return;
-            if (cardTitle.querySelector(".btn-minimal-toggle")) return;
-
-            var btn = document.createElement("button");
-            btn.type = "button";
-            btn.className = "btn-minimal-toggle";
-            btn.setAttribute("aria-label", "Toggle minimal mode");
-            btn.addEventListener("click", function () {
-                var on = document.body.classList.contains("ui-minimal");
-                setMinimalMode(!on);
-            });
-
-            cardTitle.appendChild(btn);
-        });
-        updateMinimalToggleButtons();
-    }
-
     function ensureAppStyles() {
         if (document.getElementById("app-styles")) return;
         var link = document.createElement("link");
@@ -1404,9 +1311,6 @@
         if (isDevMode()) document.body.classList.add("dev-mode");
 
         ensureAppStyles();
-        applyMinimalState();
-        ensureHudBar();
-        ensureMinimalToggleInCards();
 
         updateThemeBodyClass();
         createCyberpunkMatrixContainer();
