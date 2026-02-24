@@ -1,0 +1,23 @@
+﻿name: Mirror develop to devrepo main
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push develop to language-trainer-dev/main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote add devrepo "https://x-access-token:${{ secrets.DEVREPO_PUSH_TOKEN }}@github.com/olegivanovtogether/language-trainer-dev.git"
+          git push devrepo HEAD:main
