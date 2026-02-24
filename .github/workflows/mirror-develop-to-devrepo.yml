@@ -26,5 +26,8 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Do not mirror workflow files into the target repo to avoid extra workflow scope requirements.
+          git rm -r --ignore-unmatch .github/workflows
+          git commit -m "Remove workflow files from mirrored branch" || true
           git remote add devrepo "https://x-access-token:${DEVREPO_PUSH_TOKEN}@github.com/olegivanovtogether/language-trainer-dev.git"
           git push devrepo HEAD:main
