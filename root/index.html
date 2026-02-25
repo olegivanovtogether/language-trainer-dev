@@ -129,6 +129,16 @@
         .modal-actions button { padding: 10px 14px; border-radius: 10px; border: 1px solid #cfcfcf; background: #fff; cursor: pointer; font-weight: 600; }
         .modal-actions button.primary { border-color: #222; background: #222; color: #fff; }
         .modal-actions button.primary:hover:enabled { background: #333; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .exercise-preview-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.45); display: none !important; align-items: center; justify-content: center; z-index: 10050 !important; padding: 14px; }
+        .exercise-preview-overlay.is-open { display: flex !important; }
+        .exercise-preview-modal { width: min(760px, 100%); max-height: min(86vh, 900px); background: #fff; border-radius: 16px; border: 1px solid #ddd; box-shadow: 0 18px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; }
+        .exercise-preview-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px 10px; border-bottom: 1px solid #eee; }
+        .exercise-preview-title { margin: 0; font-size: 1.06rem; line-height: 1.25; }
+        .exercise-preview-close { border-radius: 10px; min-width: 38px; min-height: 38px; font-size: 1.1rem; font-weight: 700; padding: 4px 10px; }
+        .exercise-preview-body { padding: 12px 14px; overflow: auto; min-height: 0; flex: 1 1 auto; }
+        .exercise-preview-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 10px 14px 14px; border-top: 1px solid #eee; }
+        .exercise-preview-actions button { border-radius: 10px; }
+        .exercise-preview-actions .primary { border-color: #222; background: #222; color: #fff; }
     </style>
 </head>
 <body>
@@ -218,6 +228,19 @@
             <button id="btn-exercises-back" class="primary">Назад</button>
         </div>
     </div>
+    <div id="exercises-preview-modal" class="exercise-preview-overlay" aria-hidden="true">
+        <div class="exercise-preview-modal" role="dialog" aria-modal="true" aria-labelledby="ex-preview-title">
+            <div class="exercise-preview-head">
+                <h2 id="ex-preview-title" class="exercise-preview-title"></h2>
+                <button type="button" id="ex-preview-close-x" class="exercise-preview-close" aria-label="Close">&times;</button>
+            </div>
+            <div id="ex-preview-body" class="exercise-preview-body"></div>
+            <div class="exercise-preview-actions">
+                <button type="button" id="ex-preview-close">Закрити</button>
+                <button type="button" id="ex-preview-start" class="primary">Почати</button>
+            </div>
+        </div>
+    </div>
     <div id="toastOverlay" class="toast-overlay" aria-hidden="true"><div id="toastMsg" class="toast"></div></div>
     <div id="modalOverlay" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="modal">
@@ -270,6 +293,14 @@
                         var exercisesSubtitleEl = document.getElementById("exercises-subtitle");
                         var exerciseButtonsWrap = document.getElementById("exercise-buttons");
                         var btnExercisesBack = document.getElementById("btn-exercises-back");
+                        var exPreviewModal = document.getElementById("exercises-preview-modal");
+                        var exPreviewTitle = document.getElementById("ex-preview-title");
+                        var exPreviewBody = document.getElementById("ex-preview-body");
+                        var exPreviewClose = document.getElementById("ex-preview-close");
+                        var exPreviewCloseX = document.getElementById("ex-preview-close-x");
+                        var exPreviewStart = document.getElementById("ex-preview-start");
+                        var previewExerciseIndex = null;
+                        var previewPreviousIndex = null;
 
                         function showPage(name) {
                             mainPage.style.display = name === "main" ? "block" : "none";
@@ -300,6 +331,41 @@
                             window.scrollTo({ top: 0, behavior: "smooth" });
                         }
 
+                        function showExercisePreview(index, fallbackTitle) {
+                            var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};
+                            var blockSelect = document.getElementById("block-select");
+                            var blockTitle = document.getElementById("block-title");
+                            var explain = document.getElementById("explain");
+                            if (!blockSelect || !exPreviewModal || !exPreviewTitle || !exPreviewBody) return;
+                            previewPreviousIndex = parseInt(blockSelect.value, 10);
+                            previewExerciseIndex = index;
+                            blockSelect.value = String(index);
+                            blockSelect.dispatchEvent(new Event("change", { bubbles: true }));
+                            exPreviewTitle.textContent = (blockTitle && blockTitle.textContent) ? blockTitle.textContent : (fallbackTitle || "");
+                            exPreviewBody.innerHTML = (explain && explain.innerHTML) ? explain.innerHTML : "";
+                            if (!exPreviewBody.innerHTML.trim()) exPreviewBody.textContent = ui.noDescriptionText || "";
+                            if (exPreviewStart) exPreviewStart.textContent = ui.startExercises || "Start";
+                            if (exPreviewClose) exPreviewClose.textContent = ui.modalClose || ui.devModeCancel || "Close";
+                            exPreviewModal.classList.add("is-open");
+                            exPreviewModal.setAttribute("aria-hidden", "false");
+                            document.body.classList.add("modal-open");
+                        }
+
+                        function closeExercisePreview(restorePrevious) {
+                            var blockSelect = document.getElementById("block-select");
+                            if (exPreviewModal) {
+                                exPreviewModal.classList.remove("is-open");
+                                exPreviewModal.setAttribute("aria-hidden", "true");
+                            }
+                            document.body.classList.remove("modal-open");
+                            if (restorePrevious && blockSelect && previewPreviousIndex !== null && !isNaN(previewPreviousIndex)) {
+                                blockSelect.value = String(previewPreviousIndex);
+                                blockSelect.dispatchEvent(new Event("change", { bubbles: true }));
+                            }
+                            previewExerciseIndex = null;
+                            previewPreviousIndex = null;
+                        }
+
                         function initExercisesPage() {
                             var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};
                             if (exercisesTitleEl) exercisesTitleEl.textContent = ui.exercisesTitle || "Exercises";
@@ -327,7 +393,7 @@
                                 btn.appendChild(title);
                                 btn.title = fullLabel;
                                 btn.addEventListener("click", function() {
-                                    openExercise(parseInt(opt.value, 10));
+                                    showExercisePreview(parseInt(opt.value, 10), fullLabel);
                                 });
                                 exerciseButtonsWrap.appendChild(btn);
                             });
@@ -401,6 +467,14 @@
                         if (btnExercises) btnExercises.addEventListener("click", showExercisesPage);
                         if (btnSettingsBack) btnSettingsBack.addEventListener("click", showMainPage);
                         if (btnExercisesBack) btnExercisesBack.addEventListener("click", showMainPage);
+                        if (exPreviewClose) exPreviewClose.addEventListener("click", function() { closeExercisePreview(true); });
+                        if (exPreviewCloseX) exPreviewCloseX.addEventListener("click", function() { closeExercisePreview(true); });
+                        if (exPreviewModal) exPreviewModal.addEventListener("click", function(e) { if (e.target === exPreviewModal) closeExercisePreview(true); });
+                        if (exPreviewStart) exPreviewStart.addEventListener("click", function() {
+                            var i = previewExerciseIndex;
+                            closeExercisePreview(false);
+                            if (i !== null && !isNaN(i)) openExercise(i);
+                        });
                     })();
                 });
             });

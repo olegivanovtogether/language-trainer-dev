@@ -41,7 +41,7 @@ body.cp-reduced-motion #cp-matrix {
     z-index: 5;
 }
 
-body.theme-cyberpunk > *:not(#modalOverlay):not(#cp-matrix) {
+body.theme-cyberpunk > *:not(#modalOverlay):not(#cp-matrix):not(#exercises-preview-modal) {
     position: relative;
     z-index: 5;
 }
@@ -553,6 +553,34 @@ body.theme-cyberpunk .settings-content {
     border: 1px solid var(--panel-border) !important;
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.2) !important;
     color: #e0e0f0 !important;
+}
+
+/* Exercise preview modal */
+body.theme-cyberpunk #exercises-preview-modal {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 10050 !important;
+    background: rgba(8, 10, 20, 0.82) !important;
+}
+
+body.theme-cyberpunk .exercise-preview-modal {
+    background: rgba(10, 14, 24, 0.96) !important;
+    border: 1px solid rgba(0, 255, 225, 0.55) !important;
+    box-shadow: 0 0 24px rgba(0, 255, 225, 0.28) !important;
+    color: #e6ffff !important;
+}
+
+body.theme-cyberpunk .exercise-preview-head,
+body.theme-cyberpunk .exercise-preview-actions {
+    border-color: rgba(0, 255, 225, 0.28) !important;
+}
+
+body.theme-cyberpunk .exercise-preview-title {
+    color: rgba(230, 255, 255, 0.95) !important;
+}
+
+body.theme-cyberpunk .exercise-preview-body {
+    color: #dff7ff !important;
 }
 
 body.theme-cyberpunk .settings-content h1 {
