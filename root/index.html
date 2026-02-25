@@ -17,8 +17,52 @@
         #btn-settings-back { display: block; margin: 0 auto; width: 100%; max-width: 300px; }
         #exercises-page .settings-content h1 { text-align: center; margin: 0 0 12px 0; font-size: 1.5rem; }
         #exercises-subtitle { text-align: center; color: #666; font-size: 0.92rem; margin-bottom: 20px; }
-        #exercise-buttons { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; margin-bottom: 20px; }
-        .exercise-nav-btn { border-radius: 12px; font-weight: 600; min-height: 42px; }
+        #exercise-buttons { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .exercise-nav-btn {
+            border-radius: 50% !important;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            min-height: 0;
+            padding: 0;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+            border-width: 4px;
+        }
+        .exercise-nav-num {
+            width: 78%;
+            font-size: 0.72rem;
+            line-height: 1.1;
+            margin-bottom: 3px;
+            opacity: 0.95;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .exercise-nav-title {
+            display: -webkit-box;
+            width: 78%;
+            line-height: 1.2;
+            font-size: 0.78rem;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-word;
+            hyphens: auto;
+        }
+        body.theme-cyberpunk .exercise-nav-btn { border-color: #00eaff; }
+        body.theme-kawaii .exercise-nav-btn { border-color: #ff6bd5; }
+        body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn { border-color: #6a5acd; }
+        @media (max-width: 600px) {
+            .exercise-nav-num { width: 82%; font-size: 0.68rem; }
+            .exercise-nav-title { width: 82%; font-size: 0.74rem; }
+        }
         #btn-exercises-back { display: block; margin: 0 auto; width: 100%; max-width: 300px; }
         h1 { text-align: center; margin: 16px 0 4px; font-size: 1.4rem; }
         .subtitle { text-align: center; font-size: 0.9rem; color: #555; margin-bottom: 10px; }
@@ -267,9 +311,21 @@
                             if (!blockSelect || !blockSelect.options) return;
                             Array.prototype.forEach.call(blockSelect.options, function(opt, idx) {
                                 var btn = document.createElement("button");
+                                var fullLabel = (opt.textContent || ((ui.blockTitlePrefix || "Exercise ") + (idx + 1))).replace(/\s+/g, " ").trim();
+                                var m = fullLabel.match(/^\s*(\d+)\.\s*(.*)$/);
+                                var numText = m ? (m[1] + ".") : String(idx + 1) + ".";
+                                var titleText = m ? m[2] : fullLabel;
+                                var num = document.createElement("span");
+                                var title = document.createElement("span");
                                 btn.type = "button";
                                 btn.className = "exercise-nav-btn";
-                                btn.textContent = opt.textContent || ((ui.blockTitlePrefix || "Exercise ") + (idx + 1));
+                                num.className = "exercise-nav-num";
+                                title.className = "exercise-nav-title";
+                                num.textContent = numText;
+                                title.textContent = titleText;
+                                btn.appendChild(num);
+                                btn.appendChild(title);
+                                btn.title = fullLabel;
                                 btn.addEventListener("click", function() {
                                     openExercise(parseInt(opt.value, 10));
                                 });
