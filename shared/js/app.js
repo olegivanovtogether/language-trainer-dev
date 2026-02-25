@@ -189,11 +189,13 @@
         return "/" + segments.slice(0, i).join("/");
     }
 
+    var AVAILABLE_THEMES = ["classic", "cyberpunk", "kawaii"];
+
     function getTheme() {
         try {
             var name = typeof localStorage !== "undefined" ? localStorage.getItem("ui-theme") : null;
             if (!name || (typeof name === "string" && name.trim() === "")) return "cyberpunk";
-            return (name === "cyberpunk" || name === "classic") ? name : "cyberpunk";
+            return AVAILABLE_THEMES.indexOf(name) >= 0 ? name : "cyberpunk";
         } catch (e) {
             return "cyberpunk";
         }
@@ -217,7 +219,11 @@
     }
 
     function updateThemeBodyClass() {
-        document.body.classList.toggle("theme-cyberpunk", getTheme() === "cyberpunk");
+        var theme = getTheme();
+        document.body.classList.toggle("theme-cyberpunk", theme === "cyberpunk");
+        document.body.classList.toggle("theme-kawaii", theme === "kawaii");
+        var hearts = document.getElementById("kawaii-hearts");
+        if (hearts) hearts.style.display = theme === "kawaii" ? "block" : "none";
     }
 
     function ensureThemeLink() {
@@ -240,6 +246,7 @@
     var cpStreamCount = 0;
     var cpScheduleTimer = null;
     var cpSpawnLogged = false;
+    var KAWAII_HEARTS_COUNT = 18;
 
     function createCyberpunkMatrixContainer() {
         if (document.getElementById("cp-matrix")) return;
@@ -247,6 +254,36 @@
         matrix.id = "cp-matrix";
         matrix.setAttribute("aria-hidden", "true");
         document.body.appendChild(matrix);
+    }
+
+    function randomBetween(min, max) {
+        return min + Math.random() * (max - min);
+    }
+
+    function ensureKawaiiHearts() {
+        if (document.getElementById("kawaii-hearts")) return;
+        var wrap = document.createElement("div");
+        wrap.id = "kawaii-hearts";
+        wrap.setAttribute("aria-hidden", "true");
+        wrap.style.display = "none";
+        var symbols = ["\u2764", "\u2661", "\u2665"];
+        for (var i = 0; i < KAWAII_HEARTS_COUNT; i++) {
+            var heart = document.createElement("span");
+            heart.className = "kh-heart";
+            heart.textContent = symbols[i % symbols.length];
+            heart.style.setProperty("--x", randomBetween(2, 98).toFixed(2) + "vw");
+            heart.style.setProperty("--y", randomBetween(2, 96).toFixed(2) + "vh");
+            heart.style.setProperty("--dx", randomBetween(-22, 22).toFixed(2) + "px");
+            heart.style.setProperty("--dy", randomBetween(-16, 16).toFixed(2) + "px");
+            heart.style.setProperty("--size", randomBetween(12, 36).toFixed(0) + "px");
+            heart.style.setProperty("--dur", randomBetween(5.0, 11.0).toFixed(2) + "s");
+            heart.style.setProperty("--spin", randomBetween(8.0, 17.0).toFixed(2) + "s");
+            heart.style.setProperty("--pulse", randomBetween(2.0, 4.6).toFixed(2) + "s");
+            heart.style.setProperty("--delay", (-randomBetween(0, 12)).toFixed(2) + "s");
+            heart.style.setProperty("--alpha", randomBetween(0.16, 0.48).toFixed(2));
+            wrap.appendChild(heart);
+        }
+        document.body.appendChild(wrap);
     }
 
     function cpRandomGlyphString(len) {
@@ -1236,9 +1273,16 @@
         themeBtn.id = "btn-theme";
         themeBtn.textContent = ui.themeToggleLabel || "Theme";
         themeBtn.addEventListener("click", function toggleTheme() {
-            var next = getTheme() === "classic" ? "cyberpunk" : "classic";
+            var current = getTheme();
+            var idx = AVAILABLE_THEMES.indexOf(current);
+            var next = AVAILABLE_THEMES[(idx + 1) % AVAILABLE_THEMES.length];
             setTheme(next);
-            var msg = next === "cyberpunk" ? "Cyberpunk" : "Classic";
+            var msgMap = {
+                classic: "Classic",
+                cyberpunk: "Cyberpunk",
+                kawaii: "Kawaii Hearts"
+            };
+            var msg = msgMap[next] || next;
             showToast(msg);
         });
         toolbar.appendChild(themeBtn);
@@ -1314,6 +1358,8 @@
 
         updateThemeBodyClass();
         createCyberpunkMatrixContainer();
+        ensureKawaiiHearts();
+        updateThemeBodyClass();
         var reducedMotion = typeof window.matchMedia !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         document.body.classList.toggle("cp-reduced-motion", !!reducedMotion);
         if (!reducedMotion) {

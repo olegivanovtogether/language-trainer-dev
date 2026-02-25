@@ -1,0 +1,382 @@
+﻿/* theme-kawaii: pink/violet dreamy style with soft hearts */
+:root {
+    --base-font: 16px;
+    --kawaii-bg-1: #ffe9f7;
+    --kawaii-bg-2: #f2d7ff;
+    --kawaii-bg-3: #e7c8ff;
+    --kawaii-accent: #ff5db1;
+    --kawaii-accent-2: #a94dff;
+    --kawaii-text: #4a2a57;
+}
+
+body {
+    min-height: 100vh;
+    color: var(--kawaii-text);
+    font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+    background:
+        radial-gradient(circle at 14% 18%, rgba(255,255,255,0.82) 0 8%, transparent 9%),
+        radial-gradient(circle at 86% 26%, rgba(255,255,255,0.62) 0 7%, transparent 8%),
+        radial-gradient(circle at 72% 78%, rgba(255,255,255,0.58) 0 6%, transparent 7%),
+        linear-gradient(140deg, var(--kawaii-bg-1), var(--kawaii-bg-2) 46%, var(--kawaii-bg-3));
+    background-attachment: fixed;
+}
+
+/* Floating hearts pattern in the background */
+body::before {
+    content: "\\2764  \\2661  \\2764  \\2661  \\2765";
+    position: fixed;
+    inset: 0;
+    color: rgba(255, 93, 177, 0.18);
+    font-size: 24px;
+    letter-spacing: 26px;
+    line-height: 72px;
+    white-space: pre;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.8;
+}
+
+#kawaii-hearts {
+    display: none;
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+body.theme-kawaii #kawaii-hearts {
+    display: block;
+}
+
+.kh-heart {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    font-size: var(--size);
+    line-height: 1;
+    color: rgba(255, 93, 177, var(--alpha, 0.28));
+    text-shadow:
+        0 0 10px rgba(255, 140, 210, 0.34),
+        0 0 24px rgba(169, 77, 255, 0.2);
+    transform-origin: center;
+    will-change: transform, opacity;
+    animation:
+        kh-drift var(--dur) ease-in-out var(--delay) infinite alternate,
+        kh-spin var(--spin) linear var(--delay) infinite,
+        kh-pulse var(--pulse) ease-in-out var(--delay) infinite;
+}
+
+@keyframes kh-drift {
+    0% {
+        transform: translate(0, 0) scale(0.95);
+    }
+    50% {
+        transform: translate(calc(var(--dx) * 0.6), calc(var(--dy) * -0.6)) scale(1.06);
+    }
+    100% {
+        transform: translate(var(--dx), var(--dy)) scale(0.92);
+    }
+}
+
+@keyframes kh-spin {
+    0% { rotate: -8deg; }
+    100% { rotate: 8deg; }
+}
+
+@keyframes kh-pulse {
+    0%, 100% { opacity: 0.45; filter: saturate(0.95); }
+    50% { opacity: 0.95; filter: saturate(1.2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kh-heart {
+        animation: none !important;
+        opacity: 0.35;
+    }
+}
+
+/* Keep UI above decorative layer */
+body > *:not(#modalOverlay):not(#cp-matrix):not(#kawaii-hearts) {
+    position: relative;
+    z-index: 2;
+}
+
+.panel,
+.card,
+.container,
+.explain,
+.stats {
+    background: rgba(255, 255, 255, 0.66);
+    border: 1px solid rgba(169, 77, 255, 0.26);
+    border-radius: 16px;
+    box-shadow: 0 12px 34px rgba(149, 54, 194, 0.18);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+button {
+    color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: linear-gradient(135deg, var(--kawaii-accent), var(--kawaii-accent-2));
+    box-shadow: 0 8px 18px rgba(169, 77, 255, 0.24);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.22s ease,
+        filter 0.22s ease,
+        background-position 0.28s ease;
+    background-size: 140% 140%;
+}
+
+button.primary,
+#mc-next,
+#w-next,
+#s-next,
+#btn-restart,
+#btn-next-ex,
+#btn-prev,
+#btn-next {
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.55) !important;
+    background: linear-gradient(135deg, var(--kawaii-accent), var(--kawaii-accent-2)) !important;
+    box-shadow: 0 8px 18px rgba(169, 77, 255, 0.24) !important;
+}
+
+button::after,
+.option-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-120%) skewX(-20deg);
+    background: linear-gradient(
+        110deg,
+        rgba(255, 255, 255, 0) 18%,
+        rgba(255, 255, 255, 0.38) 45%,
+        rgba(255, 255, 255, 0) 72%
+    );
+    pointer-events: none;
+    z-index: 1;
+    transition: transform 0.46s ease;
+}
+
+button:hover:enabled {
+    filter: brightness(1.08) saturate(1.05);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(169, 77, 255, 0.34);
+    background-position: 85% 50%;
+}
+
+button:hover:enabled::after,
+.option-btn:hover:enabled::after {
+    transform: translateX(120%) skewX(-20deg);
+}
+
+button:active:enabled {
+    transform: translateY(0) scale(0.985);
+    box-shadow: 0 6px 14px rgba(169, 77, 255, 0.25);
+}
+
+button:focus-visible,
+.option-btn:focus-visible {
+    outline: none;
+    box-shadow:
+        0 0 0 3px rgba(255, 255, 255, 0.72),
+        0 0 0 6px rgba(169, 77, 255, 0.44),
+        0 10px 24px rgba(169, 77, 255, 0.3);
+}
+
+button:disabled {
+    color: #7f5b8f !important;
+    border-color: rgba(154, 109, 186, 0.45) !important;
+    background: linear-gradient(135deg, #f3deff, #e8d5fb) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    cursor: not-allowed !important;
+}
+
+button.primary:disabled,
+#btn-next-ex:disabled,
+#btn-restart:disabled,
+#mc-next:disabled,
+#w-next:disabled,
+#s-next:disabled,
+#btn-prev:disabled,
+#btn-next:disabled {
+    color: #7f5b8f !important;
+    border-color: rgba(154, 109, 186, 0.5) !important;
+    background: linear-gradient(135deg, #f5e5ff, #ecd9ff) !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+}
+
+#ex1 #mc-next:disabled,
+#ex2 #w-next:disabled,
+#ex3 #s-next:disabled,
+.next-ex-btn-wrap #btn-restart:disabled,
+.next-ex-btn-wrap #btn-next-ex:disabled {
+    color: #7f5b8f !important;
+    border-color: rgba(154, 109, 186, 0.5) !important;
+    background: linear-gradient(135deg, #f5e5ff, #ecd9ff) !important;
+    opacity: 1 !important;
+}
+
+/* Multiple-choice options: keep readable text on hover */
+.option-btn {
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.55) !important;
+    background: linear-gradient(135deg, #ff62bb, #a24fff) !important;
+    background-size: 145% 145% !important;
+    box-shadow: 0 8px 16px rgba(164, 79, 255, 0.22) !important;
+}
+
+.option-btn:hover:enabled,
+.option-btn:focus-visible {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #ff4faf, #9644f2) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 12px 20px rgba(150, 68, 242, 0.32) !important;
+}
+
+.option-btn.correct {
+    color: #ffffff !important;
+    border-color: rgba(46, 153, 87, 0.85) !important;
+    background: linear-gradient(135deg, #4acb7f, #2ea85f) !important;
+}
+
+.option-btn.wrong {
+    color: #ffffff !important;
+    border-color: rgba(216, 59, 118, 0.85) !important;
+    background: linear-gradient(135deg, #f16aa3, #d83b76) !important;
+}
+
+select,
+input[type="text"],
+input,
+textarea {
+    border-radius: 10px;
+    border: 1px solid rgba(169, 77, 255, 0.35);
+    background: rgba(255, 255, 255, 0.84);
+    color: #4a2a57;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--kawaii-accent-2);
+    box-shadow: 0 0 0 3px rgba(169, 77, 255, 0.2);
+}
+
+#stage-bar,
+.progress-bar .fill {
+    background: linear-gradient(90deg, #ff75c9, #b16bff);
+}
+
+.feedback.correct {
+    color: #2e9957;
+}
+
+.feedback.wrong {
+    color: #d83b76;
+}
+
+.modal-overlay,
+#modalOverlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 9998;
+    background:
+        radial-gradient(circle at 10% 0%, rgba(255,255,255,0.75), rgba(255,255,255,0) 50%),
+        linear-gradient(150deg, rgba(255, 233, 247, 0.98), rgba(231, 200, 255, 0.98));
+}
+
+.modal {
+    position: relative;
+    z-index: 9999;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    border: 1px solid rgba(169, 77, 255, 0.22);
+    box-shadow: 0 18px 52px rgba(152, 54, 197, 0.24);
+}
+
+.modal-actions button {
+    color: #5a2f6e;
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(169, 77, 255, 0.35);
+}
+
+.modal-actions button.primary {
+    color: #fff;
+    background: linear-gradient(135deg, var(--kawaii-accent), var(--kawaii-accent-2));
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+/* Cyberpunk-only matrix stays hidden outside cyberpunk theme */
+#cp-matrix {
+    display: none !important;
+}
+
+/* Settings page */
+.settings-content {
+    color: var(--kawaii-text);
+}
+
+.settings-content h1 {
+    color: #7b329e;
+}
+
+.stats {
+    background: rgba(255, 255, 255, 0.78);
+    border-color: rgba(169, 77, 255, 0.2);
+    color: #5a3a6a;
+}
+
+.next-ex-btn-wrap {
+    background: rgba(255, 255, 255, 0.42);
+    border: 1px solid rgba(169, 77, 255, 0.2);
+    border-radius: 14px;
+    padding: 8px;
+}
+
+.small-toggle {
+    background: linear-gradient(135deg, #ff72c5, #ad63ff);
+    color: #fff;
+}
+
+.settings-content .settings-btn {
+    color: #5a2f6e;
+    border: 1px solid rgba(169, 77, 255, 0.35);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 8px 18px rgba(169, 77, 255, 0.12);
+}
+
+.settings-content .settings-btn:hover:enabled {
+    background: #fff;
+}
+
+.settings-content #btn-settings-back {
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--kawaii-accent), var(--kawaii-accent-2));
+    border-color: rgba(255, 255, 255, 0.55);
+}
+
+.settings-content #btn-settings-back:disabled {
+    color: #7f5b8f;
+    background: linear-gradient(135deg, #f3deff, #e8d5fb);
+}
+
+.settings-content select {
+    color: #5a2f6e;
+}
+
