@@ -8,18 +8,24 @@
         :root { --base-font: 16px; --accent: #ffb74d; --accent-soft: #fff4e0; --card-bg: #ffffff; }
         body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 900px; margin: 0 auto; padding: 12px 12px 24px; line-height: 1.5; font-size: var(--base-font); box-sizing: border-box; background: #f5f5f5; transition: background-color 0.15s; }
         .page { width: 100%; }
-        #main-page, #settings-page { position: relative; z-index: 5; }
+        #main-page, #settings-page, #exercises-page { position: relative; z-index: 5; }
         .settings-content { max-width: 500px; margin: 40px auto; background: var(--card-bg, #fff); border: 1px solid #e0e0e0; border-radius: 12px; padding: 40px 32px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
         #settings-page .settings-content h1 { text-align: center; margin: 0 0 40px 0; font-size: 1.5rem; }
         #settings-toolbar { display: flex; flex-direction: column; gap: 20px; margin-bottom: 40px; }
         .settings-group { display: flex; justify-content: center; width: 100%; }
         .settings-group select, .settings-group .settings-btn { width: 100%; max-width: 300px; }
         #btn-settings-back { display: block; margin: 0 auto; width: 100%; max-width: 300px; }
+        #exercises-page .settings-content h1 { text-align: center; margin: 0 0 12px 0; font-size: 1.5rem; }
+        #exercises-subtitle { text-align: center; color: #666; font-size: 0.92rem; margin-bottom: 20px; }
+        #exercise-buttons { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .exercise-nav-btn { border-radius: 12px; font-weight: 600; min-height: 42px; }
+        #btn-exercises-back { display: block; margin: 0 auto; width: 100%; max-width: 300px; }
         h1 { text-align: center; margin: 16px 0 4px; font-size: 1.4rem; }
         .subtitle { text-align: center; font-size: 0.9rem; color: #555; margin-bottom: 10px; }
         .warning { font-size: 0.85rem; color: #a15a00; background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 10px; padding: 8px 10px; margin-bottom: 10px; }
         .top-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
         .block-selector-label { font-size: 0.85rem; color: #555; }
+        #block-select-label, #block-select { display: none !important; }
         select { padding: 6px 8px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.9rem; background: #fff; }
         .block-header { margin: 8px 0 4px; }
         .block-title { font-weight: 700; font-size: 1.05rem; }
@@ -90,6 +96,7 @@
             <div class="top-row">
                 <div class="block-selector-label" id="block-select-label">Перейти до вправи:</div>
                 <select id="block-select"></select>
+                <button type="button" id="btn-exercises">Вправи</button>
             </div>
             <div class="block-header"><div class="block-title" id="block-title"></div></div>
             <div class="block-progress"><span class="progress-dot"></span><span id="block-progress-text"></span></div>
@@ -159,6 +166,14 @@
             <button id="btn-settings-back" class="primary">Назад</button>
         </div>
     </div>
+    <div id="exercises-page" class="page" style="display:none;">
+        <div class="settings-content">
+            <h1 id="exercises-page-title">Вправи</h1>
+            <div id="exercises-subtitle">Оберіть номер вправи</div>
+            <div id="exercise-buttons"></div>
+            <button id="btn-exercises-back" class="primary">Назад</button>
+        </div>
+    </div>
     <div id="toastOverlay" class="toast-overlay" aria-hidden="true"><div id="toastMsg" class="toast"></div></div>
     <div id="modalOverlay" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="modal">
@@ -200,16 +215,72 @@
                     (function() {
                         var mainPage = document.getElementById("main-page");
                         var settingsPage = document.getElementById("settings-page");
+                        var exercisesPage = document.getElementById("exercises-page");
                         var btnSettings = document.getElementById("btn-settings");
+                        var btnExercises = document.getElementById("btn-exercises");
                         var btnSettingsBack = document.getElementById("btn-settings-back");
                         var settingsCourseSelect = document.getElementById("settings-course-select");
                         var settingsThemeSelect = document.getElementById("settings-theme-select");
                         var settingsDevModeBtn = document.getElementById("settings-dev-mode-btn");
-                        function showSettingsPage() { mainPage.style.display = "none"; settingsPage.style.display = "block"; initSettingsPage(); }
-                        function showMainPage() { settingsPage.style.display = "none"; mainPage.style.display = "block"; }
+                        var exercisesTitleEl = document.getElementById("exercises-page-title");
+                        var exercisesSubtitleEl = document.getElementById("exercises-subtitle");
+                        var exerciseButtonsWrap = document.getElementById("exercise-buttons");
+                        var btnExercisesBack = document.getElementById("btn-exercises-back");
+
+                        function showPage(name) {
+                            mainPage.style.display = name === "main" ? "block" : "none";
+                            settingsPage.style.display = name === "settings" ? "block" : "none";
+                            exercisesPage.style.display = name === "exercises" ? "block" : "none";
+                        }
+
+                        function showSettingsPage() {
+                            showPage("settings");
+                            initSettingsPage();
+                        }
+
+                        function showMainPage() {
+                            showPage("main");
+                        }
+
+                        function showExercisesPage() {
+                            showPage("exercises");
+                            initExercisesPage();
+                        }
+
+                        function openExercise(index) {
+                            var blockSelect = document.getElementById("block-select");
+                            showMainPage();
+                            if (!blockSelect) return;
+                            blockSelect.value = String(index);
+                            blockSelect.dispatchEvent(new Event("change", { bubbles: true }));
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                        }
+
+                        function initExercisesPage() {
+                            var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};
+                            if (exercisesTitleEl) exercisesTitleEl.textContent = ui.exercisesTitle || "Exercises";
+                            if (exercisesSubtitleEl) exercisesSubtitleEl.textContent = ui.exercisesHint || "Choose exercise";
+                            if (btnExercisesBack) btnExercisesBack.textContent = ui.settingsBack || "Back";
+                            if (!exerciseButtonsWrap) return;
+                            exerciseButtonsWrap.innerHTML = "";
+                            var blockSelect = document.getElementById("block-select");
+                            if (!blockSelect || !blockSelect.options) return;
+                            Array.prototype.forEach.call(blockSelect.options, function(opt, idx) {
+                                var btn = document.createElement("button");
+                                btn.type = "button";
+                                btn.className = "exercise-nav-btn";
+                                btn.textContent = opt.textContent || ((ui.blockTitlePrefix || "Exercise ") + (idx + 1));
+                                btn.addEventListener("click", function() {
+                                    openExercise(parseInt(opt.value, 10));
+                                });
+                                exerciseButtonsWrap.appendChild(btn);
+                            });
+                        }
+
                         function initSettingsPage() {
                             var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};
                             var DEV_CODE = "19337";
+                            if (btnExercises) btnExercises.textContent = ui.settingsExercisesButton || ui.exercisesTitle || "Exercises";
                             if (settingsCourseSelect) {
                                 settingsCourseSelect.innerHTML = "";
                                 var currentCourse = window.getCurrentCourse ? window.getCurrentCourse() : "english";
@@ -266,8 +337,14 @@
                                 };
                             }
                         }
+                        (function applyTopExercisesButtonLabel() {
+                            var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};
+                            if (btnExercises) btnExercises.textContent = ui.settingsExercisesButton || ui.exercisesTitle || "Exercises";
+                        })();
                         if (btnSettings) btnSettings.addEventListener("click", showSettingsPage);
+                        if (btnExercises) btnExercises.addEventListener("click", showExercisesPage);
                         if (btnSettingsBack) btnSettingsBack.addEventListener("click", showMainPage);
+                        if (btnExercisesBack) btnExercisesBack.addEventListener("click", showMainPage);
                     })();
                 });
             });
