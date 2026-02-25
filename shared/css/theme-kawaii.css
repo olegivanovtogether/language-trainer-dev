@@ -1,4 +1,4 @@
-﻿/* theme-kawaii: pink/violet dreamy style with soft hearts */
+/* theme-kawaii: pink/violet dreamy style with soft hearts */
 :root {
     --base-font: 16px;
     --kawaii-bg-1: #ffe9f7;
@@ -164,10 +164,13 @@ button::after,
 }
 
 button:hover:enabled {
-    filter: brightness(1.08) saturate(1.05);
+    filter: brightness(1.05) saturate(1.02);
     transform: translateY(-2px);
     box-shadow: 0 12px 24px rgba(169, 77, 255, 0.34);
-    background-position: 85% 50%;
+    /* Keep gradient visible — no shift to white; text stays readable */
+    background-position: 50% 50%;
+    background: linear-gradient(135deg, var(--kawaii-accent), var(--kawaii-accent-2)) !important;
+    color: #ffffff !important;
 }
 
 button:hover:enabled::after,
@@ -363,6 +366,14 @@ body.modal-open {
 
 .settings-content .settings-btn:hover:enabled {
     background: #fff;
+    color: #5a2f6e !important;
+}
+
+/* Dev / light buttons: dark text on hover so they stay readable */
+#btn-dev-mode:hover:enabled,
+.settings-content .settings-btn.dev-mode-active:hover:enabled {
+    color: #5a2f6e !important;
+    background: rgba(255, 255, 255, 0.95) !important;
 }
 
 .settings-content #btn-settings-back {
@@ -380,3 +391,19 @@ body.modal-open {
     color: #5a2f6e;
 }
 
+/* === Theme-wide: no button hover becomes white-on-white (readable text always) === */
+body.theme-kawaii button:hover:enabled {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, var(--kawaii-accent), var(--kawaii-accent-2)) !important;
+    filter: brightness(1.05) saturate(1.02);
+}
+body.theme-kawaii .settings-content button:hover:enabled,
+body.theme-kawaii #btn-dev-mode:hover:enabled {
+    color: #5a2f6e !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-color: rgba(169, 77, 255, 0.4) !important;
+}
+body.theme-kawaii .settings-content #btn-settings-back:hover:enabled {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, var(--kawaii-accent), var(--kawaii-accent-2)) !important;
+}

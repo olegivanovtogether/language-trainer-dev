@@ -56,7 +56,7 @@ window.COURSE_CONFIG = {
         courseOptionRussian: "Ruso",
         themeToggleLabel: "Tema",
         devModeEnterCodeLabel: "Introducir código",
-        devModeButtonLabel: "Modo desarrollador",
+        devModeButtonLabel: "Salir del modo desarrollador",
         devModePromptText: "Introduce el código:",
         devModeConfirmEnable: "¿Seguro que quieres activar el modo desarrollador?",
         devModeConfirmDisable: "¿Desactivar el modo desarrollador?",

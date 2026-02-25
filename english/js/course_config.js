@@ -54,7 +54,7 @@ window.COURSE_CONFIG = {
         courseOptionRussian: "Російська",
         themeToggleLabel: "Тема",
         devModeEnterCodeLabel: "Ввести чіт-код",
-        devModeButtonLabel: "Режим розробника",
+        devModeButtonLabel: "вийти з режиму розробника",
         devModePromptText: "Введи чіт-код:",
         devModeConfirmEnable: "Ти впевнений, що хочеш перейти в режим розробника?",
         devModeConfirmDisable: "Вимкнути режим розробника?",

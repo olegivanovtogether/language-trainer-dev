@@ -365,6 +365,7 @@
             if (typeof localStorage !== "undefined") localStorage.setItem(DEV_MODE_KEY, enabled ? "1" : "0");
         } catch (e) { }
         if (enabled) document.body.classList.add("dev-mode"); else document.body.classList.remove("dev-mode");
+        if (typeof updateGateUI === "function") updateGateUI();
     }
 
     function loadScript(src, callback) {
