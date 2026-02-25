@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language trainer</title>
+    <style>
+        :root { --base-font: 16px; --accent: #ffb74d; --accent-soft: #fff4e0; --card-bg: #ffffff; }
+        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 900px; margin: 0 auto; padding: 12px 12px 24px; line-height: 1.5; font-size: var(--base-font); box-sizing: border-box; background: #f5f5f5; transition: background-color 0.15s; }
+        .page { width: 100%; }
+        #main-page, #settings-page, #exercises-page { position: relative; z-index: 5; }
+        .settings-content { max-width: 500px; margin: 40px auto; background: var(--card-bg, #fff); border: 1px solid #e0e0e0; border-radius: 12px; padding: 40px 32px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+        #settings-page .settings-content h1 { text-align: center; margin: 0 0 40px 0; font-size: 1.5rem; }
+        #settings-toolbar { display: flex; flex-direction: column; gap: 20px; margin-bottom: 40px; }
+        .settings-group { display: flex; justify-content: center; width: 100%; }
+        .settings-group select, .settings-group .settings-btn { width: 100%; max-width: 300px; }
+        #btn-settings-back { display: block; margin: 0 auto; width: 100%; max-width: 300px; }
+        #exercises-page .settings-content h1 { text-align: center; margin: 0 0 12px 0; font-size: 1.5rem; }
+        #exercises-subtitle { text-align: center; color: #666; font-size: 0.92rem; margin-bottom: 20px; }
+        #exercise-buttons { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .exercise-nav-btn {
+            border-radius: 50% !important;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            min-height: 0;
+            padding: 0;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+            border-width: 4px;
+        }
+        .exercise-nav-num {
+            width: 78%;
+            font-size: 0.72rem;
+            line-height: 1.1;
+            margin-bottom: 3px;
+            opacity: 0.95;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .exercise-nav-title {
+            display: -webkit-box;
+            width: 78%;
+            line-height: 1.2;
+            font-size: 0.78rem;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-word;
+            hyphens: auto;
+        }
+        body.theme-cyberpunk .exercise-nav-btn { border-color: #00eaff; }
+        body.theme-kawaii .exercise-nav-btn { border-color: #ff6bd5; }
+        body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn { border-color: #6a5acd; }
+        @media (max-width: 600px) {
+            .exercise-nav-num { width: 82%; font-size: 0.68rem; }
+            .exercise-nav-title { width: 82%; font-size: 0.74rem; }
+        }
+        #btn-exercises-back { display: block; margin: 0 auto; width: 100%; max-width: 300px; }
+        h1 { text-align: center; margin: 16px 0 4px; font-size: 1.4rem; }
+        .subtitle { text-align: center; font-size: 0.9rem; color: #555; margin-bottom: 10px; }
+        .warning { font-size: 0.85rem; color: #a15a00; background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 10px; padding: 8px 10px; margin-bottom: 10px; }
+        .top-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+        .block-selector-label { font-size: 0.85rem; color: #555; }
+        #block-select-label, #block-select { display: none !important; }
+        select { padding: 6px 8px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.9rem; background: #fff; }
+        .block-header { margin: 8px 0 4px; }
+        .block-title { font-weight: 700; font-size: 1.05rem; }
+        .block-progress { font-size: 0.85rem; color: #666; display: flex; align-items: center; gap: 6px; }
+        .progress-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--accent); }
+        .exercise-step { font-size: 0.9rem; margin: 6px 0 8px; color: #333; }
+        .explain { background: var(--card-bg); border-radius: 12px; border: 1px solid #e0e0e0; padding: 10px 12px; margin-bottom: 12px; }
+        .topic-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; padding: 2px 8px; border-radius: 999px; background: #eef4ff; color: #244272; margin-bottom: 4px; }
+        .explain h2 { margin: 2px 0 6px; font-size: 1rem; }
+        .explain p, .explain ul, .explain li { margin: 4px 0; }
+        .explain ul { margin-left: 18px; padding: 0; }
+        .toggle-explain-row { margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .card { border: 1px solid #e0e0e0; border-radius: 12px; padding: 12px; margin-bottom: 10px; background: var(--card-bg); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .card-title { font-weight: 600; margin-bottom: 6px; font-size: 0.95rem; }
+        .label { font-size: 0.83rem; color: #555; margin-bottom: 4px; }
+        .question { font-size: 1.05rem; margin-bottom: 8px; }
+        .options { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+        .option-btn { text-align: left; width: 100%; border-radius: 999px; padding-left: 14px; }
+        .option-btn.correct { border-color: #2e7d32; background: #e6f7e6; }
+        .option-btn.wrong { border-color: #c62828; background: #ffecec; }
+        .feedback { min-height: 20px; margin-bottom: 8px; font-weight: 600; font-size: 0.92rem; }
+        .feedback.correct { color: #2e7d32; }
+        .feedback.wrong { color: #c62828; }
+        .input-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: nowrap; }
+        input[type="text"], textarea { flex: 1 1 auto; padding: 8px 10px; border-radius: 10px; border: 1px solid #ccc; font-size: 0.95rem; min-width: 0; font-family: inherit; resize: vertical; background: #fafafa; }
+        button { padding: 9px 13px; border-radius: 999px; border: 1px solid #ccc; cursor: pointer; font-size: 0.9rem; background: #fff; transition: background 0.15s, transform 0.05s, box-shadow 0.1s; touch-action: manipulation; }
+        button:hover:enabled { background: #f5f5f5; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        button:active:enabled { transform: scale(0.97); }
+        button.primary { border-color: #333; background: #f0f0f0; font-weight: 600; }
+        button:disabled { opacity: 0.6; cursor: default; box-shadow: none; }
+        #btn-settings:disabled { opacity: 0.5; cursor: not-allowed; }
+        .settings-btn { padding: 9px 13px; border-radius: 999px; border: 1px solid #ccc; cursor: pointer; font-size: 0.9rem; background: #fff; transition: background 0.15s, transform 0.05s, box-shadow 0.1s; }
+        .settings-btn:hover:enabled { background: #f5f5f5; color: #222 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .settings-btn:active:enabled { transform: scale(0.97); }
+        .settings-btn.dev-mode-active { border-color: #333; background: #f0f0f0; font-weight: 600; }
+        .nav-buttons { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; }
+        .nav-buttons button { flex: 1 1 0; }
+        .next-ex-btn-wrap { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 8px; margin-top: 4px; }
+        .stats { font-size: 0.8rem; color: #555; background: #fff; border-radius: 8px; border: 1px solid #ddd; padding: 6px 8px; margin-top: 6px; }
+        #stage-bar-wrap { height: 10px; width: 100%; border-radius: 999px; background: #e6e6e6; overflow: hidden; margin: 10px 0 8px; border: 1px solid #ddd; }
+        #stage-bar { height: 100%; width: 0%; background: #ff4d4d; border-radius: 999px; transition: width 0.25s ease, background-color 0.25s ease; }
+        .small { font-size: 0.8rem; color: #777; margin-top: 6px; text-align: center; }
+        @keyframes flash-green { 0% { background-color: #c8f7c5; } 100% { background-color: #f5f5f5; } }
+        @keyframes flash-red { 0% { background-color: #ffb3b3; } 100% { background-color: #f5f5f5; } }
+        body.flash-green { animation: flash-green 0.5s ease-out; }
+        .toast-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity .15s ease; z-index: 9999; }
+        .toast-overlay.show { opacity: 1; }
+        .toast { max-width: 90vw; background: rgba(30,30,30,0.92); color: #fff; padding: 10px 14px; border-radius: 14px; font-weight: 700; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+        body.flash-red { animation: flash-red 0.5s ease-out 1; }
+        .small-toggle { display: none; margin: 6px 0 10px; padding: 6px 10px; border-radius: 999px; font-size: 0.85rem; }
+        @media (max-width: 600px) { body { padding: 10px; font-size: 15px; } h1 { font-size: 1.2rem; margin-top: 12px; } .input-row { flex-direction: column; } .input-row button { width: 100%; } .nav-buttons { flex-direction: column; gap: 12px; } .nav-buttons button, .next-ex-btn-wrap button { min-height: 48px; padding: 12px 16px; } .top-row { flex-direction: column; align-items: stretch; } select { width: 100%; } .toggle-explain-row { text-align: left; } }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 16px; }
+        .modal { width: min(520px, 100%); background: #fff; border-radius: 14px; box-shadow: 0 18px 60px rgba(0,0,0,0.25); padding: 18px 18px 14px; }
+        .modal h2 { margin: 0 0 10px; font-size: 1.2rem; }
+        .modal p { margin: 0 0 14px; line-height: 1.35; white-space: pre-wrap; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+        .modal-actions button { padding: 10px 14px; border-radius: 10px; border: 1px solid #cfcfcf; background: #fff; cursor: pointer; font-weight: 600; }
+        .modal-actions button.primary { border-color: #222; background: #222; color: #fff; }
+        .modal-actions button.primary:hover:enabled { background: #333; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .exercise-preview-overlay { position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.45); display: none !important; align-items: center; justify-content: center; z-index: 10050 !important; padding: 14px; }
+        .exercise-preview-overlay.is-open { display: flex !important; }
+        .exercise-preview-modal { width: min(760px, 100%); max-height: min(86vh, 900px); background: #fff; border-radius: 16px; border: 1px solid #ddd; box-shadow: 0 18px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; }
+        .exercise-preview-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px 10px; border-bottom: 1px solid #eee; }
+        .exercise-preview-title { margin: 0; font-size: 1.06rem; line-height: 1.25; }
+        .exercise-preview-close { border-radius: 10px; min-width: 38px; min-height: 38px; font-size: 1.1rem; font-weight: 700; padding: 4px 10px; }
+        .exercise-preview-body { padding: 12px 14px; overflow: auto; min-height: 0; flex: 1 1 auto; }
+        .exercise-preview-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 10px 14px 14px; border-top: 1px solid #eee; }
+        .exercise-preview-actions button { border-radius: 10px; }
+        .exercise-preview-actions .primary { border-color: #222; background: #222; color: #fff; }
+    </style>
+</head>
+<body>
+    <div id="main-page" class="page">
+        <h1>Language trainer</h1>
+        <div class="subtitle" id="main-subtitle">Покрокові вправи. Оберіть курс у налаштуваннях.</div>
+        <div id="topPanel">
+            <div class="top-row">
+                <div class="block-selector-label" id="block-select-label">Перейти до вправи:</div>
+                <select id="block-select"></select>
+                <button type="button" id="btn-exercises">Вправи</button>
+            </div>
+            <div class="block-header"><div class="block-title" id="block-title"></div></div>
+            <div class="block-progress"><span class="progress-dot"></span><span id="block-progress-text"></span></div>
+        </div>
+        <button id="btn-topPanel" class="small-toggle">Показати панель</button>
+        <div class="exercise-step" id="exercise-step"></div>
+        <div id="stage-bar-wrap" aria-label="Прогрес етапу"><div id="stage-bar"></div></div>
+        <div class="toggle-explain-row">
+            <button id="btn-toggle-explain">Сховати пояснення</button>
+            <button id="btn-settings">Налаштування</button>
+        </div>
+        <div id="explain" class="explain"></div>
+        <div id="ex1" class="card" style="display:none;">
+            <div class="card-title">1️⃣ Вибір правильної фрази</div>
+            <div class="label">Українська фраза:</div>
+            <div id="mc-question" class="question"></div>
+            <div class="label">Обери правильний переклад:</div>
+            <div id="mc-options" class="options"></div>
+            <div id="mc-feedback" class="feedback"></div>
+            <button id="mc-next" class="primary">Наступне слово в цій вправі</button>
+        </div>
+        <div id="ex2" class="card" style="display:none;">
+            <div class="card-title">2️⃣ Написати фразу самому</div>
+            <div class="label">Українська фраза:</div>
+            <div id="w-question" class="question"></div>
+            <div class="label">Напиши переклад:</div>
+            <div class="input-row">
+                <input id="w-input" type="text" autocomplete="off">
+                <button id="w-check">Перевірити</button>
+            </div>
+            <div id="w-feedback" class="feedback"></div>
+            <button id="w-show">Показати відповідь</button>
+            <button id="w-next" class="primary">Наступне слово в цій вправі</button>
+        </div>
+        <div id="ex3" class="card" style="display:none;">
+            <div class="card-title">3️⃣ Переклад маленьких речень</div>
+            <div class="label">Український текст:</div>
+            <div id="s-question" class="question"></div>
+            <div class="label">Переклади:</div>
+            <div class="input-row">
+                <textarea id="s-input" rows="3" autocomplete="off"></textarea>
+                <button id="s-check">Перевірити</button>
+            </div>
+            <div id="s-feedback" class="feedback"></div>
+            <button id="s-show">Показати відповідь</button>
+            <button id="s-next" class="primary">Наступне речення в цій вправі</button>
+        </div>
+        <div class="next-ex-btn-wrap">
+            <button id="btn-restart" class="primary">Перезапустити цю вправу</button>
+            <button id="btn-next-ex" class="primary">Почати вправи</button>
+        </div>
+        <div id="stats" class="stats"></div>
+        <div class="nav-buttons">
+            <button id="btn-prev">← Попередня вправа</button>
+            <button id="btn-next">Наступна вправа →</button>
+        </div>
+        <div class="small">Статистика зберігається лише поки сторінка відкрита.</div>
+    </div>
+    <div id="settings-page" class="page" style="display:none;">
+        <div class="settings-content">
+            <h1 id="settings-page-title">Налаштування</h1>
+            <div id="settings-toolbar">
+                <div class="settings-group"><select id="settings-course-select"></select></div>
+                <div class="settings-group"><select id="settings-theme-select"></select></div>
+                <div class="settings-group"><button type="button" id="settings-dev-mode-btn" class="settings-btn">Ввести чіт-код</button></div>
+            </div>
+            <button id="btn-settings-back" class="primary">Назад</button>
+        </div>
+    </div>
+    <div id="exercises-page" class="page" style="display:none;">
+        <div class="settings-content">
+            <h1 id="exercises-page-title">Вправи</h1>
+            <div id="exercises-subtitle">Оберіть номер вправи</div>
+            <div id="exercise-buttons"></div>
+            <button id="btn-exercises-back" class="primary">Назад</button>
+        </div>
+    </div>
+    <div id="exercises-preview-modal" class="exercise-preview-overlay" aria-hidden="true">
+        <div class="exercise-preview-modal" role="dialog" aria-modal="true" aria-labelledby="ex-preview-title">
+            <div class="exercise-preview-head">
+                <h2 id="ex-preview-title" class="exercise-preview-title"></h2>
+                <button type="button" id="ex-preview-close-x" class="exercise-preview-close" aria-label="Close">&times;</button>
+            </div>
+            <div id="ex-preview-body" class="exercise-preview-body"></div>
+            <div class="exercise-preview-actions">
+                <button type="button" id="ex-preview-close">Закрити</button>
+                <button type="button" id="ex-preview-start" class="primary">Почати</button>
+            </div>
+        </div>
+    </div>
+    <div id="toastOverlay" class="toast-overlay" aria-hidden="true"><div id="toastMsg" class="toast"></div></div>
+    <div id="modalOverlay" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal">
+            <h2 id="modalTitle">Готово</h2>
+            <p id="modalText"></p>
+            <div class="modal-actions">
+                <button id="modalSecondary">Спробувати ще раз</button>
+                <button id="modalPrimary" class="primary">Далі</button>
+                <button id="modalTertiary" class="secondary">Повторити вправу</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        (function() {
+            var pathname = window.location.pathname || "/";
+            var inRoot = pathname.indexOf("root") >= 0;
+            var course = "english";
+            var params = new URLSearchParams(window.location.search || "");
+            var c = params.get("course");
+            if (c === "english" || c === "spanish" || c === "russian") course = c;
+            function scriptPath(relativePath) {
+                if (inRoot) return "../" + relativePath;
+                var base = pathname.replace(/\/[^/]*$/, "").replace(/\/$/, "") || "";
+                if (base && base.charAt(0) !== "/") base = "/" + base;
+                var useRelative = window.location.protocol === "file:" || !window.location.origin || window.location.origin === "null";
+                if (useRelative) return relativePath;
+                return (base ? base + "/" : "/") + relativePath;
+            }
+            function loadScript(src, cb) {
+                var s = document.createElement("script");
+                s.src = src;
+                s.onload = cb;
+                s.onerror = function() { if (cb) cb(); };
+                document.body.appendChild(s);
+            }
+            loadScript(scriptPath(course + "/js/course_config.js") + "?v=" + encodeURIComponent(course), function() {
+                if (window.COURSE_CONFIG && window.COURSE_CONFIG.uiLang) try { document.documentElement.lang = window.COURSE_CONFIG.uiLang; } catch (e) {}
+                loadScript(scriptPath("shared/js/app.js"), function() {
+                    (function() {
+                        var mainPage = document.getElementById("main-page");
+                        var settingsPage = document.getElementById("settings-page");
+                        var exercisesPage = document.getElementById("exercises-page");
+                        var btnSettings = document.getElementById("btn-settings");
+                        var btnExercises = document.getElementById("btn-exercises");
+                        var btnSettingsBack = document.getElementById("btn-settings-back");
+                        var settingsCourseSelect = document.getElementById("settings-course-select");
+                        var settingsThemeSelect = document.getElementById("settings-theme-select");
+                        var settingsDevModeBtn = document.getElementById("settings-dev-mode-btn");
+                        var exercisesTitleEl = document.getElementById("exercises-page-title");
+                        var exercisesSubtitleEl = document.getElementById("exercises-subtitle");
+                        var exerciseButtonsWrap = document.getElementById("exercise-buttons");
+                        var btnExercisesBack = document.getElementById("btn-exercises-back");
+                        var exPreviewModal = document.getElementById("exercises-preview-modal");
+                        var exPreviewTitle = document.getElementById("ex-preview-title");
+                        var exPreviewBody = document.getElementById("ex-preview-body");
+                        var exPreviewClose = document.getElementById("ex-preview-close");
+                        var exPreviewCloseX = document.getElementById("ex-preview-close-x");
+                        var exPreviewStart = document.getElementById("ex-preview-start");
+                        var previewExerciseIndex = null;
+                        var previewPreviousIndex = null;
+
+                        function showPage(name) {
+                            mainPage.style.display = name === "main" ? "block" : "none";
+                            settingsPage.style.display = name === "settings" ? "block" : "none";
+                            exercisesPage.style.display = name === "exercises" ? "block" : "none";
+                        }
+
+                        function showSettingsPage() {
+                            showPage("settings");
+                            initSettingsPage();
+                        }
+
+                        function showMainPage() {
+                            showPage("main");
+                        }
+
+                        function showExercisesPage() {
+                            showPage("exercises");
+                            initExercisesPage();
+                        }
+
+                        function openExercise(index) {
+                            var blockSelect = document.getElementById("block-select");
+                            showMainPage();
+                            if (!blockSelect) return;
+                            blockSelect.value = String(index);
+                            blockSelect.dispatchEvent(new Event("change", { bubbles: true }));
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                        }
+
+                        function showExercisePreview(index, fallbackTitle) {
+                            var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};
+                            var blockSelect = document.getElementById("block-select");
+                            var blockTitle = document.getElementById("block-title");
+                            var explain = document.getElementById("explain");
+                            if (!blockSelect || !exPreviewModal || !exPreviewTitle || !exPreviewBody) return;
+                            previewPreviousIndex = parseInt(blockSelect.value, 10);
+                            previewExerciseIndex = index;
+                            blockSelect.value = String(index);
+                            blockSelect.dispatchEvent(new Event("change", { bubbles: true }));
+                            exPreviewTitle.textContent = (blockTitle && blockTitle.textContent) ? blockTitle.textContent : (fallbackTitle || "");
+                            exPreviewBody.innerHTML = (explain && explain.innerHTML) ? explain.innerHTML : "";
+                            if (!exPreviewBody.innerHTML.trim()) exPreviewBody.textContent = ui.noDescriptionText || "";
+                            if (exPreviewStart) exPreviewStart.textContent = ui.startExercises || "Start";
+                            if (exPreviewClose) exPreviewClose.textContent = ui.modalClose || ui.devModeCancel || "Close";
+                            exPreviewModal.classList.add("is-open");
+                            exPreviewModal.setAttribute("aria-hidden", "false");
+                            document.body.classList.add("modal-open");
+                        }
+
+                        function closeExercisePreview(restorePrevious) {
+                            var blockSelect = document.getElementById("block-select");
+                            if (exPreviewModal) {
+                                exPreviewModal.classList.remove("is-open");
+                                exPreviewModal.setAttribute("aria-hidden", "true");
+                            }
+                            document.body.classList.remove("modal-open");
+                            if (restorePrevious && blockSelect && previewPreviousIndex !== null && !isNaN(previewPreviousIndex)) {
+                                blockSelect.value = String(previewPreviousIndex);
+                                blockSelect.dispatchEvent(new Event("change", { bubbles: true }));
+                            }
+                            previewExerciseIndex = null;
+                            previewPreviousIndex = null;
+                        }
+
+                        function initExercisesPage() {
+                            var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};
+                            if (exercisesTitleEl) exercisesTitleEl.textContent = ui.exercisesTitle || "Exercises";
+                            if (exercisesSubtitleEl) exercisesSubtitleEl.textContent = ui.exercisesHint || "Choose exercise";
+                            if (btnExercisesBack) btnExercisesBack.textContent = ui.settingsBack || "Back";
+                            if (!exerciseButtonsWrap) return;
+                            exerciseButtonsWrap.innerHTML = "";
+                            var blockSelect = document.getElementById("block-select");
+                            if (!blockSelect || !blockSelect.options) return;
+                            Array.prototype.forEach.call(blockSelect.options, function(opt, idx) {
+                                var btn = document.createElement("button");
+                                var fullLabel = (opt.textContent || ((ui.blockTitlePrefix || "Exercise ") + (idx + 1))).replace(/\s+/g, " ").trim();
+                                var m = fullLabel.match(/^\s*(\d+)\.\s*(.*)$/);
+                                var numText = m ? (m[1] + ".") : String(idx + 1) + ".";
+                                var titleText = m ? m[2] : fullLabel;
+                                var num = document.createElement("span");
+                                var title = document.createElement("span");
+                                btn.type = "button";
+                                btn.className = "exercise-nav-btn";
+                                num.className = "exercise-nav-num";
+                                title.className = "exercise-nav-title";
+                                num.textContent = numText;
+                                title.textContent = titleText;
+                                btn.appendChild(num);
+                                btn.appendChild(title);
+                                btn.title = fullLabel;
+                                btn.addEventListener("click", function() {
+                                    showExercisePreview(parseInt(opt.value, 10), fullLabel);
+                                });
+                                exerciseButtonsWrap.appendChild(btn);
+                            });
+                        }
+
+                        function initSettingsPage() {
+                            var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};
+                            var DEV_CODE = "19337";
+                            if (btnExercises) btnExercises.textContent = ui.settingsExercisesButton || ui.exercisesTitle || "Exercises";
+                            if (settingsCourseSelect) {
+                                settingsCourseSelect.innerHTML = "";
+                                var currentCourse = window.getCurrentCourse ? window.getCurrentCourse() : "english";
+                                var courseLabels = { english: ui.courseOptionEnglish || "Англійська", spanish: ui.courseOptionSpanish || "Іспанська", russian: ui.courseOptionRussian || "Російська" };
+                                ["english", "spanish", "russian"].forEach(function(v) {
+                                    var opt = document.createElement("option");
+                                    opt.value = v;
+                                    opt.textContent = courseLabels[v] || v;
+                                    settingsCourseSelect.appendChild(opt);
+                                });
+                                settingsCourseSelect.value = currentCourse;
+                                settingsCourseSelect.onchange = function() {
+                                    var pathname = window.location.pathname || "";
+                                    if (pathname.indexOf("root") < 0) {
+                                        window.location.href = "index.html?course=" + settingsCourseSelect.value;
+                                        return;
+                                    }
+                                    var b = window.getBasePrefix ? window.getBasePrefix() : "";
+                                    var isRoot = b === "root" || b === "/root" || (b && b.replace(/\/$/, "").endsWith("root"));
+                                    var prefix = isRoot ? "" : (b ? b + "/" : (window.location.protocol === "file:" || !window.location.origin ? "" : "/"));
+                                    window.location.href = (isRoot ? "index.html" : prefix + "index.html") + "?course=" + settingsCourseSelect.value;
+                                };
+                            }
+                            if (settingsThemeSelect) {
+                                settingsThemeSelect.innerHTML = "";
+                                [{ value: "classic", text: "Classic" }, { value: "cyberpunk", text: "Cyberpunk" }, { value: "kawaii", text: "Kawaii Hearts" }].forEach(function(t) {
+                                    var opt = document.createElement("option");
+                                    opt.value = t.value;
+                                    opt.textContent = t.text;
+                                    settingsThemeSelect.appendChild(opt);
+                                });
+                                settingsThemeSelect.value = window.getTheme ? window.getTheme() : "classic";
+                                settingsThemeSelect.onchange = function() { if (window.setTheme) window.setTheme(settingsThemeSelect.value); };
+                            }
+                            if (settingsDevModeBtn) {
+                                function updateDevModeButton() {
+                                    var isDev = window.isDevMode ? window.isDevMode() : false;
+                                    settingsDevModeBtn.textContent = isDev ? (ui.devModeButtonLabel || "Режим розробника") : (ui.devModeEnterCodeLabel || "Ввести чіт-код");
+                                    settingsDevModeBtn.classList.toggle("dev-mode-active", isDev);
+                                }
+                                updateDevModeButton();
+                                settingsDevModeBtn.onclick = function() {
+                                    if (!window.isDevMode || !window.setDevMode || !window.openModal) return;
+                                    var isDev = window.isDevMode();
+                                    if (isDev) {
+                                        window.openModal({ title: ui.devModeButtonLabel || "Dev", text: ui.devModeConfirmDisable || "", primaryText: ui.ok || "OK", secondaryText: ui.devModeCancel || "Cancel", onPrimary: function() { window.setDevMode(false); updateDevModeButton(); }, onSecondary: function() {} });
+                                    } else {
+                                        var input = window.prompt(ui.devModePromptText || "Code:");
+                                        if (input === null) return;
+                                        if (input.trim() === DEV_CODE) {
+                                            window.openModal({ title: ui.devModeButtonLabel || "Dev", text: ui.devModeConfirmEnable || "", primaryText: ui.ok || "OK", secondaryText: ui.devModeCancel || "Cancel", onPrimary: function() { window.setDevMode(true); updateDevModeButton(); }, onSecondary: function() {} });
+                                        } else { alert(ui.devModeWrongCode || "Невідома команда"); }
+                                    }
+                                };
+                            }
+                        }
+                        (function applyTopExercisesButtonLabel() {
+                            var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};
+                            if (btnExercises) btnExercises.textContent = ui.settingsExercisesButton || ui.exercisesTitle || "Exercises";
+                        })();
+                        if (btnSettings) btnSettings.addEventListener("click", showSettingsPage);
+                        if (btnExercises) btnExercises.addEventListener("click", showExercisesPage);
+                        if (btnSettingsBack) btnSettingsBack.addEventListener("click", showMainPage);
+                        if (btnExercisesBack) btnExercisesBack.addEventListener("click", showMainPage);
+                        if (exPreviewClose) exPreviewClose.addEventListener("click", function() { closeExercisePreview(true); });
+                        if (exPreviewCloseX) exPreviewCloseX.addEventListener("click", function() { closeExercisePreview(true); });
+                        if (exPreviewModal) exPreviewModal.addEventListener("click", function(e) { if (e.target === exPreviewModal) closeExercisePreview(true); });
+                        if (exPreviewStart) exPreviewStart.addEventListener("click", function() {
+                            var i = previewExerciseIndex;
+                            closeExercisePreview(false);
+                            if (i !== null && !isNaN(i)) openExercise(i);
+                        });
+                    })();
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+﻿Snapshot path: E:\LaguageProjects\language-trainer\backups\snapshots\2026-02-25
+Created at: 2026-02-26 01:41:23
+Source: E:\LaguageProjects\language-trainer
+Excluded dirs: .git, backups
+Files: 45
+Size bytes: 463526
+RoboCopy exit code: 3
