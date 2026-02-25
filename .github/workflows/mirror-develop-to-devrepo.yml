@@ -30,4 +30,4 @@ jobs:
           git rm -r --ignore-unmatch .github/workflows
           git commit -m "Remove workflow files from mirrored branch" || true
           git remote add devrepo "https://x-access-token:${DEVREPO_PUSH_TOKEN}@github.com/olegivanovtogether/language-trainer-dev.git"
-          git push devrepo HEAD:main
+          git push --force devrepo HEAD:main
