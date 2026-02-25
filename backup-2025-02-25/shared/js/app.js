@@ -1,36 +1,25 @@
 /* ====== SHARED ENGINE — course-agnostic; uses window.COURSE_CONFIG ====== */
 (function () {
     "use strict";
-    if (window.COURSE_CONFIG && window.COURSE_CONFIG.uiLang) {
-        try { document.documentElement.lang = window.COURSE_CONFIG.uiLang; } catch (e) { }
-    }
     const CFG = window.COURSE_CONFIG || {};
     const ui = CFG.ui || {};
 
     let blocks = [];
 
     function getCourseExercisesBaseUrl() {
-        const origin = (window.location.origin || "").toString();
-        const course = getCurrentCourse();
-        const base = getBasePrefix();
-        const path = (base ? base + "/" : "") + course + "/exercises/";
-        const pathNorm = path.startsWith("/") ? path : "/" + path;
-        if (!origin || origin === "null" || origin === "undefined" || window.location.protocol === "file:") {
-            var filePrefix = pathnameContainsRoot() ? "../" : "";
-            return filePrefix + course + "/exercises/";
+        const path = (window.location && window.location.pathname) || "";
+        const normalized = path.replace(/\/index\.html$/i, "").replace(/\/$/, "") || "/";
+        const segments = normalized.split("/").filter(Boolean);
+        const courseIndex = segments.findIndex(function (s) { return s === "english" || s === "spanish" || s === "russian"; });
+        if (courseIndex < 0) {
+            return (window.location.origin || "") + "/english/exercises/";
         }
-        if (isRootFolder()) return origin + "/" + course + "/exercises/";
-        return origin + pathNorm;
+        const coursePath = segments.slice(0, courseIndex + 1).join("/");
+        return (window.location.origin || "") + "/" + coursePath + "/exercises/";
     }
 
     function getCurrentCourse() {
         const path = (window.location && window.location.pathname) || "";
-        const search = (window.location && window.location.search) || "";
-        const params = new URLSearchParams(search);
-        const fromParam = params.get("course");
-        if (fromParam === "english" || fromParam === "spanish" || fromParam === "russian") {
-            return fromParam;
-        }
         const normalized = path.replace(/\/index\.html$/i, "").replace(/\/$/, "") || "/";
         const segments = normalized.split("/").filter(Boolean);
         const i = segments.findIndex(function (s) { return s === "english" || s === "spanish" || s === "russian"; });
@@ -193,30 +182,11 @@
 
     function getBasePrefix() {
         const path = (window.location && window.location.pathname) || "";
-        const search = (window.location && window.location.search) || "";
-        const params = new URLSearchParams(search);
-        const hasCourseParam = (params.get("course") === "english" || params.get("course") === "spanish" || params.get("course") === "russian");
-        if (hasCourseParam) {
-            const dir = path.replace(/\/[^/]*$/, "").replace(/\/$/, "") || "";
-            return dir === "" ? "" : (dir.charAt(0) === "/" ? dir : "/" + dir);
-        }
         const normalized = path.replace(/\/index\.html$/i, "").replace(/\/$/, "") || "/";
         const segments = normalized.split("/").filter(Boolean);
         const i = segments.findIndex(function (s) { return s === "english" || s === "spanish" || s === "russian"; });
         if (i < 0 || i === 0) return "";
         return "/" + segments.slice(0, i).join("/");
-    }
-
-    function isRootFolder() {
-        var b = getBasePrefix();
-        if (!b) return false;
-        var n = b.replace(/\/$/, "");
-        return n === "root" || n.endsWith("/root");
-    }
-
-    function pathnameContainsRoot() {
-        var p = (window.location && window.location.pathname) || "";
-        return p.indexOf("root") >= 0;
     }
 
     var AVAILABLE_THEMES = ["classic", "cyberpunk", "kawaii"];
@@ -236,26 +206,16 @@
             if (typeof localStorage !== "undefined") localStorage.setItem("ui-theme", name);
         } catch (e) { }
         var link = document.getElementById("theme-css");
-        if (link) link.href = getThemeCssHref(name);
+        if (link) {
+            var base = getBasePrefix();
+            link.href = (window.location.origin || "") + (base ? base : "") + "/shared/css/theme-" + name + ".css";
+        }
         updateThemeBodyClass();
         if (name === "cyberpunk" && typeof cpScheduleNext === "function") {
             if (typeof window.matchMedia === "undefined" || !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
                 if (!cpScheduleTimer) cpScheduleNext();
             }
         }
-    }
-
-    function getThemeCssHref(themeName) {
-        var theme = themeName || getTheme();
-        var origin = (window.location.origin || "").toString();
-        var base = getBasePrefix();
-        if (!origin || origin === "null" || origin === "undefined" || window.location.protocol === "file:") {
-            var filePrefix = pathnameContainsRoot() ? "../" : "";
-            var rel = filePrefix + "shared/css/theme-" + theme + ".css";
-            return rel;
-        }
-        if (isRootFolder()) return origin + "/shared/css/theme-" + theme + ".css";
-        return origin + (base ? base + "/" : "/") + "shared/css/theme-" + theme + ".css";
     }
 
     function updateThemeBodyClass() {
@@ -274,7 +234,9 @@
             link.rel = "stylesheet";
             document.head.appendChild(link);
         }
-        link.href = getThemeCssHref();
+        var theme = getTheme();
+        var base = getBasePrefix();
+        link.href = (window.location.origin || "") + (base ? base : "") + "/shared/css/theme-" + theme + ".css";
     }
 
     ensureThemeLink();
@@ -291,7 +253,6 @@
         var matrix = document.createElement("div");
         matrix.id = "cp-matrix";
         matrix.setAttribute("aria-hidden", "true");
-        matrix.style.display = "none";
         document.body.appendChild(matrix);
     }
 
@@ -304,7 +265,7 @@
         var wrap = document.createElement("div");
         wrap.id = "kawaii-hearts";
         wrap.setAttribute("aria-hidden", "true");
-        wrap.style.cssText = "display:none;position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;";
+        wrap.style.display = "none";
         var symbols = ["\u2764", "\u2661", "\u2665"];
         for (var i = 0; i < KAWAII_HEARTS_COUNT; i++) {
             var heart = document.createElement("span");
@@ -984,14 +945,7 @@
     function loadBlock(index) {
         clearAutoNext();
         const total = blocks.length;
-        if (total === 0) {
-            if (blockTitleEl) blockTitleEl.textContent = "";
-            if (blockProgressTextEl) blockProgressTextEl.textContent = "";
-            if (explainEl) explainEl.innerHTML = "<p style=\"color:#666;\">Вправи не завантажились. Перевірте, що відкриваєте через веб-сервер (наприклад Live Server) або оберіть курс у налаштуваннях.</p>";
-            if (blockSelectEl) blockSelectEl.innerHTML = "";
-            updateExerciseVisibility();
-            return;
-        }
+        if (total === 0) return;
         if (index < 0) index = 0;
         if (index >= total) index = total - 1;
         currentBlockIndex = index;
@@ -1009,7 +963,6 @@
             resetSeq("sent", (b && b.sentences && b.sentences.length) ? b.sentences.length : 0);
         } catch (e) { }
         const block = blocks[currentBlockIndex];
-        if (!block) return;
         try {
             const nV = (block.vocab && block.vocab.length) ? block.vocab.length : 0;
             const nS = (block.sentences && block.sentences.length) ? block.sentences.length : 0;
@@ -1276,13 +1229,8 @@
         var link = document.createElement("link");
         link.id = "app-styles";
         link.rel = "stylesheet";
-        var origin = (window.location.origin || "").toString();
         var base = getBasePrefix();
-        if (!origin || origin === "null" || origin === "undefined" || window.location.protocol === "file:") {
-            link.href = (pathnameContainsRoot() ? "../" : "") + "shared/css/app.css";
-        } else {
-            link.href = isRootFolder() ? origin + "/shared/css/app.css" : origin + (base ? base + "/" : "/") + "shared/css/app.css";
-        }
+        link.href = (window.location.origin || "") + (base ? base : "") + "/shared/css/app.css";
         document.head.appendChild(link);
     }
 
@@ -1313,7 +1261,9 @@
             });
             courseSelect.value = getCurrentCourse();
             courseSelect.addEventListener("change", function () {
-                window.location.href = "index.html?course=" + courseSelect.value;
+                var base = getBasePrefix();
+                var target = (base ? base + "/" : "/") + courseSelect.value + "/index.html";
+                window.location.href = target;
             });
             toolbar.appendChild(courseLabel);
             toolbar.appendChild(courseSelect);
@@ -1402,18 +1352,6 @@
         }
     }
 
-    function applyStaticUI() {
-        var u = ui;
-        var el = function (id) { return document.getElementById(id); };
-        if (el("main-subtitle")) el("main-subtitle").textContent = u.mainSubtitle || "";
-        if (el("main-warning")) el("main-warning").textContent = u.warningText || "";
-        if (el("block-select-label")) el("block-select-label").textContent = u.blockSelectorLabel || "";
-        if (el("btn-settings")) el("btn-settings").textContent = u.settingsButton || "";
-        if (el("btn-toggle-explain")) el("btn-toggle-explain").textContent = u.hideExplain || "";
-        if (el("settings-page-title")) el("settings-page-title").textContent = u.settingsTitle || "";
-        if (el("btn-settings-back")) el("btn-settings-back").textContent = u.settingsBack || "";
-    }
-
     function init() {
         if (isDevMode()) document.body.classList.add("dev-mode");
 
@@ -1432,9 +1370,6 @@
 
         createTopToolbar();
 
-        applyStaticUI();
-
-        blockSelectEl.innerHTML = "";
         blocks.forEach(function (b, i) {
             const opt = document.createElement("option");
             opt.value = String(i);

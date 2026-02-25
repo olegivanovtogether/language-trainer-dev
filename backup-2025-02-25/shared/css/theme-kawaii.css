@@ -46,7 +46,7 @@ body::before {
 }
 
 body.theme-kawaii #kawaii-hearts {
-    display: block !important;
+    display: block;
 }
 
 .kh-heart {

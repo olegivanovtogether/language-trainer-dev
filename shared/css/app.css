@@ -2,3 +2,9 @@
 #app-toolbar {
     display: none !important;
 }
+
+/* Декоративні шари (серця, матриця) приховані за замовчуванням; показуються лише при відповідній темі */
+#kawaii-hearts,
+#cp-matrix {
+    display: none !important;
+}

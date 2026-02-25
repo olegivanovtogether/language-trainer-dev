@@ -26,7 +26,7 @@ body {
 }
 
 body.theme-cyberpunk #cp-matrix {
-    display: block !important;
+    display: block;
 }
 
 body.cp-reduced-motion #cp-matrix {
