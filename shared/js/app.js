@@ -124,6 +124,7 @@
             text: body,
             primaryText: ui.resumeContinue || "Продовжити",
             secondaryText: ui.resumeRestart || "З початку",
+            tertiaryText: ui.devModeCancel || "Закрити",
             onPrimary: function () {
                 applyResumeState(progress);
                 if (handlers && typeof handlers.onContinue === "function") handlers.onContinue(progress);
@@ -135,7 +136,8 @@
                 } else {
                     loadBlock(0);
                 }
-            }
+            },
+            onTertiary: function () { }
         });
     }
 
@@ -236,6 +238,12 @@
         if (isNaN(idx)) return false;
         const p = getValidSavedProgress();
         return !!(p && p.blockIndex === idx);
+    }
+
+    function getSavedProgressBlockIndex() {
+        const p = getValidSavedProgress();
+        if (!p || typeof p.blockIndex !== "number") return -1;
+        return p.blockIndex;
     }
 
     function getExercisePreviewData(blockIndex) {
@@ -1520,6 +1528,7 @@
     window.hasAnySavedProgress = hasAnySavedProgress;
     window.resumeProgressForBlock = resumeProgressForBlock;
     window.hasSavedProgressForBlock = hasSavedProgressForBlock;
+    window.getSavedProgressBlockIndex = getSavedProgressBlockIndex;
     window.getExercisePreviewData = getExercisePreviewData;
 
     loadExercises().then(init);

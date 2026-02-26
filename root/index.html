@@ -245,6 +245,22 @@
         body.theme-cyberpunk .exercise-nav-btn { border-color: #00eaff; }
         body.theme-kawaii .exercise-nav-btn { border-color: #ff6bd5; }
         body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn { border-color: #6a5acd; }
+        .exercise-nav-btn.is-resume-target {
+            border-width: 7px;
+            box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.2), 0 0 24px rgba(0, 234, 255, 0.65);
+        }
+        body.theme-cyberpunk .exercise-nav-btn.is-resume-target {
+            border-color: #7dff5d;
+            box-shadow: 0 0 0 5px rgba(125, 255, 93, 0.3), 0 0 24px rgba(125, 255, 93, 0.68);
+        }
+        body.theme-kawaii .exercise-nav-btn.is-resume-target {
+            border-color: #ffd166;
+            box-shadow: 0 0 0 5px rgba(255, 209, 102, 0.3), 0 0 24px rgba(255, 209, 102, 0.64);
+        }
+        body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn.is-resume-target {
+            border-color: #7dd3fc;
+            box-shadow: 0 0 0 5px rgba(125, 211, 252, 0.3), 0 0 24px rgba(125, 211, 252, 0.58);
+        }
         @media (max-width: 600px) {
             .exercise-nav-num { width: 82%; font-size: 0.68rem; }
             .exercise-nav-title { width: 82%; font-size: 0.74rem; }
@@ -572,23 +588,6 @@
                         function showExercisesPage(fromPage) {
                             var sourcePage = fromPage || "main";
                             lastExercisesReturnPage = sourcePage;
-                            // If user is already in learning mode, go straight to circles menu.
-                            if (sourcePage === "main") {
-                                openExercisesMenuPage();
-                                return;
-                            }
-                            if (window.promptResumeBeforeExercises) {
-                                var shown = window.promptResumeBeforeExercises({
-                                    onContinue: function() {
-                                        showMainPage();
-                                        window.scrollTo({ top: 0, behavior: "smooth" });
-                                    },
-                                    onRestart: function() {
-                                        openExercisesMenuPage();
-                                    }
-                                });
-                                if (shown) return;
-                            }
                             openExercisesMenuPage();
                         }
 
@@ -596,17 +595,18 @@
                             showPage("home");
                         }
 
-                        function openExercise(index) {
+                        function openExercise(index, options) {
                             var blockSelect = document.getElementById("block-select");
                             var startBtn = document.getElementById("btn-next-ex");
                             var ex1 = document.getElementById("ex1");
                             var ex2 = document.getElementById("ex2");
                             var ex3 = document.getElementById("ex3");
                             var idx = parseInt(index, 10);
+                            var skipResume = !!(options && options.skipResume);
                             showMainPage();
                             if (!blockSelect || isNaN(idx)) return;
                             // Resume only when user selected the same exercise they left.
-                            if (window.resumeProgressForBlock && window.resumeProgressForBlock(idx)) {
+                            if (!skipResume && window.resumeProgressForBlock && window.resumeProgressForBlock(idx)) {
                                 window.scrollTo({ top: 0, behavior: "smooth" });
                                 return;
                             }
@@ -658,6 +658,7 @@
                             exerciseButtonsWrap.innerHTML = "";
                             var blockSelect = document.getElementById("block-select");
                             if (!blockSelect || !blockSelect.options) return;
+                            var resumeBlockIndex = (window.getSavedProgressBlockIndex ? window.getSavedProgressBlockIndex() : -1);
                             Array.prototype.forEach.call(blockSelect.options, function(opt, idx) {
                                 var btn = document.createElement("button");
                                 var fallbackNumber = idx + 1;
@@ -676,9 +677,24 @@
                                 btn.appendChild(num);
                                 btn.appendChild(title);
                                 btn.title = fullLabel;
+                                var targetIndex = parseInt(opt.value, 10);
+                                if (!isNaN(targetIndex) && targetIndex === resumeBlockIndex) {
+                                    btn.classList.add("is-resume-target");
+                                }
                                 btn.addEventListener("click", function() {
-                                    var targetIndex = parseInt(opt.value, 10);
-                                    if (!isNaN(targetIndex) && window.hasSavedProgressForBlock && window.hasSavedProgressForBlock(targetIndex)) {
+                                    if (!isNaN(targetIndex) && targetIndex === resumeBlockIndex) {
+                                        if (window.promptResumeBeforeExercises) {
+                                            var shown = window.promptResumeBeforeExercises({
+                                                onContinue: function() {
+                                                    showMainPage();
+                                                    window.scrollTo({ top: 0, behavior: "smooth" });
+                                                },
+                                                onRestart: function() {
+                                                    openExercise(targetIndex, { skipResume: true });
+                                                }
+                                            });
+                                            if (shown) return;
+                                        }
                                         openExercise(targetIndex);
                                         return;
                                     }
