@@ -101,6 +101,22 @@
         .main-header-card { max-width: 760px; padding: 30px 24px 28px; }
         .main-quick-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; width: min(560px, 100%); margin: 0 auto; }
         .main-quick-actions button { width: 100%; min-height: 48px; }
+        .training-quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            margin: 2px 0 8px;
+        }
+        .training-quick-actions button {
+            min-width: 0;
+            min-height: 34px;
+            padding: 6px 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
         @media (max-width: 600px) {
             .landing-shell { margin-top: 10px; }
             .landing-brand-gap { --brand-gap: 14px; }
@@ -115,12 +131,15 @@
             .home-info { font-size: 1rem; margin-bottom: 16px; }
             .home-actions,
             .main-quick-actions { gap: 10px; }
+            .training-quick-actions { gap: 6px; margin-bottom: 6px; }
+            .training-quick-actions button { min-height: 32px; padding: 5px 8px; font-size: 0.76rem; }
         }
         @media (max-width: 430px) {
             .home-actions,
             .main-quick-actions { grid-template-columns: 1fr; }
             .home-actions button.hero-action-wide,
             .main-quick-actions button.hero-action-wide { grid-column: auto; width: 100%; }
+            .training-quick-actions button { font-size: 0.72rem; }
         }
         .settings-content { max-width: 500px; margin: 40px auto; background: var(--card-bg, #fff); border: 1px solid #e0e0e0; border-radius: 12px; padding: 40px 32px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
         #settings-page .settings-content h1 { text-align: center; margin: 0 0 40px 0; font-size: 1.5rem; }
@@ -272,26 +291,15 @@
         </div>
     </div>
     <div id="main-page" class="page" style="display:none;">
-        <div class="landing-shell landing-shell-compact landing-brand-gap">
-            <div class="landing-brand-wrap">
-                <h1 id="main-app-title" class="landing-brand">U MUST LEARN<span class="landing-brand-icon" aria-hidden="true"></span></h1>
-            </div>
-            <div class="home-content main-header-card landing-card">
-                <h2 id="main-panel-title" class="landing-card-title">Language trainer</h2>
-                <p class="home-info" id="main-subtitle">Step-by-step exercises.</p>
-                <div class="main-quick-actions">
-                    <button type="button" id="btn-exercises-main">Exercises</button>
-                    <button type="button" id="btn-home-main">Home</button>
-                    <button type="button" id="btn-settings-main" class="hero-action-wide">Settings</button>
-                </div>
-            </div>
-        </div>
         <div id="topPanel">
+            <div class="training-quick-actions">
+                <button type="button" id="btn-exercises-main">Exercises</button>
+                <button type="button" id="btn-home-main">Home</button>
+                <button type="button" id="btn-settings-main">Settings</button>
+            </div>
             <div class="top-row">
                 <div class="block-selector-label" id="block-select-label">Go to exercise:</div>
                 <select id="block-select"></select>
-                <button type="button" id="btn-exercises">Exercises</button>
-                <button type="button" id="btn-settings">Settings</button>
             </div>
             <div class="block-header"><div class="block-title" id="block-title"></div></div>
             <div class="block-progress"><span class="progress-dot"></span><span id="block-progress-text"></span></div>
@@ -393,7 +401,7 @@
             var pathname = window.location.pathname || "/";
             var inRoot = pathname.indexOf("root") >= 0;
             var course = "english";
-            var BUILD_VERSION = "2026-02-26-brand-mask-icon-4";
+            var BUILD_VERSION = "2026-02-26-training-compact-topbar-2";
             var params = new URLSearchParams(window.location.search || "");
             var c = params.get("course");
             if (c === "english" || c === "spanish" || c === "russian") course = c;

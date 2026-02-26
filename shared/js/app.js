@@ -530,7 +530,7 @@
     let lastVocabIndexMC = -1;
     let lastVocabIndexWrite = -1;
     let lastSentenceIndex = -1;
-    let topPanelVisibleInPractice = false;
+    let topPanelVisibleInPractice = true;
     let autoNextTimeout = null;
     let wrongAttemptsMC = 0;
     let wrongAttemptsWrite = 0;
@@ -902,9 +902,10 @@
             btnTopPanelEl.style.display = "none";
             btnTopPanelEl.textContent = ui.showPanel || "";
         } else {
-            topPanelEl.style.display = topPanelVisibleInPractice ? "block" : "none";
-            btnTopPanelEl.style.display = "inline-flex";
-            btnTopPanelEl.textContent = topPanelVisibleInPractice ? (ui.hidePanel || "") : (ui.showPanel || "");
+            // Keep the training top panel visible so quick actions stay embedded above exercises.
+            topPanelEl.style.display = "block";
+            btnTopPanelEl.style.display = "none";
+            btnTopPanelEl.textContent = ui.hidePanel || "";
         }
         if (!kind) {
             btnNextEx.disabled = false;
@@ -1055,7 +1056,7 @@
         currentBlockIndex = index;
         currentExerciseStep = 1;
         explainVisible = false;
-        topPanelVisibleInPractice = false;
+        topPanelVisibleInPractice = true;
         resetAllStages();
         lastVocabIndexMC = -1;
         lastVocabIndexWrite = -1;
