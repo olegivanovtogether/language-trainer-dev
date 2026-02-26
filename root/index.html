@@ -5,17 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>U MUST LEARN</title>
     <style>
-        :root { --base-font: 16px; --accent: #ffb74d; --accent-soft: #fff4e0; --card-bg: #ffffff; }
+        :root { --base-font: 16px; --accent: #ffb74d; --accent-soft: #fff4e0; --card-bg: #ffffff; --brand-icon-url: url("./assets/MainIcon.png"); }
         body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 900px; margin: 0 auto; padding: 12px 12px 24px; line-height: 1.5; font-size: var(--base-font); box-sizing: border-box; background: #f5f5f5; transition: background-color 0.15s; }
         .page { width: 100%; }
         #course-home-page, #main-page, #settings-page, #exercises-page { position: relative; z-index: 5; }
-        .landing-shell { max-width: 760px; margin: 18px auto 12px; }
-        #course-home-page .landing-shell { padding-top: 34px; }
-        #main-page .landing-shell { padding-top: 8px; }
+        .landing-shell { max-width: 760px; margin: 22px auto 12px; }
         .landing-shell-compact { margin-top: 8px; margin-bottom: 12px; }
+        .landing-brand-gap { --brand-gap: 22px; }
         .landing-brand-wrap {
             width: min(760px, 100%);
-            margin: 0 auto 10px;
+            margin: 0 auto var(--brand-gap, 22px);
         }
         .landing-brand-wrap::before,
         .landing-brand-wrap::after {
@@ -30,6 +29,10 @@
         .landing-brand-wrap::before { margin-bottom: 14px; }
         .landing-brand-wrap::after { margin-top: 14px; }
         .landing-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.14em;
             text-align: center;
             margin: 0;
             font-size: clamp(2.05rem, 7vw, 3rem);
@@ -39,13 +42,36 @@
             text-transform: uppercase;
             color: #3f2458;
         }
-        .landing-brand::after {
-            content: "...";
+        .landing-brand-icon {
             display: inline-block;
-            margin-left: 8px;
+            line-height: 1;
             font-size: 0.56em;
-            transform: translateY(-0.22em);
+            transform: translateY(-0.16em);
             opacity: 0.8;
+        }
+        .landing-brand-icon::before {
+            content: "...";
+        }
+        html.brand-icon-ready .landing-brand-icon {
+            width: 0.9em;
+            height: 0.9em;
+            font-size: 1em;
+            transform: translateY(-0.02em);
+            background-color: currentColor;
+            opacity: 0.9;
+            -webkit-mask-image: var(--brand-icon-url);
+            mask-image: var(--brand-icon-url);
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-source-type: alpha;
+            mask-mode: alpha;
+        }
+        html.brand-icon-ready .landing-brand-icon::before {
+            content: "";
         }
         .home-content {
             max-width: 760px;
@@ -60,11 +86,11 @@
         .landing-card-title {
             margin: 0 0 10px;
             text-align: center;
-            font-size: clamp(1.5rem, 4.4vw, 2.2rem);
-            line-height: 1.15;
-            font-weight: 900;
-            letter-spacing: 0.02em;
-            text-transform: uppercase;
+            font-size: clamp(1.35rem, 3.8vw, 1.95rem);
+            line-height: 1.2;
+            font-weight: 700;
+            letter-spacing: 0.005em;
+            text-transform: none;
             color: #3f2458;
         }
         .home-info { text-align: center; color: #555; margin: 0 auto 20px; max-width: 60ch; line-height: 1.45; font-size: 1.06rem; }
@@ -77,9 +103,7 @@
         .main-quick-actions button { width: 100%; min-height: 48px; }
         @media (max-width: 600px) {
             .landing-shell { margin-top: 10px; }
-            #course-home-page .landing-shell { padding-top: 20px; }
-            #main-page .landing-shell { padding-top: 4px; }
-            .landing-brand-wrap { margin-bottom: 8px; }
+            .landing-brand-gap { --brand-gap: 14px; }
             .landing-brand-wrap::before,
             .landing-brand-wrap::after { height: 3px; }
             .landing-brand-wrap::before { margin-bottom: 10px; }
@@ -232,12 +256,12 @@
 </head>
 <body>
     <div id="course-home-page" class="page">
-        <div class="landing-shell">
+        <div class="landing-shell landing-brand-gap">
             <div class="landing-brand-wrap">
-                <h1 id="home-app-title" class="landing-brand">U MUST LEARN</h1>
+                <h1 id="home-app-title" class="landing-brand">U MUST LEARN<span class="landing-brand-icon" aria-hidden="true"></span></h1>
             </div>
             <div class="home-content landing-card">
-                <h2 id="home-panel-title" class="landing-card-title">LANGUAGE TRAINER</h2>
+                <h2 id="home-panel-title" class="landing-card-title">Language trainer</h2>
                 <p id="home-course-info" class="home-info">Step-by-step exercises</p>
                 <div class="home-actions">
                     <button type="button" id="home-btn-exercises" class="primary">Exercises</button>
@@ -248,12 +272,12 @@
         </div>
     </div>
     <div id="main-page" class="page" style="display:none;">
-        <div class="landing-shell landing-shell-compact">
+        <div class="landing-shell landing-shell-compact landing-brand-gap">
             <div class="landing-brand-wrap">
-                <h1 id="main-app-title" class="landing-brand">U MUST LEARN</h1>
+                <h1 id="main-app-title" class="landing-brand">U MUST LEARN<span class="landing-brand-icon" aria-hidden="true"></span></h1>
             </div>
             <div class="home-content main-header-card landing-card">
-                <h2 id="main-panel-title" class="landing-card-title">LANGUAGE TRAINER</h2>
+                <h2 id="main-panel-title" class="landing-card-title">Language trainer</h2>
                 <p class="home-info" id="main-subtitle">Step-by-step exercises.</p>
                 <div class="main-quick-actions">
                     <button type="button" id="btn-exercises-main">Exercises</button>
@@ -369,7 +393,7 @@
             var pathname = window.location.pathname || "/";
             var inRoot = pathname.indexOf("root") >= 0;
             var course = "english";
-            var BUILD_VERSION = "2026-02-26-hero-lines-1";
+            var BUILD_VERSION = "2026-02-26-brand-mask-icon-4";
             var params = new URLSearchParams(window.location.search || "");
             var c = params.get("course");
             if (c === "english" || c === "spanish" || c === "russian") course = c;
@@ -421,6 +445,36 @@
                         var previewExerciseIndex = null;
                         var lastSettingsReturnPage = "home";
                         var lastExercisesReturnPage = "home";
+
+                        function setBrandTitle(id, value) {
+                            var el = document.getElementById(id);
+                            if (!el || !value) return;
+                            var icon = el.querySelector(".landing-brand-icon");
+                            if (!icon) {
+                                icon = document.createElement("span");
+                                icon.className = "landing-brand-icon";
+                                icon.setAttribute("aria-hidden", "true");
+                            }
+                            el.textContent = value;
+                            el.appendChild(icon);
+                        }
+
+                                                function initBrandIconRender() {
+                            var htmlEl = document.documentElement;
+                            if (!htmlEl) return;
+                            htmlEl.classList.remove("brand-icon-ready");
+                            var supportsMask = false;
+                            try {
+                                supportsMask = !!(window.CSS && window.CSS.supports && (
+                                    window.CSS.supports("-webkit-mask-image", "url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y5n2QAAAABJRU5ErkJggg==')") ||
+                                    window.CSS.supports("mask-image", "url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y5n2QAAAABJRU5ErkJggg==')")
+                                ));
+                            } catch (e) {}
+                            if (!supportsMask) return;
+                            var iconDataUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAQAAAD2e2DtAAAACXBIWXMAAAsTAAALEwEAmpwYAAAGNGlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgMTAuMC1jMDAwIDI1LkcuZDIwZTQ2NiwgMjAyNS8xMi8wOC0yMDo1MDoyMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDI3LjQgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyNi0wMi0yNlQwNToxOTozOCswMjowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjYtMDItMjZUMDU6MjI6MDgrMDI6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjYtMDItMjZUMDU6MjI6MDgrMDI6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIxIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjg4MTJlNDdiLWM2ZDgtN2Y0Zi05Y2ZlLWRkM2QxYjg5ZDAyZiIgeG1wTU06RG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOjQzYWQ5OGQwLTQyYTUtOTM0OS05ZDQ2LWFjNjM1MWRlODY2MyIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOjU2Nzk1YzUzLTdhNmEtMmY0Yi05N2QxLTEwYTFmODNmN2Q4MiI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6NTY3OTVjNTMtN2E2YS0yZjRiLTk3ZDEtMTBhMWY4M2Y3ZDgyIiBzdEV2dDp3aGVuPSIyMDI2LTAyLTI2VDA1OjE5OjM4KzAyOjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjcuNCAoV2luZG93cykiLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNvbnZlcnRlZCIgc3RFdnQ6cGFyYW1ldGVycz0iZnJvbSBhcHBsaWNhdGlvbi92bmQuYWRvYmUucGhvdG9zaG9wIHRvIGltYWdlL3BuZyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6ODgxMmU0N2ItYzZkOC03ZjRmLTljZmUtZGQzZDFiODlkMDJmIiBzdEV2dDp3aGVuPSIyMDI2LTAyLTI2VDA1OjIyOjA4KzAyOjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjcuNCAoV2luZG93cykiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+mXYj3wAAEJlJREFUeJztnQlwVdUZx/8f0SCIBAMYpOIgCpYIShV1jFoUkUUcrDPUjVodB62iw2itG1Y7jhjt4F5RUOrCyKjolLohIkJaFVRQWSSCYFygIYiCgYTs7+sQXva33XvPcpfvd4d5L+/dc87H+/73O+eeexZiCFGmk20DBLuIACKOCCDiiAAijggg4ogAIo4IIOKIACKOCCDiiAAizgGIFJSNHHRCVvMH2eiKGKob39eiATHUcjkiBIX1WQBlIRcHYwDGYzhykN3o6u7oAgKlSMYA6lGDCuxCPWpRjJfwOWKo4CqEklAJgHJwKC7ERPRAT/RCp5SudkYMldiKGmzEE9jE2xEaQiAAysOZuA6H4XDkKnR5KmpRgh14Da8EXwoBFgDl4WachwHoYtGIWpTgG9yDr4PacgigAKg3bsdYDMBB8A+Mn1GCv+OdoLUVAiUAGo87cRy6w7/E8AM+wTQuQUAIhAAoF/dhBAa1un3zO5X4FH/l5fA9PhcAdcMsnI3DDTXuVFONtbiLF8PH+FgAdBOm4OiAur41e7AIV/u1kehLAVABHsLJAQr46WFswaP8CHyH7wRA92MyeiGc1GApruAd8BE+EgD1xwsoCP3TCcYG3MBL4RN88jSQJtDXKMFvQ+9+gDAY79NWugq+wAcRgP6C29ET0WMnHuLCiAuA7sBtyEF0Kcf9/PeICoCuxfRIXvntKcet/DSiJQAajznoY6Vof7IVl/KHEREA5WMBBhkv1v+sw1guDf1dAL2LL8X9CRmKLTQPYRYAPUS1GB2Czl1ddMJlVElXIoxVAI3Hi+hhqLCg8yVOMTWuwFAEoCK8Je7PmCEop9sQlghAf8Qsq8O2gspXOIUrAh8B6L94QdzvisHYSdciyBGATsJSXw/gCgIf8pkBjQBUiJXifs+cQRVUgOBFANood/vKYDzF1yM4EYAuphpxv0IIU+gjBEUAdBdeQrb6fCNOAe2kvABUAbQMZynOUmiiDufxEvg5AlCpuF8jB2Ix3eHbCEDD8AG6KctOSMbr/Dv4LwLQxVgl7jfCBfSB7yIAXYNZ8pTPIJt4kI8EQFPxmIJsBCf8jH4qnhgqqAJomrjfAj2xjXJ9IAC6C/d5N0NwQQ62UF/YrQLoDlgf2R5pqtHf2zI1ngRAN+NBL4ULCtiLvl5mHnsQAE3BTPcFC8rYjSPdS8C1AGgC/i03fj6hjA83LADqh5IITOQMDqv5N2bvAtaL+33FMFpkUABUhkPcFSdoYwzNMVQF0DoMcVOUoJ3z+B3tEYCeEff7ljdpoOYIILd+PmcPd9coAMrFj6FauyuMfMqn6qsCNor7fc8p9LimCEDvYrQbiwTDMIZwsXIB0CS86N4mwa8tgQwFQF1QjgO92CQYZTGPUdsG+EzcHyhG08UKBUA3YbBHgwTTvEDdFFUBlI1K6fkPIEV8tpoI8Jm4P5CcRaMVRABp/QeYcu7hPQI8o8oawTg5NMNjBKC5uFylRYJhGnAY73QtAOqCCr8sKC+4ZDmfnurr1O5dKO4PPKfRUJcRgPqjRIZ9hoBveUDyL1Nd4QvE/aHgKBrvIgLQUKwRAYR/2HjyCPCiuD809KEJDiMADcRGEUCI2MJHOosAcv2HiyOovwMBUB5O1myQYBbCXCcRYK5c/6Hj9MSrDCYWwEjd1gjG6YS7E3/cAZomj39DyRUZ3gXQjtBu3hx1zue30wqABuAbcxYJRlnLJ6SvAv5hyhrBOMdRTnoBjDBljWCcrI7tgHZVAA3DFyYtEgyzlfuljgBWd7IWtNOXeqcWwHD9NggW6YRLUlQBlINfTFskGGY9D0keAR4wbY1gnGPa/tlWAOeYtUWwQGcal1wAR5m2RrDARUkEQAXyDCASXJAsAkwzb4tggUNa9we2FkC+DWsE4xyA8xIIgLLQro9ICC2DE0WAXGkBRIaJiQRwoR1bBAu0GiDactVfBn/AKMdXWIJFWIXhGItRyEd3xWMUY/gJa7EUS7AGJ2AURuJ49IrQPMjOlNO8xQTHD6xvfmvviGEzJnf8GJOxGTFFZVSjCPkJyshHEWqU/U/2ohhzMBF5yMNEzEEx9mr95Zwek5r/381vyqwbtQeFyb9EIXZ7LiGG4kTO56Yy8lGsQGilmJ4w9+koVfhreTvuaLYq/pKFOssmbcOw1CdgGLZ5KqEe89OfhPmo91BGJWanzH02Kj3/UiqOl5stir/kWjaoDLnpT0KuhzhVh5mZnYiZriWwHSPS5j7CB7GW8V2zPfGXvlbN2Zv+h4vbOcLlFRTL5OrnplLmu6oISjMRcaOM7VcFe5qtib+Mt2pOyrDZ9sBsVyUUOzsdxY5L2J2uCmuV+zDscfW/UHdUNdsSf3nUojGlzk53cf3UpGr6caIy8lHtKEEsVQM2Qf6Fyu5q3B11yNr/puneN+U6Mpp5VvP5wIrMl0/fDxfjYzihhB09SuNpKIFNstC0uUxckZ9b0+Je50kc3lM3OL3+eX8MaMj45Fii3os0+U+2HAMuaBsB7PWCfecizbeOzv7J6fW/Dy7GT8iUcna8ZRvPgYcdfxXQs63j7T0IWu4izQpHZ691UYKzdF9lfKb3VKo4oK0AOlszZJH2NEtdlOAs3ZKMz/SeSjFNArC3HcQH2tO4/aGXZHymu21bXW72qoj4JW+/DaCfNdrTrXKVv7tUquja1vHZ1gw5U3uaDlOilacb7ip/u7OwuvilChirPc0oFyU4S+fm/+A2lSpq2wqgwZohBdrTuF3xaKRmidmdhsNtBVBjzZD+2tMc76IEZ+ncbamV76cIUG3NkC403VkCmt5Uf2VIL3LxU1O+g5WScmiy4/wno8NqHUapi7/GOybXhfphUJFzo1Dk6PTNjvPf7NgktceU/S9NEaDeohYPp9mZn0yzkXTl66Sc5jQGUD5Oc5RgABU6yr8QKdbwN1kFNOnxU6tqrNQ+IET/eIA9jsYDeB/f6PW4OG5L/GVpyIeEyYggbneMjFsTf3nKukG6B4XWy5hAtBwx9IvbE38ZZ92kfYOq9A4Lz3RUcF0ERgXXNlvki0GhpiaGyLwAbj8mML5IFOVgl0+WiN8XCYo1Tg2rxQpM6ThEhPLxJE5T9kykCt9hORY1Prc8E2NRgP4Oey/0spcP3v+mSQBZqI7Q7OCozw0EtnOfdsvEURkSbigghJLFPGb/mxbV/2jPGsE4HzW9aRHAdvNWCNb4pqMAHHTHCgGnAW81vW1pA8gysdGhirt2jAAVzY8HhLCzo+VtswC4AT9YMkcwzWstbzu5nm8jBJdVCZeLp/EtTQMhxNSjO1clEkAXVPqkO1jQyW5OvFQsVzmYDikEl6LWf7Tt/15t2hbBAvOTbxkzEu+bt0cwSj0O5Yrk28bVReiZYDRpt3Fc+0egG81aIxjnn23/7JT6ayFkMOal2zy6IVIDI6LGz9xuvlNHZ0slEGaeaf9BRwE8asoWwTgxzGj/UYcqAKBqiysGCTop4aPbf5Sovv+PViMEe9zb8aNEESAf683YIxilFodwbQYRgItlfGAoebuj+5OtDva4fmsEwzD+nOjjBFVA48c1FtcNE3SwiQcl+jhZp88bWowQ7HFt4o+TRYAc7JQewTBOBWtPEidzueWFTAW1XJPsiyQRQGJANK7/FGsEczne1WaQYJY/Jf8qaQQAKBtVEgNCQBmnWFcthYO5Fu9pMUgwy+WpvkwRARpjwF5kqbdIMMgGTrmQbcoQz7V4TrlBgkkY41KfkDICNJ6wB91UWiQY5RW+xKsARsvdQGCpwiGcZiOAtK18XowvFZokmGRqOvdnEAEA6o0yuR0Mx/ifjmTgWN6BmUoMEkwSy2zPo4yubJ4qa4gFjntbTwDzVAU0njYUa2TqeDh6/9uSYd3O62TOUIBgnJjpqRk37vhqfO/aIMEs07k001MzrAIaT+2NbdIxHABW8imZn+zg9o534CJXBgkmqcAZTk53dH/P/8JCxwYJJmGclWjwd3IcdvDweJQ4NEkwyQP8mbMEDtoAzUmqcJDjRIIJ5vIVTpO4EcBQrJau4aB2/bbHhSN5HSY0bT0s+IZyN+53JQCA38ZDbtIJ2qjFYe4SugzlfIuMF/QRjHHO2v4tuK7LeXTrJYcFq9zAS90m9dCY45PxufvUgjLu4yfdJ3ZxF9Am+ToM8ZSB4JWH+WYvyT0KAKANONZjFoJ7HuRbPKRWIQCAvsZAz5kIFq7+fSjo0OFB2OA9F8Exj3l3vxIBADwYa1XkIzhgBt8IBSjq0uUTsEJNTkJG3MK3QgnK+vS5AK+qyktICeN6fhCKUNAIbJXZFDwhQ0c1U4NR/KG67JQKoHEi2UIZNqaRchyR2XBvSwIA6Nf4BN0VZyrsZxv3hWKUP9fnDZwj9wRaWKLe/RoEsA8+AQt05BthGA/wuToyVl4FNGd8KebKBlSKqMI41rSGuzYBAJSHVThCW/bR4Rscm36at1s0ju3j7dwPz8ngMU8wnuRj9LlfawSIF3Ay3kOrvWoFB+zCCF4HrWgf3csruQcWShxwDONNztXtfgMRIF5MARZKHHDALzidi2EAQ+P7eTn3wCzEzJQWcBjz+FAz7jcWAeKF5WEZUi5bKOB/GKc/8LdgdIYPb+d8nIsdJssMFFWYykeYdL/hCNBc6N24U7akaUcMr6Zb1DE0AmgsuAx5lor2H4wvcC7vtFG0vUme71sr2W9sxql8kh332xSA9AwAjK9wDg/klfZMsPe4phLRhrEG19h0vW0BRHkN8gYsw2Xsi7shewLoiWiyF3P5OvgGe22AHogaMWzAH/hgP7nfZgSIkgAYu/G0qpH8YRFAL0SDaizGw7rG8wS5I6gu9APGalGEmezzXZgtOYG6hXj2QAyVWID5/DYCgK2r8PgQziBi1GE93sXf3K7XEyUBTEV4iKEea/AxnjH7HC/YAnC1pp2vYMSwC0VYjwfVTtYyiwjACbHGowQf43s8wuUIAXbGA2SjWnsbIIaX0QdD0B1ZoMZ/bq5xRgPKsR7foxyr+XmEDjsR4Hrt7mecz++0/En9MQpHohuykYWu6IGuOAidcQAORBYOBLAHu1CJetSgAjHUYTc2o4gjsDK6nQiwEsO1FsC4nOdpLSE02BFANTprzJ4xmZ/VmH+osPAwiEZrdv+N4n5fRwD6wNmuNo6Qqz8AAqjRNiKYcSXP1ZR3SDF+F0BXanN/Pca4XzU7qhiPALTd7dYGaajAibxJS86hxnAEoFM1uT/jvXIFu3cBs7XkulzcHwgBUB6OV54pYwafrjzXyGC2CligvAu4CqNVrpsZPQw2AmkgNioWwPc4Wuf6OVHAZBXwjlL3M2Zxf3F/YKoAmqR0DMAujOTVCvOLLMaqAIX9f4zn+SpFeUUeQxGAVilzfynONbV+ThQw0gagQpykJKNKXMe/EvcHrAqgYfhcQfOvAXMl8AdxpdAsVHp+/h/DEh6jyCDBcBWwxqP7Y1iKPuL+gDYCaQKO85C8Fm9gUpDm2QQP3RHA7d52jDJM4878e3F/sG8Df3SRpgaLcQ9/psEawXQjkAbi64xPZlSjCLP5da0mCYbvAl7HhAxm4GzFMjwcxMmVQcdEP8CVKEReY0/A/t6AfUVyo9s3YS1K8Shv0W6EYP1ZQA4GIaex0bkV33KVoWIFvy4RI0R9mTjBF4gAIo4IIOKIACKOCCDiiAAQbf4PT0GF1o/SNewAAAAASUVORK5CYII=";
+                            htmlEl.style.setProperty("--brand-icon-url", 'url("' + iconDataUrl + '")');
+                            htmlEl.classList.add("brand-icon-ready");
+                        }
 
                         function showPage(name) {
                             homePage.style.display = name === "home" ? "block" : "none";
@@ -637,10 +691,10 @@
                             var setFirst = function(selector, value) { var el = document.querySelector(selector); if (el && value) el.textContent = value; };
 
                             var appTitle = ui.appTitle || "U MUST LEARN";
-                            var landingTitle = ui.landingPanelTitle || "LANGUAGE TRAINER";
+                            var landingTitle = ui.landingPanelTitle || "Language trainer";
                             document.title = appTitle;
-                            setText("home-app-title", appTitle);
-                            setText("main-app-title", appTitle);
+                            setBrandTitle("home-app-title", appTitle);
+                            setBrandTitle("main-app-title", appTitle);
                             setText("home-panel-title", landingTitle);
                             setText("main-panel-title", landingTitle);
                             setText("home-course-info", ui.mainSubtitle || "Step-by-step exercises.");
@@ -703,6 +757,7 @@
                             if (btnHomeMain) btnHomeMain.textContent = ui.homeButtonLabel || "Home";
                             if (btnSettingsMain) btnSettingsMain.textContent = ui.settingsButton || "Settings";
                         })();
+                        initBrandIconRender();
                         normalizeStaticText();
                         if (btnSettings) btnSettings.addEventListener("click", function() { showSettingsPage("main"); });
                         if (btnExercises) btnExercises.addEventListener("click", function() { showExercisesPage("main"); });

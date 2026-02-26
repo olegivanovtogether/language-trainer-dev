@@ -637,8 +637,8 @@ body.theme-cyberpunk #main-page .landing-brand {
 
 body.theme-cyberpunk #course-home-page .landing-card-title,
 body.theme-cyberpunk #main-page .landing-card-title {
-    color: rgba(230, 255, 255, 0.92) !important;
-    text-shadow: 0 0 12px rgba(0, 255, 225, 0.25);
+    color: rgba(224, 240, 250, 0.95) !important;
+    text-shadow: none !important;
 }
 
 body.theme-cyberpunk #course-home-page .landing-brand-wrap::before,
