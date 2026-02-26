@@ -619,8 +619,9 @@ body.theme-cyberpunk .settings-content #btn-settings-back:hover {
     box-shadow: 0 0 16px rgba(255, 0, 255, 0.5) !important;
 }
 
-/* Home page (course start) */
-body.theme-cyberpunk #course-home-page .home-content {
+/* Start-like header cards (home + learning mode header) */
+body.theme-cyberpunk #course-home-page .home-content,
+body.theme-cyberpunk #main-page .main-header-card {
     background: rgba(10, 14, 24, 0.94) !important;
     border: 1px solid rgba(0, 255, 225, 0.45) !important;
     box-shadow:
@@ -628,39 +629,73 @@ body.theme-cyberpunk #course-home-page .home-content {
         inset 0 0 0 1px rgba(0, 255, 225, 0.08) !important;
 }
 
-body.theme-cyberpunk #course-home-page .home-title {
+body.theme-cyberpunk #course-home-page .landing-brand,
+body.theme-cyberpunk #main-page .landing-brand {
     color: rgba(230, 255, 255, 0.95) !important;
-    text-shadow: 0 0 10px rgba(0, 255, 225, 0.25);
+    text-shadow: 0 0 16px rgba(0, 255, 225, 0.3);
 }
 
-body.theme-cyberpunk #course-home-page .home-info {
+body.theme-cyberpunk #course-home-page .landing-card-title,
+body.theme-cyberpunk #main-page .landing-card-title {
+    color: rgba(230, 255, 255, 0.92) !important;
+    text-shadow: 0 0 12px rgba(0, 255, 225, 0.25);
+}
+
+body.theme-cyberpunk #course-home-page .landing-brand-wrap::before,
+body.theme-cyberpunk #course-home-page .landing-brand-wrap::after,
+body.theme-cyberpunk #main-page .landing-brand-wrap::before,
+body.theme-cyberpunk #main-page .landing-brand-wrap::after {
+    background: linear-gradient(90deg, rgba(0, 255, 136, 0.95), rgba(0, 255, 255, 0.95)) !important;
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.38);
+    opacity: 1;
+}
+
+body.theme-cyberpunk #course-home-page .home-info,
+body.theme-cyberpunk #main-page .main-header-card .home-info {
     color: rgba(214, 236, 255, 0.9) !important;
 }
 
-body.theme-cyberpunk #course-home-page .home-actions button {
+body.theme-cyberpunk #course-home-page .home-actions button,
+body.theme-cyberpunk #main-page .main-header-card .main-quick-actions button {
     background: rgba(14, 18, 32, 0.96) !important;
     color: #ffffff !important;
 }
 
-body.theme-cyberpunk #course-home-page .home-actions #home-btn-exercises {
+body.theme-cyberpunk #course-home-page .home-actions #home-btn-exercises,
+body.theme-cyberpunk #main-page .main-header-card .main-quick-actions #btn-exercises-main {
     border-color: var(--neon-magenta) !important;
     box-shadow: 0 0 12px rgba(255, 0, 255, 0.35) !important;
 }
 
-body.theme-cyberpunk #course-home-page .home-actions #home-btn-settings {
+body.theme-cyberpunk #course-home-page .home-actions #home-btn-continue,
+body.theme-cyberpunk #main-page .main-header-card .main-quick-actions #btn-home-main {
+    border-color: var(--neon-green) !important;
+    box-shadow: 0 0 12px rgba(0, 255, 136, 0.35) !important;
+}
+
+body.theme-cyberpunk #course-home-page .home-actions #home-btn-settings,
+body.theme-cyberpunk #main-page .main-header-card .main-quick-actions #btn-settings-main {
     border-color: var(--neon-cyan) !important;
     box-shadow: 0 0 12px rgba(0, 255, 255, 0.28) !important;
 }
 
-body.theme-cyberpunk #course-home-page .home-actions button:hover:enabled {
+body.theme-cyberpunk #course-home-page .home-actions button:hover:enabled,
+body.theme-cyberpunk #main-page .main-header-card .main-quick-actions button:hover:enabled {
     background: rgba(20, 28, 46, 0.98) !important;
     color: #ffffff !important;
 }
 
-body.theme-cyberpunk #course-home-page .home-actions #home-btn-exercises:hover:enabled {
+body.theme-cyberpunk #course-home-page .home-actions #home-btn-exercises:hover:enabled,
+body.theme-cyberpunk #main-page .main-header-card .main-quick-actions #btn-exercises-main:hover:enabled {
     box-shadow: 0 0 18px rgba(255, 0, 255, 0.5) !important;
 }
 
-body.theme-cyberpunk #course-home-page .home-actions #home-btn-settings:hover:enabled {
+body.theme-cyberpunk #course-home-page .home-actions #home-btn-continue:hover:enabled,
+body.theme-cyberpunk #main-page .main-header-card .main-quick-actions #btn-home-main:hover:enabled {
+    box-shadow: 0 0 18px rgba(0, 255, 136, 0.5) !important;
+}
+
+body.theme-cyberpunk #course-home-page .home-actions #home-btn-settings:hover:enabled,
+body.theme-cyberpunk #main-page .main-header-card .main-quick-actions #btn-settings-main:hover:enabled {
     box-shadow: 0 0 18px rgba(0, 255, 255, 0.45) !important;
 }

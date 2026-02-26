@@ -146,6 +146,17 @@
         return true;
     }
 
+    function resumeLatestProgress() {
+        const p = getValidSavedProgress();
+        if (!p) return false;
+        applyResumeState(p);
+        return true;
+    }
+
+    function hasAnySavedProgress() {
+        return !!getValidSavedProgress();
+    }
+
     function applyResumeState(progress) {
         const block = blocks[progress.blockIndex];
         if (!block) { loadBlock(0); return; }
@@ -1504,6 +1515,8 @@
     window.setDevMode = setDevMode;
     window.openModal = openModal;
     window.promptResumeBeforeExercises = promptResumeBeforeExercises;
+    window.resumeLatestProgress = resumeLatestProgress;
+    window.hasAnySavedProgress = hasAnySavedProgress;
     window.resumeProgressForBlock = resumeProgressForBlock;
     window.hasSavedProgressForBlock = hasSavedProgressForBlock;
     window.getExercisePreviewData = getExercisePreviewData;

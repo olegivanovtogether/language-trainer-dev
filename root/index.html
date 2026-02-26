@@ -3,19 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Language trainer</title>
+    <title>U MUST LEARN</title>
     <style>
         :root { --base-font: 16px; --accent: #ffb74d; --accent-soft: #fff4e0; --card-bg: #ffffff; }
         body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 900px; margin: 0 auto; padding: 12px 12px 24px; line-height: 1.5; font-size: var(--base-font); box-sizing: border-box; background: #f5f5f5; transition: background-color 0.15s; }
         .page { width: 100%; }
         #course-home-page, #main-page, #settings-page, #exercises-page { position: relative; z-index: 5; }
-        .home-content { max-width: 700px; margin: 34px auto; background: var(--card-bg, #fff); border: 1px solid #e0e0e0; border-radius: 12px; padding: 34px 28px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
-        .home-title { text-align: center; margin: 0 0 8px; font-size: 1.6rem; }
-        .home-info { text-align: center; color: #555; margin: 0 auto 20px; max-width: 60ch; line-height: 1.45; }
-        .home-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-        .home-actions button { min-width: 180px; }
-        .main-quick-actions { display: flex; gap: 10px; margin: 10px 0; }
-        .main-quick-actions button { flex: 1 1 0; }
+        .landing-shell { max-width: 760px; margin: 18px auto 12px; }
+        #course-home-page .landing-shell { padding-top: 34px; }
+        #main-page .landing-shell { padding-top: 8px; }
+        .landing-shell-compact { margin-top: 8px; margin-bottom: 12px; }
+        .landing-brand-wrap {
+            width: min(760px, 100%);
+            margin: 0 auto 10px;
+        }
+        .landing-brand-wrap::before,
+        .landing-brand-wrap::after {
+            content: "";
+            display: block;
+            height: 4px;
+            width: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #ff5db1, #a94dff);
+            opacity: 0.88;
+        }
+        .landing-brand-wrap::before { margin-bottom: 14px; }
+        .landing-brand-wrap::after { margin-top: 14px; }
+        .landing-brand {
+            text-align: center;
+            margin: 0;
+            font-size: clamp(2.05rem, 7vw, 3rem);
+            line-height: 1.05;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #3f2458;
+        }
+        .landing-brand::after {
+            content: "...";
+            display: inline-block;
+            margin-left: 8px;
+            font-size: 0.56em;
+            transform: translateY(-0.22em);
+            opacity: 0.8;
+        }
+        .home-content {
+            max-width: 760px;
+            margin: 0 auto;
+            background: var(--card-bg, #fff);
+            border: 1px solid #e0e0e0;
+            border-radius: 18px;
+            padding: 30px 24px 28px;
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.11);
+        }
+        .landing-card { position: relative; }
+        .landing-card-title {
+            margin: 0 0 10px;
+            text-align: center;
+            font-size: clamp(1.5rem, 4.4vw, 2.2rem);
+            line-height: 1.15;
+            font-weight: 900;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            color: #3f2458;
+        }
+        .home-info { text-align: center; color: #555; margin: 0 auto 20px; max-width: 60ch; line-height: 1.45; font-size: 1.06rem; }
+        .home-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; width: min(560px, 100%); margin: 0 auto; }
+        .home-actions button { width: 100%; min-width: 0; min-height: 48px; }
+        .home-actions button.hero-action-wide,
+        .main-quick-actions button.hero-action-wide { grid-column: 1 / -1; justify-self: center; width: min(320px, 100%); }
+        .main-header-card { max-width: 760px; padding: 30px 24px 28px; }
+        .main-quick-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; width: min(560px, 100%); margin: 0 auto; }
+        .main-quick-actions button { width: 100%; min-height: 48px; }
+        @media (max-width: 600px) {
+            .landing-shell { margin-top: 10px; }
+            #course-home-page .landing-shell { padding-top: 20px; }
+            #main-page .landing-shell { padding-top: 4px; }
+            .landing-brand-wrap { margin-bottom: 8px; }
+            .landing-brand-wrap::before,
+            .landing-brand-wrap::after { height: 3px; }
+            .landing-brand-wrap::before { margin-bottom: 10px; }
+            .landing-brand-wrap::after { margin-top: 10px; }
+            .landing-brand { font-size: clamp(1.8rem, 9.2vw, 2.45rem); }
+            .home-content,
+            .main-header-card { border-radius: 16px; padding: 24px 16px 22px; }
+            .landing-card-title { font-size: clamp(1.3rem, 6.2vw, 1.8rem); }
+            .home-info { font-size: 1rem; margin-bottom: 16px; }
+            .home-actions,
+            .main-quick-actions { gap: 10px; }
+        }
+        @media (max-width: 430px) {
+            .home-actions,
+            .main-quick-actions { grid-template-columns: 1fr; }
+            .home-actions button.hero-action-wide,
+            .main-quick-actions button.hero-action-wide { grid-column: auto; width: 100%; }
+        }
         .settings-content { max-width: 500px; margin: 40px auto; background: var(--card-bg, #fff); border: 1px solid #e0e0e0; border-radius: 12px; padding: 40px 32px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
         #settings-page .settings-content h1 { text-align: center; margin: 0 0 40px 0; font-size: 1.5rem; }
         #settings-toolbar { display: flex; flex-direction: column; gap: 20px; margin-bottom: 40px; }
@@ -149,23 +231,36 @@
     </style>
 </head>
 <body>
-        <div id="course-home-page" class="page">
-        <div class="home-content">
-            <h1 class="home-title">Language trainer</h1>
-            <p id="home-course-info" class="home-info">Step-by-step exercises</p>
-            <div class="home-actions">
-                <button type="button" id="home-btn-exercises" class="primary">Exercises</button>
-                <button type="button" id="home-btn-settings">Settings</button>
+    <div id="course-home-page" class="page">
+        <div class="landing-shell">
+            <div class="landing-brand-wrap">
+                <h1 id="home-app-title" class="landing-brand">U MUST LEARN</h1>
+            </div>
+            <div class="home-content landing-card">
+                <h2 id="home-panel-title" class="landing-card-title">LANGUAGE TRAINER</h2>
+                <p id="home-course-info" class="home-info">Step-by-step exercises</p>
+                <div class="home-actions">
+                    <button type="button" id="home-btn-exercises" class="primary">Exercises</button>
+                    <button type="button" id="home-btn-continue">Continue</button>
+                    <button type="button" id="home-btn-settings" class="hero-action-wide">Settings</button>
+                </div>
             </div>
         </div>
     </div>
     <div id="main-page" class="page" style="display:none;">
-        <h1>Language trainer</h1>
-        <div class="subtitle" id="main-subtitle">Step-by-step exercises.</div>
-        <div class="main-quick-actions">
-            <button type="button" id="btn-exercises-main">Exercises</button>
-            <button type="button" id="btn-home-main">Home</button>
-            <button type="button" id="btn-settings-main">Settings</button>
+        <div class="landing-shell landing-shell-compact">
+            <div class="landing-brand-wrap">
+                <h1 id="main-app-title" class="landing-brand">U MUST LEARN</h1>
+            </div>
+            <div class="home-content main-header-card landing-card">
+                <h2 id="main-panel-title" class="landing-card-title">LANGUAGE TRAINER</h2>
+                <p class="home-info" id="main-subtitle">Step-by-step exercises.</p>
+                <div class="main-quick-actions">
+                    <button type="button" id="btn-exercises-main">Exercises</button>
+                    <button type="button" id="btn-home-main">Home</button>
+                    <button type="button" id="btn-settings-main" class="hero-action-wide">Settings</button>
+                </div>
+            </div>
         </div>
         <div id="topPanel">
             <div class="top-row">
@@ -274,7 +369,7 @@
             var pathname = window.location.pathname || "/";
             var inRoot = pathname.indexOf("root") >= 0;
             var course = "english";
-            var BUILD_VERSION = "2026-02-26-encoding-fix-2";
+            var BUILD_VERSION = "2026-02-26-hero-lines-1";
             var params = new URLSearchParams(window.location.search || "");
             var c = params.get("course");
             if (c === "english" || c === "spanish" || c === "russian") course = c;
@@ -303,6 +398,7 @@
                         var exercisesPage = document.getElementById("exercises-page");
                         var homeCourseInfoEl = document.getElementById("home-course-info");
                         var homeBtnExercises = document.getElementById("home-btn-exercises");
+                        var homeBtnContinue = document.getElementById("home-btn-continue");
                         var homeBtnSettings = document.getElementById("home-btn-settings");
                         var btnSettings = document.getElementById("btn-settings");
                         var btnExercises = document.getElementById("btn-exercises");
@@ -341,6 +437,15 @@
 
                         function showMainPage() {
                             showPage("main");
+                        }
+
+                        function continueFromHome() {
+                            if (window.resumeLatestProgress && window.resumeLatestProgress()) {
+                                showMainPage();
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                                return;
+                            }
+                            showExercisesPage("home");
                         }
 
                         function openExercisesMenuPage() {
@@ -531,8 +636,16 @@
                             var setText = function(id, value) { var el = document.getElementById(id); if (el && value) el.textContent = value; };
                             var setFirst = function(selector, value) { var el = document.querySelector(selector); if (el && value) el.textContent = value; };
 
+                            var appTitle = ui.appTitle || "U MUST LEARN";
+                            var landingTitle = ui.landingPanelTitle || "LANGUAGE TRAINER";
+                            document.title = appTitle;
+                            setText("home-app-title", appTitle);
+                            setText("main-app-title", appTitle);
+                            setText("home-panel-title", landingTitle);
+                            setText("main-panel-title", landingTitle);
                             setText("home-course-info", ui.mainSubtitle || "Step-by-step exercises.");
                             setText("home-btn-exercises", ui.settingsExercisesButton || ui.exercisesTitle || "Exercises");
+                            setText("home-btn-continue", ui.resumeContinue || "Continue");
                             setText("home-btn-settings", ui.settingsButton || "Settings");
                             setText("main-subtitle", ui.mainSubtitle || "Step-by-step exercises.");
                             setText("btn-exercises-main", ui.settingsExercisesButton || ui.exercisesTitle || "Exercises");
@@ -579,6 +692,7 @@
                             var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};
                             if (homeCourseInfoEl) homeCourseInfoEl.textContent = ui.mainSubtitle || "";
                             if (homeBtnExercises) homeBtnExercises.textContent = ui.settingsExercisesButton || ui.exercisesTitle || "Exercises";
+                            if (homeBtnContinue) homeBtnContinue.textContent = ui.resumeContinue || "Continue";
                             if (homeBtnSettings) homeBtnSettings.textContent = ui.settingsButton || "Settings";
                         })();
                         (function applyTopExercisesButtonLabel() {
@@ -596,6 +710,7 @@
                         if (btnExercisesMain) btnExercisesMain.addEventListener("click", function() { showExercisesPage("main"); });
                         if (btnHomeMain) btnHomeMain.addEventListener("click", function() { showHomePage(); });
                         if (homeBtnExercises) homeBtnExercises.addEventListener("click", function() { showExercisesPage("home"); });
+                        if (homeBtnContinue) homeBtnContinue.addEventListener("click", continueFromHome);
                         if (homeBtnSettings) homeBtnSettings.addEventListener("click", function() { showSettingsPage("home"); });
                         if (btnSettingsBack) btnSettingsBack.addEventListener("click", function() { showPage(lastSettingsReturnPage); });
                         if (btnExercisesBack) btnExercisesBack.addEventListener("click", function() { showPage(lastExercisesReturnPage); });
@@ -613,3 +728,4 @@
     </script>
 </body>
 </html>
+
