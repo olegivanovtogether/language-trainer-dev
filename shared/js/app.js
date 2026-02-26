@@ -98,7 +98,13 @@
         return "";
     }
 
-    function showResumeModal(progress) {
+    function getValidSavedProgress() {
+        const p = loadProgress();
+        if (!p || typeof p.blockIndex !== "number" || p.blockIndex < 0 || p.blockIndex >= blocks.length) return null;
+        return p;
+    }
+
+    function showResumeModal(progress, handlers) {
         const block = blocks[progress.blockIndex];
         if (!block) { loadBlock(0); return; }
         const stageNames = (ui.stageNames && ui.stageNames.length >= 4) ? ui.stageNames : ["Вступ", "Вибір", "Вписати", "Речення"];
@@ -118,12 +124,26 @@
             text: body,
             primaryText: ui.resumeContinue || "Продовжити",
             secondaryText: ui.resumeRestart || "З початку",
-            onPrimary: function () { applyResumeState(progress); },
+            onPrimary: function () {
+                applyResumeState(progress);
+                if (handlers && typeof handlers.onContinue === "function") handlers.onContinue(progress);
+            },
             onSecondary: function () {
                 clearProgress();
-                loadBlock(0);
+                if (handlers && typeof handlers.onRestart === "function") {
+                    handlers.onRestart();
+                } else {
+                    loadBlock(0);
+                }
             }
         });
+    }
+
+    function promptResumeBeforeExercises(handlers) {
+        const p = getValidSavedProgress();
+        if (!p) return false;
+        showResumeModal(p, handlers || {});
+        return true;
     }
 
     function applyResumeState(progress) {
@@ -189,6 +209,33 @@
         else if (currentExerciseStep === 2) loadWQuestion();
         else if (currentExerciseStep === 3) loadSentence();
         updateGateUI();
+    }
+
+    function resumeProgressForBlock(blockIndex) {
+        const idx = parseInt(blockIndex, 10);
+        if (isNaN(idx)) return false;
+        const p = getValidSavedProgress();
+        if (!p || p.blockIndex !== idx) return false;
+        applyResumeState(p);
+        return true;
+    }
+
+    function hasSavedProgressForBlock(blockIndex) {
+        const idx = parseInt(blockIndex, 10);
+        if (isNaN(idx)) return false;
+        const p = getValidSavedProgress();
+        return !!(p && p.blockIndex === idx);
+    }
+
+    function getExercisePreviewData(blockIndex) {
+        const idx = parseInt(blockIndex, 10);
+        if (isNaN(idx) || idx < 0 || idx >= blocks.length) return null;
+        const block = blocks[idx];
+        if (!block) return null;
+        return {
+            title: (ui.blockTitlePrefix || "Вправа ") + (idx + 1) + (ui.blockTitleSuffix || ". ") + (block.title || ""),
+            explanationHtml: (block.topicTag ? "<div class=\"topic-tag\">" + block.topicTag + "</div>" : "") + (block.explanation || "")
+        };
     }
 
     function getBasePrefix() {
@@ -1443,12 +1490,8 @@
             blockSelectEl.appendChild(opt);
         });
 
-        const p = loadProgress();
-        if (p && typeof p.blockIndex === "number" && p.blockIndex >= 0 && p.blockIndex < blocks.length) {
-            showResumeModal(p);
-        } else {
-            loadBlock(0);
-        }
+        // Resume prompt is shown from Exercises entry flow, not on course switch/load.
+        loadBlock(0);
         try { resetStage("mc"); resetStage("write"); resetStage("sent"); } catch (e) { }
     }
 
@@ -1460,6 +1503,10 @@
     window.isDevMode = isDevMode;
     window.setDevMode = setDevMode;
     window.openModal = openModal;
+    window.promptResumeBeforeExercises = promptResumeBeforeExercises;
+    window.resumeProgressForBlock = resumeProgressForBlock;
+    window.hasSavedProgressForBlock = hasSavedProgressForBlock;
+    window.getExercisePreviewData = getExercisePreviewData;
 
     loadExercises().then(init);
 })();

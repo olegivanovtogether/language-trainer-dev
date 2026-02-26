@@ -323,7 +323,6 @@
                         var exPreviewCloseX = document.getElementById("ex-preview-close-x");
                         var exPreviewStart = document.getElementById("ex-preview-start");
                         var previewExerciseIndex = null;
-                        var previewPreviousIndex = null;
                         var lastSettingsReturnPage = "home";
                         var lastExercisesReturnPage = "home";
 
@@ -344,10 +343,32 @@
                             showPage("main");
                         }
 
-                        function showExercisesPage(fromPage) {
-                            lastExercisesReturnPage = fromPage || "main";
+                        function openExercisesMenuPage() {
                             showPage("exercises");
                             initExercisesPage();
+                        }
+
+                        function showExercisesPage(fromPage) {
+                            var sourcePage = fromPage || "main";
+                            lastExercisesReturnPage = sourcePage;
+                            // If user is already in learning mode, go straight to circles menu.
+                            if (sourcePage === "main") {
+                                openExercisesMenuPage();
+                                return;
+                            }
+                            if (window.promptResumeBeforeExercises) {
+                                var shown = window.promptResumeBeforeExercises({
+                                    onContinue: function() {
+                                        showMainPage();
+                                        window.scrollTo({ top: 0, behavior: "smooth" });
+                                    },
+                                    onRestart: function() {
+                                        openExercisesMenuPage();
+                                    }
+                                });
+                                if (shown) return;
+                            }
+                            openExercisesMenuPage();
                         }
 
                         function showHomePage() {
@@ -360,9 +381,15 @@
                             var ex1 = document.getElementById("ex1");
                             var ex2 = document.getElementById("ex2");
                             var ex3 = document.getElementById("ex3");
+                            var idx = parseInt(index, 10);
                             showMainPage();
-                            if (!blockSelect) return;
-                            blockSelect.value = String(index);
+                            if (!blockSelect || isNaN(idx)) return;
+                            // Resume only when user selected the same exercise they left.
+                            if (window.resumeProgressForBlock && window.resumeProgressForBlock(idx)) {
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                                return;
+                            }
+                            blockSelect.value = String(idx);
                             blockSelect.dispatchEvent(new Event("change", { bubbles: true }));
                             if (startBtn && ex1 && ex2 && ex3) {
                                 // If old progress/config still lands on intro (all cards hidden), force-start stage 1.
@@ -374,36 +401,31 @@
 
                         function showExercisePreview(index, fallbackTitle) {
                             var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};
-                            var blockSelect = document.getElementById("block-select");
-                            var blockTitle = document.getElementById("block-title");
-                            var explain = document.getElementById("explain");
-                            if (!blockSelect || !exPreviewModal || !exPreviewTitle || !exPreviewBody) return;
-                            previewPreviousIndex = parseInt(blockSelect.value, 10);
-                            previewExerciseIndex = index;
-                            blockSelect.value = String(index);
-                            blockSelect.dispatchEvent(new Event("change", { bubbles: true }));
-                            exPreviewTitle.textContent = (blockTitle && blockTitle.textContent) ? blockTitle.textContent : (fallbackTitle || "");
-                            exPreviewBody.innerHTML = (explain && explain.innerHTML) ? explain.innerHTML : "";
-                            if (!exPreviewBody.innerHTML.trim()) exPreviewBody.textContent = ui.noDescriptionText || "";
+                            if (!exPreviewModal || !exPreviewTitle || !exPreviewBody) return;
+                            var idx = parseInt(index, 10);
+                            var preview = window.getExercisePreviewData ? window.getExercisePreviewData(idx) : null;
+                            var titleText = (preview && preview.title) ? preview.title : (fallbackTitle || "");
+                            var bodyHtml = (preview && preview.explanationHtml) ? preview.explanationHtml : "";
+                            previewExerciseIndex = idx;
+                            exPreviewTitle.textContent = titleText;
+                            if (bodyHtml && bodyHtml.trim()) {
+                                exPreviewBody.innerHTML = bodyHtml;
+                            } else {
+                                exPreviewBody.textContent = ui.noDescriptionText || "";
+                            }
                             if (exPreviewStart) exPreviewStart.textContent = ui.startExercises || "Start";
                             exPreviewModal.classList.add("is-open");
                             exPreviewModal.setAttribute("aria-hidden", "false");
                             document.body.classList.add("modal-open");
                         }
 
-                        function closeExercisePreview(restorePrevious) {
-                            var blockSelect = document.getElementById("block-select");
+                        function closeExercisePreview() {
                             if (exPreviewModal) {
                                 exPreviewModal.classList.remove("is-open");
                                 exPreviewModal.setAttribute("aria-hidden", "true");
                             }
                             document.body.classList.remove("modal-open");
-                            if (restorePrevious && blockSelect && previewPreviousIndex !== null && !isNaN(previewPreviousIndex)) {
-                                blockSelect.value = String(previewPreviousIndex);
-                                blockSelect.dispatchEvent(new Event("change", { bubbles: true }));
-                            }
                             previewExerciseIndex = null;
-                            previewPreviousIndex = null;
                         }
 
                         function initExercisesPage() {
@@ -433,7 +455,12 @@
                                 btn.appendChild(title);
                                 btn.title = fullLabel;
                                 btn.addEventListener("click", function() {
-                                    showExercisePreview(parseInt(opt.value, 10), fullLabel);
+                                    var targetIndex = parseInt(opt.value, 10);
+                                    if (!isNaN(targetIndex) && window.hasSavedProgressForBlock && window.hasSavedProgressForBlock(targetIndex)) {
+                                        openExercise(targetIndex);
+                                        return;
+                                    }
+                                    showExercisePreview(targetIndex, fullLabel);
                                 });
                                 exerciseButtonsWrap.appendChild(btn);
                             });
