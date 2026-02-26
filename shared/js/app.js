@@ -130,8 +130,8 @@
         const block = blocks[progress.blockIndex];
         if (!block) { loadBlock(0); return; }
         currentBlockIndex = progress.blockIndex;
-        currentExerciseStep = progress.step;
-        explainVisible = (progress.step === 0);
+        currentExerciseStep = (progress.step === 0) ? 1 : progress.step;
+        explainVisible = false;
         const nV = (block.vocab && block.vocab.length) ? block.vocab.length : 0;
         const nS = (block.sentences && block.sentences.length) ? block.sentences.length : 0;
         if (progress.stageState) {
@@ -174,8 +174,8 @@
         blockProgressTextEl.textContent = (ui.blockTitlePrefix || "Вправа ") + (currentBlockIndex + 1) + (ui.blockProgressOf || " з ") + total;
         explainEl.innerHTML = (block.topicTag ? "<div class=\"topic-tag\">" + block.topicTag + "</div>" : "") + (block.explanation || "");
         blockSelectEl.value = String(currentBlockIndex);
-        btnPrev.disabled = currentBlockIndex === 0;
-        btnNext.disabled = currentBlockIndex === total - 1;
+        if (btnPrev) btnPrev.disabled = currentBlockIndex === 0;
+        if (btnNext) btnNext.disabled = currentBlockIndex === total - 1;
         mcFeedbackEl.textContent = "";
         mcFeedbackEl.className = "feedback";
         wFeedbackEl.textContent = "";
@@ -995,8 +995,8 @@
         if (index < 0) index = 0;
         if (index >= total) index = total - 1;
         currentBlockIndex = index;
-        currentExerciseStep = 0;
-        explainVisible = true;
+        currentExerciseStep = 1;
+        explainVisible = false;
         topPanelVisibleInPractice = false;
         resetAllStages();
         lastVocabIndexMC = -1;
@@ -1023,8 +1023,8 @@
         blockProgressTextEl.textContent = (ui.blockTitlePrefix || "Вправа ") + (currentBlockIndex + 1) + (ui.blockProgressOf || " з ") + total;
         explainEl.innerHTML = (block.topicTag ? "<div class=\"topic-tag\">" + block.topicTag + "</div>" : "") + (block.explanation || "");
         blockSelectEl.value = String(currentBlockIndex);
-        btnPrev.disabled = currentBlockIndex === 0;
-        btnNext.disabled = currentBlockIndex === total - 1;
+        if (btnPrev) btnPrev.disabled = currentBlockIndex === 0;
+        if (btnNext) btnNext.disabled = currentBlockIndex === total - 1;
         loadMCQuestion();
         loadWQuestion();
         loadSentence();
@@ -1231,8 +1231,8 @@
     sNextBtn.addEventListener("click", loadSentence);
     sInputEl.addEventListener("keydown", function (e) { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) checkSentence(); });
 
-    btnPrev.addEventListener("click", function () { if (currentBlockIndex > 0) loadBlock(currentBlockIndex - 1); });
-    btnNext.addEventListener("click", function () { if (currentBlockIndex < blocks.length - 1) loadBlock(currentBlockIndex + 1); });
+    if (btnPrev) btnPrev.addEventListener("click", function () { if (currentBlockIndex > 0) loadBlock(currentBlockIndex - 1); });
+    if (btnNext) btnNext.addEventListener("click", function () { if (currentBlockIndex < blocks.length - 1) loadBlock(currentBlockIndex + 1); });
     btnNextEx.addEventListener("click", nextExerciseStep);
     btnToggleExplain.addEventListener("click", function () {
         if (currentExerciseStep === 0) { explainVisible = true; updateExplainVisibility(); return; }
@@ -1262,8 +1262,9 @@
             resetSeq("sent", (b && b.sentences && b.sentences.length) ? b.sentences.length : 0);
         } catch (e) { }
         gameXP = 0;
-        currentExerciseStep = 0;
-        explainVisible = true;
+        // Restart should return directly to stage 1 (no intro/explanation screen).
+        currentExerciseStep = 1;
+        explainVisible = false;
         updateExerciseVisibility();
         loadMCQuestion();
         loadWQuestion();

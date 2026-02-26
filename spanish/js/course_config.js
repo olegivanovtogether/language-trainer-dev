@@ -73,6 +73,26 @@ window.COURSE_CONFIG = {
         resumeBodyTemplate: "Продовжити з: {exerciseTitle}\nЕтап: {stage}\nКартка: {k}\n«{preview}»",
         resumeContinue: "Продовжити",
         resumeRestart: "З початку",
-        stageNames: ["Вступ", "Вибір", "Вписати", "Речення"]
+        stageNames: ["Вступ", "Вибір", "Вписати", "Речення"],
+        homeButtonLabel: "Головна сторінка",
+        goToExerciseLabel: "Перейти до вправи:",
+        check: "Перевірити",
+        showAnswer: "Показати відповідь",
+        nextWordInExercise: "Наступне слово в цій вправі",
+        nextSentenceInExercise: "Наступне речення в цій вправі",
+        restartExercise: "Перезапустити цю вправу",
+        doneTitle: "Готово",
+        tryAgain: "Спробувати ще раз",
+        next: "Далі",
+        repeatExercise: "Повторити вправу",
+        stage1CardTitle: "1️⃣ Вибір правильної фрази",
+        stage2CardTitle: "2️⃣ Написати фразу самому",
+        stage3CardTitle: "3️⃣ Переклад маленьких речень",
+        uaPhraseLabel: "Українська фраза:",
+        chooseTranslationLabel: "Обери правильний переклад:",
+        writeTranslationLabel: "Напиши переклад:",
+        uaTextLabel: "Український текст:",
+        translateLabel: "Переклади:",
+        sessionStatsHint: "Статистика зберігається лише поки сторінка відкрита."
     }
 };

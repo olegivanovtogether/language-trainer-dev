@@ -618,3 +618,49 @@ body.theme-cyberpunk .settings-content #btn-settings-back:hover {
     border-color: rgba(255, 0, 255, 0.95) !important;
     box-shadow: 0 0 16px rgba(255, 0, 255, 0.5) !important;
 }
+
+/* Home page (course start) */
+body.theme-cyberpunk #course-home-page .home-content {
+    background: rgba(10, 14, 24, 0.94) !important;
+    border: 1px solid rgba(0, 255, 225, 0.45) !important;
+    box-shadow:
+        0 0 24px rgba(0, 255, 225, 0.2),
+        inset 0 0 0 1px rgba(0, 255, 225, 0.08) !important;
+}
+
+body.theme-cyberpunk #course-home-page .home-title {
+    color: rgba(230, 255, 255, 0.95) !important;
+    text-shadow: 0 0 10px rgba(0, 255, 225, 0.25);
+}
+
+body.theme-cyberpunk #course-home-page .home-info {
+    color: rgba(214, 236, 255, 0.9) !important;
+}
+
+body.theme-cyberpunk #course-home-page .home-actions button {
+    background: rgba(14, 18, 32, 0.96) !important;
+    color: #ffffff !important;
+}
+
+body.theme-cyberpunk #course-home-page .home-actions #home-btn-exercises {
+    border-color: var(--neon-magenta) !important;
+    box-shadow: 0 0 12px rgba(255, 0, 255, 0.35) !important;
+}
+
+body.theme-cyberpunk #course-home-page .home-actions #home-btn-settings {
+    border-color: var(--neon-cyan) !important;
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.28) !important;
+}
+
+body.theme-cyberpunk #course-home-page .home-actions button:hover:enabled {
+    background: rgba(20, 28, 46, 0.98) !important;
+    color: #ffffff !important;
+}
+
+body.theme-cyberpunk #course-home-page .home-actions #home-btn-exercises:hover:enabled {
+    box-shadow: 0 0 18px rgba(255, 0, 255, 0.5) !important;
+}
+
+body.theme-cyberpunk #course-home-page .home-actions #home-btn-settings:hover:enabled {
+    box-shadow: 0 0 18px rgba(0, 255, 255, 0.45) !important;
+}

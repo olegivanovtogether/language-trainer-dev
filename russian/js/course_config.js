@@ -75,6 +75,26 @@ window.COURSE_CONFIG = {
         resumeBodyTemplate: "Continuar desde: {exerciseTitle}\nEtapa: {stage}\nTarjeta: {k}\n«{preview}»",
         resumeContinue: "Continuar",
         resumeRestart: "Empezar de nuevo",
-        stageNames: ["Inicio", "Opción", "Escribir", "Frases"]
+        stageNames: ["Inicio", "Opción", "Escribir", "Frases"],
+        homeButtonLabel: "Inicio",
+        goToExerciseLabel: "Ir al ejercicio:",
+        check: "Comprobar",
+        showAnswer: "Mostrar respuesta",
+        nextWordInExercise: "Siguiente palabra en este ejercicio",
+        nextSentenceInExercise: "Siguiente frase en este ejercicio",
+        restartExercise: "Reiniciar este ejercicio",
+        doneTitle: "Hecho",
+        tryAgain: "Intentar de nuevo",
+        next: "Siguiente",
+        repeatExercise: "Repetir ejercicio",
+        stage1CardTitle: "1️⃣ Elegir frase correcta",
+        stage2CardTitle: "2️⃣ Escribir la frase",
+        stage3CardTitle: "3️⃣ Traducir oraciones",
+        uaPhraseLabel: "Frase en ruso:",
+        chooseTranslationLabel: "Elige la traducción correcta:",
+        writeTranslationLabel: "Escribe la traducción:",
+        uaTextLabel: "Texto en ruso:",
+        translateLabel: "Traduce:",
+        sessionStatsHint: "La estadística se guarda solo mientras la página está abierta."
     }
 };
