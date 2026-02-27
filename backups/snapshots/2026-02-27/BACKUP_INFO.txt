@@ -1,0 +1,5 @@
+Snapshot path: E:\LaguageProjects\language-trainer\backups\snapshots\2026-02-27
+Created at: 2026-02-27 (Cursor/Auto)
+Source: E:\LaguageProjects\language-trainer
+Excluded dirs: .git, backups
+Tool: RoboCopy
