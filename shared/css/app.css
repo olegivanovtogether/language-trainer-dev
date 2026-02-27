@@ -23,3 +23,8 @@
 #cp-matrix {
     display: none !important;
 }
+
+/* Підзаголовок "Оберіть номер вправи" недоречний — хедер "Вправи" і кнопки вправ достатні */
+.tabbed-window #exercises-subtitle {
+    display: none !important;
+}
