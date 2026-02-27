@@ -9,7 +9,7 @@
     --panel-border: rgba(0, 255, 255, 0.4);
 }
 
-body {
+body.theme-cyberpunk {
     background: var(--dark-bg);
     color: #e0e0f0;
     position: relative;
@@ -548,6 +548,15 @@ button.dev-mode-active,
 }
 
 /* Settings page - Cyberpunk theme */
+body.theme-cyberpunk .tabbed-window {
+    background: var(--panel-bg) !important;
+    border: 1px solid var(--panel-border) !important;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2) !important;
+}
+body.theme-cyberpunk .tabbed-window .bottom-tabs {
+    background: var(--panel-bg) !important;
+    border-top: 1px solid var(--panel-border) !important;
+}
 body.theme-cyberpunk .settings-content {
     background: var(--panel-bg) !important;
     border: 1px solid var(--panel-border) !important;

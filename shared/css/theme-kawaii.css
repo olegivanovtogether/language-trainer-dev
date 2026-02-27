@@ -9,7 +9,7 @@
     --kawaii-text: #4a2a57;
 }
 
-body {
+body.theme-kawaii {
     min-height: 100vh;
     color: var(--kawaii-text);
     font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
@@ -22,7 +22,7 @@ body {
 }
 
 /* Floating hearts pattern in the background */
-body::before {
+body.theme-kawaii::before {
     content: "\\2764  \\2661  \\2764  \\2661  \\2765";
     position: fixed;
     inset: 0;
