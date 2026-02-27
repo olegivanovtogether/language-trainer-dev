@@ -1050,8 +1050,7 @@
         }
         updateGateUI();
         if (s.lives > 0) {
-            flashProgressBarRedOnce();
-            saveProgress();
+            flashProgressBarRedThree(function () { saveProgress(); });
             return;
         }
         addFlashBlockOverlay();
@@ -1859,9 +1858,13 @@
             blockSelectEl.appendChild(opt);
         });
 
-        // Resume prompt is shown from Exercises entry flow, not on course switch/load.
-        loadBlock(0);
-        try { resetStage("mc"); resetStage("write"); resetStage("sent"); } catch (e) { }
+        var p = getValidSavedProgress();
+        if (p) {
+            applyResumeState(p);
+        } else {
+            loadBlock(0);
+            try { resetStage("mc"); resetStage("write"); resetStage("sent"); } catch (e) { }
+        }
         if (typeof window.onAppReady === "function") window.onAppReady();
     }
 
