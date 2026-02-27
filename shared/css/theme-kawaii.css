@@ -446,3 +446,22 @@ body.theme-kawaii .exercise-preview-head,
 body.theme-kawaii .exercise-preview-actions {
     border-color: rgba(169, 77, 255, 0.25) !important;
 }
+
+/* Bottom tabs: dark text on light so always readable (override button hover) */
+body.theme-kawaii .bottom-tabs {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-top: 1px solid rgba(169, 77, 255, 0.3);
+    box-shadow: 0 -2px 14px rgba(169, 77, 255, 0.15);
+}
+body.theme-kawaii .bottom-tabs .tab-btn {
+    color: #4a2a57 !important;
+}
+body.theme-kawaii .bottom-tabs .tab-btn:hover {
+    background: rgba(255, 93, 177, 0.12) !important;
+    color: #4a2a57 !important;
+}
+body.theme-kawaii .bottom-tabs .tab-btn.active {
+    color: #5a2f6e !important;
+    background: rgba(255, 93, 177, 0.2) !important;
+    border-bottom-color: var(--kawaii-accent) !important;
+}

@@ -699,3 +699,22 @@ body.theme-cyberpunk #course-home-page .home-actions #home-btn-settings:hover:en
 body.theme-cyberpunk #main-page .main-header-card .main-quick-actions #btn-settings-main:hover:enabled {
     box-shadow: 0 0 18px rgba(0, 255, 255, 0.45) !important;
 }
+
+/* Bottom tabs: dark bar, light text for readability */
+body.theme-cyberpunk .bottom-tabs {
+    background: rgba(10, 12, 22, 0.98) !important;
+    border-top: 1px solid rgba(0, 255, 255, 0.35);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+}
+body.theme-cyberpunk .bottom-tabs .tab-btn {
+    color: rgba(220, 240, 255, 0.9) !important;
+}
+body.theme-cyberpunk .bottom-tabs .tab-btn:hover {
+    background: rgba(20, 25, 40, 0.95) !important;
+    color: #fff !important;
+}
+body.theme-cyberpunk .bottom-tabs .tab-btn.active {
+    color: #0ff !important;
+    background: rgba(0, 255, 255, 0.12) !important;
+    border-bottom-color: #0ff !important;
+}

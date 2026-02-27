@@ -1549,6 +1549,7 @@
         // Resume prompt is shown from Exercises entry flow, not on course switch/load.
         loadBlock(0);
         try { resetStage("mc"); resetStage("write"); resetStage("sent"); } catch (e) { }
+        if (typeof window.onAppReady === "function") window.onAppReady();
     }
 
     // Експортуємо функції глобально для доступу зі сторінки налаштувань

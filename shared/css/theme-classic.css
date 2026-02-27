@@ -232,3 +232,21 @@ button.dev-mode-active,
 #cp-matrix {
     display: none !important;
 }
+
+/* Bottom tabs: always readable text (dark on light) */
+body.theme-classic .bottom-tabs {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border-top-color: rgba(0, 0, 0, 0.1);
+}
+body.theme-classic .bottom-tabs .tab-btn {
+    color: #1d1d1f !important;
+}
+body.theme-classic .bottom-tabs .tab-btn:hover {
+    background: rgba(0, 0, 0, 0.06) !important;
+    color: #1d1d1f !important;
+}
+body.theme-classic .bottom-tabs .tab-btn.active {
+    color: #007aff !important;
+    background: rgba(0, 122, 255, 0.12) !important;
+    border-bottom-color: #007aff !important;
+}
