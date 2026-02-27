@@ -733,6 +733,7 @@
     }
 
     function showFeedback(isCorrect, sourceEl) {
+        if (currentExerciseStep === 1 || currentExerciseStep === 2 || currentExerciseStep === 3) return;
         var x, y;
         if (sourceEl && sourceEl.getBoundingClientRect) {
             var r = sourceEl.getBoundingClientRect();
@@ -947,8 +948,9 @@
         updateGateUI();
         if (kind === "mc" || kind === "write") {
             correctSinceRollback[kind] = 0;
-            if (stageBarEl) flashProgressBarRedThree();
+            if (stageBarEl && stageBarFlashEl) flashProgressBarRedThree();
         }
+        if (kind === "sent" && stageBarEl && stageBarFlashEl) flashProgressBarRedThree();
         if (kind === "mc") loadMCQuestion();
         if (kind === "write") loadWQuestion();
         if (kind === "sent") loadSentence();
@@ -1045,6 +1047,15 @@
     const exerciseStepEl = document.getElementById("exercise-step");
     const stageBarWrapEl = document.getElementById("stage-bar-wrap");
     const stageBarEl = document.getElementById("stage-bar");
+    var stageBarFlashEl = document.getElementById("stage-bar-flash");
+    if (!stageBarFlashEl && stageBarWrapEl) {
+        stageBarFlashEl = document.createElement("div");
+        stageBarFlashEl.id = "stage-bar-flash";
+        stageBarFlashEl.setAttribute("aria-hidden", "true");
+        stageBarFlashEl.style.cssText = "position:absolute;left:0;top:0;height:100%;width:0;border-radius:999px;pointer-events:none;z-index:2;opacity:0;transition:opacity 0.12s ease-out;";
+        stageBarWrapEl.style.position = "relative";
+        stageBarWrapEl.appendChild(stageBarFlashEl);
+    }
     const explainEl = document.getElementById("explain");
     const btnToggleExplain = document.getElementById("btn-toggle-explain");
     const blockSelectEl = document.getElementById("block-select");
@@ -1166,25 +1177,51 @@
     }
 
     function flashProgressBarGreen() {
-        if (!stageBarEl) return;
-        stageBarEl.classList.remove("progress-bar-flash-red", "progress-bar-flash-green");
-        void stageBarEl.offsetWidth;
-        stageBarEl.classList.add("progress-bar-flash-green");
-        setTimeout(function () { stageBarEl.classList.remove("progress-bar-flash-green"); }, 500);
+        if (!stageBarEl || !stageBarFlashEl) return;
+        stageBarFlashEl.style.width = stageBarEl.style.width || "0%";
+        stageBarFlashEl.style.backgroundColor = "rgba(40, 180, 99, 0.95)";
+        stageBarFlashEl.style.boxShadow = "inset 0 0 14px rgba(255,255,255,0.4)";
+        stageBarFlashEl.style.opacity = "1";
+        stageBarFlashEl.offsetHeight;
+        setTimeout(function () {
+            stageBarFlashEl.style.opacity = "0";
+            setTimeout(function () {
+                stageBarFlashEl.style.width = "0";
+                stageBarFlashEl.style.backgroundColor = "";
+                stageBarFlashEl.style.boxShadow = "";
+            }, 150);
+        }, 500);
     }
     function flashProgressBarRedThree() {
-        if (!stageBarEl) return;
-        stageBarEl.classList.remove("progress-bar-flash-red", "progress-bar-flash-green");
+        if (!stageBarEl || !stageBarFlashEl) return;
         var count = 0;
         function doFlash() {
-            if (count >= 3) return;
-            void stageBarEl.offsetWidth;
-            stageBarEl.classList.add("progress-bar-flash-red");
+            if (count >= 3) {
+                stageBarFlashEl.style.opacity = "0";
+                setTimeout(function () {
+                    stageBarFlashEl.style.width = "0";
+                    stageBarFlashEl.style.backgroundColor = "";
+                    stageBarFlashEl.style.boxShadow = "";
+                }, 150);
+                return;
+            }
+            stageBarFlashEl.style.width = stageBarEl.style.width || "0%";
+            stageBarFlashEl.style.backgroundColor = "rgba(220, 53, 69, 0.95)";
+            stageBarFlashEl.style.boxShadow = "inset 0 0 12px rgba(255,255,255,0.3)";
+            stageBarFlashEl.style.opacity = "1";
+            stageBarFlashEl.offsetHeight;
             setTimeout(function () {
-                stageBarEl.classList.remove("progress-bar-flash-red");
+                stageBarFlashEl.style.opacity = "0";
                 count++;
-                if (count < 3) setTimeout(doFlash, 120);
-            }, 120);
+                if (count < 3) setTimeout(doFlash, 180);
+                else {
+                    setTimeout(function () {
+                        stageBarFlashEl.style.width = "0";
+                        stageBarFlashEl.style.backgroundColor = "";
+                        stageBarFlashEl.style.boxShadow = "";
+                    }, 150);
+                }
+            }, 220);
         }
         doFlash();
     }

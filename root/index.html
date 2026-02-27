@@ -466,16 +466,15 @@
         .settings-btn.dev-mode-active { border-color: #333; background: #f0f0f0; font-weight: 600; }
         .next-ex-btn-wrap { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 8px; margin-top: 4px; }
         .stats { font-size: 0.8rem; color: #555; background: #fff; border-radius: 8px; border: 1px solid #ddd; padding: 6px 8px; margin-top: 6px; }
-        #stage-bar-wrap { height: 10px; width: 100%; border-radius: 999px; background: #e6e6e6; overflow: hidden; margin: 10px 0 8px; border: 1px solid #ddd; }
+        #stage-bar-wrap { position: relative; height: 10px; width: 100%; border-radius: 999px; background: #e6e6e6; overflow: hidden; margin: 10px 0 8px; border: 1px solid #ddd; }
         #stage-bar { height: 100%; width: 0%; background: #ff4d4d; border-radius: 999px; transition: width 0.25s ease, background-color 0.25s ease; }
+        #stage-bar-flash { position: absolute; left: 0; top: 0; height: 100%; width: 0; border-radius: 999px; pointer-events: none; z-index: 2; opacity: 0; transition: opacity 0.12s ease-out; }
         .small { font-size: 0.8rem; color: #777; margin-top: 6px; text-align: center; }
         @keyframes flash-green { 0% { background-color: #c8f7c5; } 100% { background-color: #f5f5f5; } }
         @keyframes flash-red { 0% { background-color: #ffb3b3; } 100% { background-color: #f5f5f5; } }
-        body.flash-green { animation: flash-green 0.5s ease-out; }
         .toast-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity .15s ease; z-index: 9999; }
         .toast-overlay.show { opacity: 1; }
         .toast { max-width: 90vw; background: rgba(30,30,30,0.92); color: #fff; padding: 10px 14px; border-radius: 14px; font-weight: 700; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
-        body.flash-red { animation: flash-red 0.5s ease-out 1; }
         .small-toggle { display: none; margin: 6px 0 10px; padding: 6px 10px; border-radius: 999px; font-size: 0.85rem; }
         @media (max-width: 600px) { body { padding: 10px; font-size: 15px; } h1 { font-size: 1.2rem; margin-top: 12px; } .input-row { flex-direction: column; } .input-row button { width: 100%; } .next-ex-btn-wrap button { min-height: 48px; padding: 12px 16px; } .top-row { flex-direction: column; align-items: stretch; } select { width: 100%; } .toggle-explain-row { text-align: left; } }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 16px; }
@@ -521,7 +520,7 @@
         </div>
         <button id="btn-topPanel" class="small-toggle">Show panel</button>
         <div class="exercise-step" id="exercise-step"></div>
-        <div id="stage-bar-wrap" aria-label="Progress"><div id="stage-bar"></div></div>
+        <div id="stage-bar-wrap" aria-label="Progress"><div id="stage-bar"></div><div id="stage-bar-flash" aria-hidden="true"></div></div>
         <div class="toggle-explain-row">
             <button id="btn-toggle-explain">Hide explanation</button>
         </div>

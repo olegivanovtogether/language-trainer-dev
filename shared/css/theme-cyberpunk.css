@@ -392,16 +392,13 @@ body.modal-open {
 
 body.flash-green {
     animation: none;
-}
-
-body.flash-green {
-    background-color: rgba(0, 255, 136, 0.2);
-    transition: background-color 0.3s ease;
+    background-color: transparent;
+    transition: none;
 }
 
 body.flash-red {
-    background-color: rgba(255, 50, 50, 0.2);
-    transition: background-color 0.3s ease;
+    background-color: transparent;
+    transition: none;
 }
 
 /* Hex-grid ripple feedback (cp-ok / cp-bad) */

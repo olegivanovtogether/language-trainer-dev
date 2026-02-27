@@ -385,6 +385,14 @@ body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn {
     --exercise-center-fill: #fff;
 }
 
+/* Progress bar flash overlay (visible on the bar; independent of updateGateUI inline styles) */
+#stage-bar-wrap { position: relative; }
+#stage-bar-flash {
+    position: absolute; left: 0; top: 0; height: 100%; width: 0;
+    border-radius: 999px; pointer-events: none; z-index: 2;
+    opacity: 0; transition: opacity 0.12s ease-out;
+}
+
 /* Progress bar flash (correct = green once, penalty = red 3 times) */
 #stage-bar.progress-bar-flash-green {
     animation: progress-flash-green 0.5s ease-out;
