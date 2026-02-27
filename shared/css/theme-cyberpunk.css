@@ -552,13 +552,15 @@ body.theme-cyberpunk .tabbed-window {
     background: var(--panel-bg) !important;
     border: 1px solid var(--panel-border) !important;
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.2) !important;
-    border-radius: 12px 12px 0 0 !important;
+    border-radius: 12px !important;
 }
 body.theme-cyberpunk .tabbed-window .bottom-tabs {
     background: var(--panel-bg) !important;
     border-top: 1px solid var(--panel-border) !important;
     border-radius: 0 0 12px 12px !important;
     overflow: hidden;
+    margin-right: -1px;
+    margin-bottom: -1px;
 }
 body.theme-cyberpunk .tabbed-window .settings-content {
     border-radius: 12px 12px 0 0 !important;
@@ -733,3 +735,5 @@ body.theme-cyberpunk .bottom-tabs .tab-btn.active {
     background: rgba(0, 255, 255, 0.12) !important;
     border-bottom-color: #0ff !important;
 }
+body.theme-cyberpunk .bottom-tabs .tab-btn:first-child { border-radius: 0 0 0 12px !important; }
+body.theme-cyberpunk .bottom-tabs .tab-btn:last-child { border-radius: 0 0 12px 0 !important; }
