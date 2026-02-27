@@ -384,3 +384,21 @@ body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn {
     --exercise-ring-fill: rgba(106, 90, 205, 0.12);
     --exercise-center-fill: #fff;
 }
+
+/* Progress bar flash (correct = green once, penalty = red 3 times) */
+#stage-bar.progress-bar-flash-green {
+    animation: progress-flash-green 0.5s ease-out;
+}
+#stage-bar.progress-bar-flash-red {
+    animation: progress-flash-red 0.12s ease-out;
+}
+@keyframes progress-flash-green {
+    0% { box-shadow: 0 0 0 0 rgba(40, 180, 99, 0.9); }
+    50% { box-shadow: 0 0 14px 4px rgba(40, 180, 99, 0.7); }
+    100% { box-shadow: none; }
+}
+@keyframes progress-flash-red {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.9); }
+    50% { box-shadow: 0 0 14px 4px rgba(220, 53, 69, 0.8); }
+    100% { box-shadow: none; }
+}

@@ -33,6 +33,16 @@ window.COURSE_CONFIG = {
         lastStageTitle: "Última etapa",
         lastStageText: "Este ejercicio ya está en la última etapa. Puedes repetirlo o continuar.",
         ok: "Vale",
+        rollbackModalTexts: [
+            "¡Qué pena! Volvamos atrás e intentémoslo de nuevo.",
+            "No pasa nada. Retrocedamos un poco e intentemos otra vez.",
+            "Suele pasar. Volvamos unos pasos atrás.",
+            "¡No te rindas! Volvamos atrás y sigamos."
+        ],
+        progressLabel: "Progreso",
+        encourageUnder50: "¡Muy bien! Vas camino del éxito.",
+        encourageHalf: "¡Enhorabuena! Ya has pasado la mitad.",
+        encourageNearEnd: "¡Un poco más y terminas esta etapa!",
         blockTitlePrefix: "Ejercicio ",
         blockTitleSuffix: ". ",
         blockProgressOf: " de ",

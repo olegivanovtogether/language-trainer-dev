@@ -58,7 +58,13 @@
                     mc: stageState.mc ? { correct: stageState.mc.correct, attempts: stageState.mc.attempts, streak: stageState.mc.streak, lives: stageState.mc.lives, cleared: stageState.mc.cleared, stars: stageState.mc.stars } : { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 },
                     write: stageState.write ? { correct: stageState.write.correct, attempts: stageState.write.attempts, streak: stageState.write.streak, lives: stageState.write.lives, cleared: stageState.write.cleared, stars: stageState.write.stars } : { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 },
                     sent: stageState.sent ? { correct: stageState.sent.correct, attempts: stageState.sent.attempts, streak: stageState.sent.streak, lives: stageState.sent.lives, cleared: stageState.sent.cleared, stars: stageState.sent.stars } : { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 }
-                }
+                },
+                phaseState: {
+                    mc: phaseState.mc ? { phase: phaseState.mc.phase, wrongInPhase1: phaseState.mc.wrongInPhase1 ? phaseState.mc.wrongInPhase1.slice() : [], phase2Correct: phaseState.mc.phase2Correct ? phaseState.mc.phase2Correct.slice() : [] } : getDefaultPhaseState(0),
+                    write: phaseState.write ? { phase: phaseState.write.phase, wrongInPhase1: phaseState.write.wrongInPhase1 ? phaseState.write.wrongInPhase1.slice() : [], phase2Correct: phaseState.write.phase2Correct ? phaseState.write.phase2Correct.slice() : [] } : getDefaultPhaseState(0)
+                },
+                lastEncouragementMilestone: { mc: lastEncouragementMilestone.mc, write: lastEncouragementMilestone.write },
+                correctSinceRollback: { mc: correctSinceRollback.mc, write: correctSinceRollback.write }
             };
             localStorage.setItem(getProgressKey(), JSON.stringify(p));
         } catch (e) { }
@@ -181,6 +187,39 @@
             });
         } else {
             resetAllStages();
+        }
+        if (progress.phaseState) {
+            if (progress.phaseState.mc) {
+                phaseState.mc = {
+                    phase: progress.phaseState.mc.phase || 1,
+                    wrongInPhase1: Array.isArray(progress.phaseState.mc.wrongInPhase1) ? progress.phaseState.mc.wrongInPhase1.slice() : [],
+                    phase2Correct: Array.isArray(progress.phaseState.mc.phase2Correct) ? progress.phaseState.mc.phase2Correct.slice() : []
+                };
+            }
+            if (progress.phaseState.write) {
+                phaseState.write = {
+                    phase: progress.phaseState.write.phase || 1,
+                    wrongInPhase1: Array.isArray(progress.phaseState.write.wrongInPhase1) ? progress.phaseState.write.wrongInPhase1.slice() : [],
+                    phase2Correct: Array.isArray(progress.phaseState.write.phase2Correct) ? progress.phaseState.write.phase2Correct.slice() : []
+                };
+            }
+        }
+        if (nV > 0) {
+            ["mc", "write"].forEach(function (k) {
+                const ps = phaseState[k];
+                if (ps && ps.phase2Correct) {
+                    while (ps.phase2Correct.length < nV) ps.phase2Correct.push(0);
+                    if (ps.phase2Correct.length > nV) ps.phase2Correct = ps.phase2Correct.slice(0, nV);
+                }
+            });
+        }
+        if (progress.lastEncouragementMilestone) {
+            lastEncouragementMilestone.mc = progress.lastEncouragementMilestone.mc != null ? progress.lastEncouragementMilestone.mc : 0;
+            lastEncouragementMilestone.write = progress.lastEncouragementMilestone.write != null ? progress.lastEncouragementMilestone.write : 0;
+        }
+        if (progress.correctSinceRollback) {
+            correctSinceRollback.mc = progress.correctSinceRollback.mc != null ? progress.correctSinceRollback.mc : 0;
+            correctSinceRollback.write = progress.correctSinceRollback.write != null ? progress.correctSinceRollback.write : 0;
         }
         lastVocabIndexMC = -1;
         lastVocabIndexWrite = -1;
@@ -532,6 +571,18 @@
         sent: { correct: 0, attempts: 0, streak: 0, lives: 3, cleared: false, stars: 0 }
     };
 
+    function getDefaultPhaseState(n) {
+        const arr = [];
+        for (let i = 0; i < n; i++) arr.push(0);
+        return { phase: 1, wrongInPhase1: [], phase2Correct: arr };
+    }
+    let phaseState = {
+        mc: getDefaultPhaseState(0),
+        write: getDefaultPhaseState(0)
+    };
+    let lastEncouragementMilestone = { mc: 0, write: 0 };
+    let correctSinceRollback = { mc: 0, write: 0 };
+
     let currentBlockIndex = 0;
     let currentExerciseStep = 0;
     let explainVisible = true;
@@ -555,11 +606,11 @@
     }
     function getLivesMax(kind) {
         const n = getNFor(kind);
-        return (n <= 3) ? 3 : 5;
+        return (n < 10) ? 3 : 5;
     }
     function getRollbackSteps(kind) {
         const n = getNFor(kind);
-        return (n <= 3) ? 3 : 5;
+        return (n < 10) ? 3 : 5;
     }
 
     function showToast(msg) {
@@ -577,6 +628,12 @@
 
     function resetStage(kind) {
         stageState[kind] = { correct: 0, attempts: 0, streak: 0, lives: getLivesMax(kind), cleared: false, stars: 0 };
+        if (kind === "mc" || kind === "write") {
+            const n = getNFor(kind);
+            phaseState[kind] = getDefaultPhaseState(n);
+            lastEncouragementMilestone[kind] = 0;
+            correctSinceRollback[kind] = 0;
+        }
     }
     function resetAllStages() {
         resetStage("mc");
@@ -618,6 +675,42 @@
         if (s.pos < n) idx = s.pos;
         else idx = randIntExcept(n, s.last);
         s.pos++;
+        s.last = idx;
+        return idx;
+    }
+
+    function ensurePhaseState(kind, n) {
+        if (kind !== "mc" && kind !== "write") return;
+        const ps = phaseState[kind];
+        if (!ps.phase2Correct || ps.phase2Correct.length !== n) {
+            const arr = [];
+            for (let i = 0; i < n; i++) arr.push(0);
+            ps.phase2Correct = arr;
+        }
+        if (!ps.wrongInPhase1) ps.wrongInPhase1 = [];
+    }
+
+    function nextIndexMcOrWrite(kind, n) {
+        if (n <= 0) return 0;
+        ensurePhaseState(kind, n);
+        const s = seq[kind];
+        const ps = phaseState[kind];
+        if (!seq[kind] || seq[kind].n !== n) resetSeq(kind, n);
+        if (ps.phase === 1) {
+            if (s.pos < n) {
+                const idx = s.pos;
+                s.last = idx;
+                return idx;
+            }
+            ps.phase = 2;
+        }
+        const need = [];
+        for (let i = 0; i < n; i++) {
+            const required = ps.wrongInPhase1.indexOf(i) >= 0 ? 3 : 1;
+            if ((ps.phase2Correct[i] || 0) < required) need.push(i);
+        }
+        if (need.length === 0) return 0;
+        const idx = need[randInt(need.length)];
         s.last = idx;
         return idx;
     }
@@ -685,6 +778,18 @@
         return s.attempts ? (s.correct / s.attempts) : 0;
     }
     function stageGoalMet(kind) {
+        if (kind === "mc" || kind === "write") {
+            const n = getNFor(kind);
+            if (n <= 0) return false;
+            ensurePhaseState(kind, n);
+            const ps = phaseState[kind];
+            if (ps.phase !== 2) return false;
+            for (let i = 0; i < n; i++) {
+                const required = ps.wrongInPhase1.indexOf(i) >= 0 ? 3 : 1;
+                if ((ps.phase2Correct[i] || 0) < required) return false;
+            }
+            return true;
+        }
         const cfg = GAME.stage[kind];
         const s = stageState[kind];
         return s.correct >= cfg.needCorrect && stageAccuracy(kind) >= cfg.minAccuracy;
@@ -840,10 +945,30 @@
         showFeedback(false, null);
         showToast((ui.toastPenalty || "") + rollback);
         updateGateUI();
+        if (kind === "mc" || kind === "write") {
+            correctSinceRollback[kind] = 0;
+            if (stageBarEl) flashProgressBarRedThree();
+        }
         if (kind === "mc") loadMCQuestion();
         if (kind === "write") loadWQuestion();
         if (kind === "sent") loadSentence();
         saveProgress();
+    }
+
+    function showRollbackModalThenFail(kind) {
+        const texts = (ui.rollbackModalTexts && Array.isArray(ui.rollbackModalTexts) && ui.rollbackModalTexts.length) ? ui.rollbackModalTexts : (ui.rollbackModalText ? [ui.rollbackModalText] : ["Ой, як шкода! Повернемось назад і спробуємо ще раз."]);
+        const text = texts[Math.floor(Math.random() * texts.length)];
+        openModal({
+            title: "",
+            text: text,
+            primaryText: ui.ok || "Ок",
+            secondaryText: "",
+            tertiaryText: "",
+            onPrimary: function () {
+                closeModal();
+                showFail(kind);
+            }
+        });
     }
 
     function onCorrect(kind) {
@@ -852,6 +977,31 @@
         s.correct++;
         s.streak++;
         gameXP += 10;
+        if (kind === "mc" || kind === "write") {
+            const ps = phaseState[kind];
+            if (ps && ps.phase === 1) {
+                if (seq[kind]) seq[kind].pos++;
+            }
+            if (ps && ps.phase === 2 && ps.phase2Correct) {
+                const idx = kind === "mc" ? currentVocabIndexMC : currentVocabIndexWrite;
+                if (idx >= 0 && idx < ps.phase2Correct.length) ps.phase2Correct[idx] = (ps.phase2Correct[idx] || 0) + 1;
+            }
+            correctSinceRollback[kind]++;
+            const rollbackSteps = getRollbackSteps(kind);
+            const progressPct = Math.round(getProgressPercentMcWrite(kind) * 100);
+            if (correctSinceRollback[kind] >= rollbackSteps) {
+                if (progressPct >= 75 && lastEncouragementMilestone[kind] < 75) {
+                    lastEncouragementMilestone[kind] = 75;
+                    openModal({ title: "", text: ui.encourageNearEnd || "Ще трохи — і ти завершиш етап!", primaryText: ui.ok || "Ок", onPrimary: closeModal });
+                } else if (progressPct >= 50 && lastEncouragementMilestone[kind] < 50) {
+                    lastEncouragementMilestone[kind] = 50;
+                    openModal({ title: "", text: ui.encourageHalf || "Вітаємо! Ти вже пройшов половину.", primaryText: ui.ok || "Ок", onPrimary: closeModal });
+                } else if (progressPct >= 25 && lastEncouragementMilestone[kind] < 25) {
+                    lastEncouragementMilestone[kind] = 25;
+                    openModal({ title: "", text: ui.encourageUnder50 || "Який ти молодець! Ти йдеш до успіху.", primaryText: ui.ok || "Ок", onPrimary: closeModal });
+                }
+            }
+        }
         if (!s.cleared && stageGoalMet(kind)) {
             s.cleared = true;
             s.stars = calcStars(kind);
@@ -860,6 +1010,9 @@
             return;
         }
         updateGateUI();
+        if ((kind === "mc" || kind === "write") && stageBarEl) {
+            flashProgressBarGreen();
+        }
         saveProgress();
     }
     function onWrong(kind) {
@@ -867,8 +1020,19 @@
         s.attempts++;
         s.streak = 0;
         s.lives--;
+        if (kind === "mc" || kind === "write") {
+            const ps = phaseState[kind];
+            if (ps && ps.phase === 1 && ps.wrongInPhase1) {
+                const idx = kind === "mc" ? currentVocabIndexMC : currentVocabIndexWrite;
+                if (ps.wrongInPhase1.indexOf(idx) < 0) ps.wrongInPhase1.push(idx);
+            }
+        }
         if (s.lives <= 0) {
-            showFail(kind);
+            if (kind === "mc" || kind === "write") {
+                showRollbackModalThenFail(kind);
+            } else {
+                showFail(kind);
+            }
             return;
         }
         updateGateUI();
@@ -939,6 +1103,22 @@
         }
     }
 
+    function getProgressPercentMcWrite(kind) {
+        const n = getNFor(kind);
+        if (n <= 0) return 0;
+        ensurePhaseState(kind, n);
+        const ps = phaseState[kind];
+        const s = seq[kind];
+        if (ps.phase === 1) {
+            return Math.min(1, (s.pos || 0) / n) * 0.5;
+        }
+        const needPhase2 = n + 2 * (ps.wrongInPhase1 ? ps.wrongInPhase1.length : 0);
+        if (needPhase2 <= 0) return 1;
+        let completed = 0;
+        for (let i = 0; i < (ps.phase2Correct || []).length; i++) completed += ps.phase2Correct[i] || 0;
+        return 0.5 + 0.5 * Math.min(1, completed / needPhase2);
+    }
+
     function updateGateUI() {
         const kind = currentKind();
         if (currentExerciseStep === 0) {
@@ -961,19 +1141,51 @@
         const s = stageState[kind];
         const acc = Math.round(stageAccuracy(kind) * 100);
         const needAcc = Math.round(cfg.minAccuracy * 100);
+        let progress = 0;
+        let progressText = "";
+        if (kind === "mc" || kind === "write") {
+            progress = getProgressPercentMcWrite(kind);
+            progressText = " • " + (ui.progressLabel || "Прогрес") + " " + Math.round(progress * 100) + "%";
+        } else {
+            progress = Math.max(0, Math.min(1, s.correct / cfg.needCorrect));
+            progressText = " • ✅ " + s.correct + "/" + cfg.needCorrect;
+        }
         if (stageBarWrapEl && stageBarEl) {
             if (currentExerciseStep === 0) {
                 stageBarWrapEl.style.display = "none";
             } else {
                 stageBarWrapEl.style.display = "block";
-                const progress = Math.max(0, Math.min(1, s.correct / cfg.needCorrect));
                 stageBarEl.style.width = Math.round(progress * 100) + "%";
                 stageBarEl.style.backgroundColor = "hsl(" + Math.round(progress * 120) + ", 85%, 45%)";
             }
         }
         const stepLabel = ui.stepLabel !== undefined ? ui.stepLabel : "Етап ";
         const stepOf = ui.stepOf !== undefined ? ui.stepOf : " з ";
-        exerciseStepEl.textContent = stepLabel + currentExerciseStep + stepOf + "3 • ❤️ " + s.lives + " • ✅ " + s.correct + "/" + cfg.needCorrect + " • 🎯 " + acc + "% (" + (ui.needAccLabel || "") + needAcc + "%) • XP " + gameXP;
+        exerciseStepEl.textContent = stepLabel + currentExerciseStep + stepOf + "3 • ❤️ " + s.lives + progressText + " • 🎯 " + acc + "% (" + (ui.needAccLabel || "") + needAcc + "%) • XP " + gameXP;
+    }
+
+    function flashProgressBarGreen() {
+        if (!stageBarEl) return;
+        stageBarEl.classList.remove("progress-bar-flash-red", "progress-bar-flash-green");
+        void stageBarEl.offsetWidth;
+        stageBarEl.classList.add("progress-bar-flash-green");
+        setTimeout(function () { stageBarEl.classList.remove("progress-bar-flash-green"); }, 500);
+    }
+    function flashProgressBarRedThree() {
+        if (!stageBarEl) return;
+        stageBarEl.classList.remove("progress-bar-flash-red", "progress-bar-flash-green");
+        var count = 0;
+        function doFlash() {
+            if (count >= 3) return;
+            void stageBarEl.offsetWidth;
+            stageBarEl.classList.add("progress-bar-flash-red");
+            setTimeout(function () {
+                stageBarEl.classList.remove("progress-bar-flash-red");
+                count++;
+                if (count < 3) setTimeout(doFlash, 120);
+            }, 120);
+        }
+        doFlash();
     }
 
     function updateExerciseVisibility() {
@@ -1152,7 +1364,11 @@
             mcOptionsEl.innerHTML = "";
             return;
         }
-        currentVocabIndexMC = nextIndex("mc", block.vocab.length);
+        if (stageGoalMet("mc")) {
+            showVictory("mc");
+            return;
+        }
+        currentVocabIndexMC = nextIndexMcOrWrite("mc", block.vocab.length);
         lastVocabIndexMC = currentVocabIndexMC;
         const card = block.vocab[currentVocabIndexMC];
         mcQuestionEl.textContent = card.ua;
@@ -1214,7 +1430,11 @@
             wQuestionEl.textContent = ui.noWords || "";
             return;
         }
-        currentVocabIndexWrite = nextIndex("write", block.vocab.length);
+        if (stageGoalMet("write")) {
+            showVictory("write");
+            return;
+        }
+        currentVocabIndexWrite = nextIndexMcOrWrite("write", block.vocab.length);
         lastVocabIndexWrite = currentVocabIndexWrite;
         const card = block.vocab[currentVocabIndexWrite];
         wQuestionEl.textContent = card.ua;
