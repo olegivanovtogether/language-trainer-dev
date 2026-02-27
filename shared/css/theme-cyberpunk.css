@@ -576,6 +576,23 @@ body.theme-cyberpunk .exercise-nav-btn.is-resume-target + .exercise-nav-label {
     border-color: rgba(125, 255, 93, 0.55) !important;
     box-shadow: 0 0 12px rgba(125, 255, 93, 0.24) !important;
 }
+body.theme-cyberpunk .exercise-nav-btn:hover {
+    background: rgba(10, 24, 34, 0.92) !important;
+    border-color: #58f8ff !important;
+    color: #e9ffff !important;
+    box-shadow:
+        0 0 0 4px rgba(0, 234, 255, 0.24),
+        0 0 24px rgba(0, 234, 255, 0.64) !important;
+}
+body.theme-cyberpunk .exercise-nav-btn:hover::before {
+    border-color: #58f8ff !important;
+}
+body.theme-cyberpunk .exercise-nav-btn.is-resume-target:hover {
+    border-color: #97ff74 !important;
+    box-shadow:
+        0 0 0 5px rgba(125, 255, 93, 0.3),
+        0 0 26px rgba(125, 255, 93, 0.72) !important;
+}
 
 /* Settings page - Cyberpunk theme */
 body.theme-cyberpunk .tabbed-window {

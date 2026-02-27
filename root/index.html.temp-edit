@@ -336,23 +336,6 @@
             background: rgba(255, 255, 255, 0.92);
             color: #1d1d1f;
         }
-        .exercise-nav-btn:hover {
-            border-width: 5px;
-            transform: translateY(-1px);
-            transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
-        }
-        body.theme-cyberpunk .exercise-nav-btn:hover {
-            border-color: #3ff6ff;
-            box-shadow: 0 0 0 4px rgba(0, 234, 255, 0.22), 0 0 22px rgba(0, 234, 255, 0.62);
-        }
-        body.theme-kawaii .exercise-nav-btn:hover {
-            border-color: #ff8ddd;
-            box-shadow: 0 0 0 4px rgba(255, 141, 221, 0.22), 0 0 20px rgba(233, 86, 195, 0.5);
-        }
-        body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn:hover {
-            border-color: #7b6cff;
-            box-shadow: 0 0 0 4px rgba(123, 108, 255, 0.2), 0 0 18px rgba(106, 90, 205, 0.4);
-        }
         .exercise-nav-btn.is-resume-target {
             border-width: 7px;
             box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.2), 0 0 24px rgba(0, 234, 255, 0.65);
