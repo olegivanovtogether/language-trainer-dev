@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
@@ -162,6 +162,7 @@
             --exercise-diameter: clamp(78px, 9.5vh, 102px);
             --exercise-zigzag-shift: calc(var(--exercise-diameter) * 0.4);
             --exercise-gap: calc(var(--exercise-diameter) / 2);
+            --exercise-focus-safe-space: 18px;
             --scroll-track-bg: linear-gradient(180deg, #ececf2, #e3e4ee);
             --scroll-track-border: rgba(106, 90, 205, 0.28);
             --scroll-thumb-bg: linear-gradient(180deg, #7b6ad8, #6453c9);
@@ -176,8 +177,10 @@
             min-height: 0;
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 2px 0 10px;
+            padding: var(--exercise-focus-safe-space) 0 calc(10px + var(--exercise-focus-safe-space));
             margin-bottom: 8px;
+            scroll-padding-top: var(--exercise-focus-safe-space);
+            scroll-padding-bottom: var(--exercise-focus-safe-space);
             scrollbar-width: thin;
             scrollbar-color: #6a5acd #e4e5ef;
         }
