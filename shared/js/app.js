@@ -1026,6 +1026,7 @@
                 const idx = kind === "mc" ? currentVocabIndexMC : currentVocabIndexWrite;
                 if (ps.wrongInPhase1.indexOf(idx) < 0) ps.wrongInPhase1.push(idx);
             }
+            correctSinceRollback[kind] = 0;
         }
         if (s.lives <= 0) {
             if (kind === "mc" || kind === "write") {
