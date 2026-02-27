@@ -948,9 +948,7 @@
         updateGateUI();
         if (kind === "mc" || kind === "write") {
             correctSinceRollback[kind] = 0;
-            if (stageBarEl && stageBarFlashEl) flashProgressBarRedThree();
         }
-        if (kind === "sent" && stageBarEl && stageBarFlashEl) flashProgressBarRedThree();
         if (kind === "mc") loadMCQuestion();
         if (kind === "write") loadWQuestion();
         if (kind === "sent") loadSentence();
@@ -994,13 +992,31 @@
             if (correctSinceRollback[kind] >= rollbackSteps) {
                 if (progressPct >= 75 && lastEncouragementMilestone[kind] < 75) {
                     lastEncouragementMilestone[kind] = 75;
-                    openModal({ title: "", text: ui.encourageNearEnd || "Ще трохи — і ти завершиш етап!", primaryText: ui.ok || "Ок", onPrimary: closeModal });
+                    saveProgress();
+                    addFlashBlockOverlay();
+                    flashProgressBarGreen(function () {
+                        removeFlashBlockOverlay();
+                        openModal({ title: "", text: ui.encourageNearEnd || "Ще трохи — і ти завершиш етап!", primaryText: ui.ok || "Ок", onPrimary: closeModal });
+                    });
+                    return;
                 } else if (progressPct >= 50 && lastEncouragementMilestone[kind] < 50) {
                     lastEncouragementMilestone[kind] = 50;
-                    openModal({ title: "", text: ui.encourageHalf || "Вітаємо! Ти вже пройшов половину.", primaryText: ui.ok || "Ок", onPrimary: closeModal });
+                    saveProgress();
+                    addFlashBlockOverlay();
+                    flashProgressBarGreen(function () {
+                        removeFlashBlockOverlay();
+                        openModal({ title: "", text: ui.encourageHalf || "Вітаємо! Ти вже пройшов половину.", primaryText: ui.ok || "Ок", onPrimary: closeModal });
+                    });
+                    return;
                 } else if (progressPct >= 25 && lastEncouragementMilestone[kind] < 25) {
                     lastEncouragementMilestone[kind] = 25;
-                    openModal({ title: "", text: ui.encourageUnder50 || "Який ти молодець! Ти йдеш до успіху.", primaryText: ui.ok || "Ок", onPrimary: closeModal });
+                    saveProgress();
+                    addFlashBlockOverlay();
+                    flashProgressBarGreen(function () {
+                        removeFlashBlockOverlay();
+                        openModal({ title: "", text: ui.encourageUnder50 || "Який ти молодець! Ти йдеш до успіху.", primaryText: ui.ok || "Ок", onPrimary: closeModal });
+                    });
+                    return;
                 }
             }
         }
@@ -1008,13 +1024,15 @@
             s.cleared = true;
             s.stars = calcStars(kind);
             updateGateUI();
-            showVictory(kind);
+            addFlashBlockOverlay();
+            flashProgressBarGreen(function () {
+                removeFlashBlockOverlay();
+                showVictory(kind);
+            });
             return;
         }
         updateGateUI();
-        if ((kind === "mc" || kind === "write") && stageBarEl) {
-            flashProgressBarGreen();
-        }
+        flashProgressBarGreen();
         saveProgress();
     }
     function onWrong(kind) {
@@ -1030,16 +1048,21 @@
             }
             correctSinceRollback[kind] = 0;
         }
-        if (s.lives <= 0) {
+        updateGateUI();
+        if (s.lives > 0) {
+            flashProgressBarRedOnce();
+            saveProgress();
+            return;
+        }
+        addFlashBlockOverlay();
+        flashProgressBarRedThree(function () {
+            removeFlashBlockOverlay();
             if (kind === "mc" || kind === "write") {
                 showRollbackModalThenFail(kind);
             } else {
                 showFail(kind);
             }
-            return;
-        }
-        updateGateUI();
-        saveProgress();
+        });
     }
 
     const blockTitleEl = document.getElementById("block-title");
@@ -1055,6 +1078,20 @@
         stageBarFlashEl.style.cssText = "position:absolute;left:0;top:0;height:100%;width:0;border-radius:999px;pointer-events:none;z-index:2;opacity:0;transition:opacity 0.12s ease-out;";
         stageBarWrapEl.style.position = "relative";
         stageBarWrapEl.appendChild(stageBarFlashEl);
+    }
+    var flashBlockOverlayEl = null;
+    function addFlashBlockOverlay() {
+        if (!flashBlockOverlayEl) {
+            flashBlockOverlayEl = document.createElement("div");
+            flashBlockOverlayEl.id = "flash-block-overlay";
+            flashBlockOverlayEl.setAttribute("aria-hidden", "true");
+            flashBlockOverlayEl.style.cssText = "position:fixed;inset:0;z-index:9990;pointer-events:all;background:transparent;";
+            document.body.appendChild(flashBlockOverlayEl);
+        }
+        flashBlockOverlayEl.style.display = "block";
+    }
+    function removeFlashBlockOverlay() {
+        if (flashBlockOverlayEl) flashBlockOverlayEl.style.display = "none";
     }
     const explainEl = document.getElementById("explain");
     const btnToggleExplain = document.getElementById("btn-toggle-explain");
@@ -1176,8 +1213,8 @@
         exerciseStepEl.textContent = stepLabel + currentExerciseStep + stepOf + "3 • ❤️ " + s.lives + progressText + " • 🎯 " + acc + "% (" + (ui.needAccLabel || "") + needAcc + "%) • XP " + gameXP;
     }
 
-    function flashProgressBarGreen() {
-        if (!stageBarEl || !stageBarFlashEl) return;
+    function flashProgressBarGreen(callback) {
+        if (!stageBarEl || !stageBarFlashEl) { if (callback) callback(); return; }
         stageBarFlashEl.style.width = stageBarEl.style.width || "0%";
         stageBarFlashEl.style.backgroundColor = "rgba(40, 180, 99, 0.95)";
         stageBarFlashEl.style.boxShadow = "inset 0 0 14px rgba(255,255,255,0.4)";
@@ -1189,11 +1226,30 @@
                 stageBarFlashEl.style.width = "0";
                 stageBarFlashEl.style.backgroundColor = "";
                 stageBarFlashEl.style.boxShadow = "";
+                if (callback) callback();
             }, 150);
         }, 500);
     }
-    function flashProgressBarRedThree() {
-        if (!stageBarEl || !stageBarFlashEl) return;
+    function flashProgressBarRedOnce(callback) {
+        if (!stageBarEl || !stageBarFlashEl) { if (callback) callback(); return; }
+        stageBarEl.offsetHeight;
+        stageBarFlashEl.style.width = stageBarEl.style.width || "0%";
+        stageBarFlashEl.style.backgroundColor = "rgba(220, 53, 69, 0.95)";
+        stageBarFlashEl.style.boxShadow = "inset 0 0 12px rgba(255,255,255,0.3)";
+        stageBarFlashEl.style.opacity = "1";
+        stageBarFlashEl.offsetHeight;
+        setTimeout(function () {
+            stageBarFlashEl.style.opacity = "0";
+            setTimeout(function () {
+                stageBarFlashEl.style.width = "0";
+                stageBarFlashEl.style.backgroundColor = "";
+                stageBarFlashEl.style.boxShadow = "";
+                if (callback) callback();
+            }, 150);
+        }, 220);
+    }
+    function flashProgressBarRedThree(callback) {
+        if (!stageBarEl || !stageBarFlashEl) { if (callback) callback(); return; }
         var count = 0;
         function doFlash() {
             if (count >= 3) {
@@ -1202,9 +1258,11 @@
                     stageBarFlashEl.style.width = "0";
                     stageBarFlashEl.style.backgroundColor = "";
                     stageBarFlashEl.style.boxShadow = "";
+                    if (callback) callback();
                 }, 150);
                 return;
             }
+            stageBarEl.offsetHeight;
             stageBarFlashEl.style.width = stageBarEl.style.width || "0%";
             stageBarFlashEl.style.backgroundColor = "rgba(220, 53, 69, 0.95)";
             stageBarFlashEl.style.boxShadow = "inset 0 0 12px rgba(255,255,255,0.3)";
@@ -1214,13 +1272,7 @@
                 stageBarFlashEl.style.opacity = "0";
                 count++;
                 if (count < 3) setTimeout(doFlash, 180);
-                else {
-                    setTimeout(function () {
-                        stageBarFlashEl.style.width = "0";
-                        stageBarFlashEl.style.backgroundColor = "";
-                        stageBarFlashEl.style.boxShadow = "";
-                    }, 150);
-                }
+                else doFlash();
             }, 220);
         }
         doFlash();
