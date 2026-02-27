@@ -3,6 +3,16 @@
     border-radius: 12px !important;
 }
 
+/* Хедер вікна — виразна типографіка й окремий фон, щоб відділявся від контенту */
+.tabbed-window-header {
+    background: #eceef1 !important;
+    border-bottom-width: 2px !important;
+    font-weight: 700 !important;
+    font-size: 1.1rem !important;
+    letter-spacing: 0.02em !important;
+    padding: 0 16px !important;
+}
+
 /* Приховати старий блок налаштувань на основній сторінці (тепер він на сторінці налаштувань) */
 #app-toolbar {
     display: none !important;

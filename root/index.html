@@ -337,6 +337,10 @@
         .tabbed-window.tab-exercises .tabbed-window-content #exercises-page { display: flex !important; }
         .tabbed-window.tab-settings .tabbed-window-content #settings-page { display: flex !important; }
         .tabbed-window .bottom-tabs { position: static; left: auto; transform: none; flex: 0 0 auto; border-radius: 0 0 12px 12px; overflow: hidden; }
+        .tabbed-window-header { flex: 0 0 auto; min-height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px 12px 0 0; border-bottom: 2px solid rgba(0,0,0,0.08); background: var(--card-bg); box-sizing: border-box; font-weight: 700; font-size: 1.1rem; letter-spacing: 0.02em; color: #1a1a1a; padding: 0 16px; }
+        .tabbed-window-content #settings-page .settings-content h1,
+        .tabbed-window-content #exercises-page .settings-content h1 { display: none !important; }
+        .tabbed-window .settings-content { border-radius: 0 !important; }
         .bottom-tabs { display: flex; width: 100%; background: var(--card-bg, #fff); border-top: 1px solid #e0e0e0; box-shadow: 0 -2px 10px rgba(0,0,0,0.08); box-sizing: border-box; }
         .bottom-tabs .tab-btn { flex: 1; min-height: 48px; border: none; border-radius: 0; background: transparent; font-weight: 600; font-size: 0.95rem; cursor: pointer; border-bottom: 3px solid transparent; transition: background 0.15s, border-color 0.15s, color 0.15s; color: #1d1d1d; }
         .bottom-tabs .tab-btn:hover { background: #f0f0f0; color: #1d1d1d; }
@@ -485,6 +489,7 @@
         <div class="small">Stats are stored while this page is open.</div>
     </div>
     <div id="tabbed-window" class="tabbed-window" style="display:none;">
+        <div class="tabbed-window-header" id="tabbed-window-header" aria-hidden="true"><span id="tabbed-window-header-text"></span></div>
         <div class="tabbed-window-content">
     <div id="settings-page" class="page" style="display:none;">
         <div class="settings-content">
@@ -580,6 +585,8 @@
                         var settingsDevModeBtn = document.getElementById("settings-dev-mode-btn");
                         var exercisesTitleEl = document.getElementById("exercises-page-title");
                         var exercisesSubtitleEl = document.getElementById("exercises-subtitle");
+                        var tabbedWindowHeaderText = document.getElementById("tabbed-window-header-text");
+                        var settingsPageTitleEl = document.getElementById("settings-page-title");
                         var exerciseButtonsWrap = document.getElementById("exercise-buttons");
                         var btnExercisesBack = document.getElementById("btn-exercises-back");
                         var exPreviewModal = document.getElementById("exercises-preview-modal");
@@ -638,6 +645,10 @@
                             document.documentElement.classList.toggle("tabs-pages-visible", isExercises || isSettings);
                             if (tabExercisesBtn) tabExercisesBtn.classList.toggle("active", isExercises);
                             if (tabSettingsBtn) tabSettingsBtn.classList.toggle("active", isSettings);
+                            if (tabbedWindowHeaderText) {
+                                if (isExercises) tabbedWindowHeaderText.textContent = exercisesTitleEl ? exercisesTitleEl.textContent : "Вправи";
+                                else if (isSettings) tabbedWindowHeaderText.textContent = settingsPageTitleEl ? settingsPageTitleEl.textContent : "Налаштування";
+                            }
                         }
 
                         function showSettingsPage() {

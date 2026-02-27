@@ -235,8 +235,17 @@ button.dev-mode-active,
 
 /* Bottom tabs: always readable text (dark on light) */
 body.theme-classic .tabbed-window { border-radius: 12px !important; }
+body.theme-classic .tabbed-window .tabbed-window-header {
+    background: rgba(0, 122, 255, 0.1) !important;
+    border-bottom: 2px solid rgba(0, 122, 255, 0.35) !important;
+    border-radius: 12px 12px 0 0 !important;
+    color: #007aff !important;
+    font-weight: 700 !important;
+    font-size: 1.08rem !important;
+    letter-spacing: 0.02em !important;
+}
 body.theme-classic .tabbed-window .bottom-tabs { border-radius: 0 0 12px 12px !important; overflow: hidden; }
-body.theme-classic .tabbed-window .settings-content { border-radius: 12px 12px 0 0 !important; }
+body.theme-classic .tabbed-window .settings-content { border-radius: 0 !important; }
 body.theme-classic .bottom-tabs {
     background: rgba(255, 255, 255, 0.92) !important;
     border-top-color: rgba(0, 0, 0, 0.1);
