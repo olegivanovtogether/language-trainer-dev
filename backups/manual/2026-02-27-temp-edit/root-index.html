@@ -540,7 +540,6 @@
                 <div class="header-dev-block header-dev-themes" id="header-dev-themes"></div>
             </div>
         </div>
-        <div id="header-dev-backdrop" class="header-dev-backdrop" aria-hidden="true"></div>
         <div class="tabbed-window-content">
     <div id="settings-page" class="page" style="display:none;">
         <div class="settings-content">
@@ -886,18 +885,7 @@
                                     if (!window.isDevMode || !window.setDevMode || !window.openModal) return;
                                     var isDev = window.isDevMode();
                                     if (isDev) {
-                                        window.openModal({
-                                            title: ui.devModeButtonLabel || "Dev",
-                                            text: ui.devModeConfirmDisable || "",
-                                            primaryText: ui.ok || "OK",
-                                            secondaryText: ui.devModeCancel || "Cancel",
-                                            onPrimary: function() {
-                                                window.setDevMode(false);
-                                                document.body.classList.remove("header-dev-panel-open");
-                                                updateDevModeButton();
-                                            },
-                                            onSecondary: function() {}
-                                        });
+                                        window.openModal({ title: ui.devModeButtonLabel || "Dev", text: ui.devModeConfirmDisable || "", primaryText: ui.ok || "OK", secondaryText: ui.devModeCancel || "Cancel", onPrimary: function() { window.setDevMode(false); updateDevModeButton(); }, onSecondary: function() {} });
                                     } else {
                                         var input = window.prompt(ui.devModePromptText || "Code:");
                                         if (input === null) return;
@@ -913,27 +901,12 @@
                         function initHeaderDevPanelToggle() {
                             var expandBtn = document.getElementById("header-dev-expand-btn");
                             var closeBtn = document.getElementById("header-dev-close-btn");
-                            var backdrop = document.getElementById("header-dev-backdrop");
-                            var panel = document.getElementById("header-dev-panel");
-                            var header = document.getElementById("tabbed-window-header");
-                            function syncBackdropTopOffset() {
-                                if (!backdrop || !header) return;
-                                backdrop.style.top = header.offsetHeight + "px";
-                            }
-                            function closeHeaderDevPanel() {
-                                document.body.classList.remove("header-dev-panel-open");
-                                if (panel) panel.setAttribute("aria-hidden", "true");
-                            }
-                            function openHeaderDevPanel() {
+                            if (expandBtn) expandBtn.onclick = function() {
                                 document.body.classList.add("header-dev-panel-open");
-                                if (panel) panel.setAttribute("aria-hidden", "false");
-                                syncBackdropTopOffset();
-                            }
-                            if (expandBtn) expandBtn.onclick = openHeaderDevPanel;
-                            if (closeBtn) closeBtn.onclick = closeHeaderDevPanel;
-                            if (backdrop) backdrop.onclick = closeHeaderDevPanel;
-                            window.addEventListener("resize", syncBackdropTopOffset);
-                            syncBackdropTopOffset();
+                            };
+                            if (closeBtn) closeBtn.onclick = function() {
+                                document.body.classList.remove("header-dev-panel-open");
+                            };
                         }
                         function initHeaderDevBlocks() {
                             var coursesEl = document.getElementById("header-dev-courses");
@@ -977,6 +950,17 @@
                                 scrollThemes.appendChild(btn);
                             });
                             themesEl.appendChild(scrollThemes);
+                            function enableHorizontalWheelScroll(el) {
+                                if (!el) return;
+                                el.addEventListener("wheel", function(e) {
+                                    if (e.deltaY === 0 && e.deltaX === 0) return;
+                                    var delta = e.deltaY !== 0 ? e.deltaY : e.deltaX;
+                                    el.scrollLeft += delta;
+                                    e.preventDefault();
+                                }, { passive: false });
+                            }
+                            enableHorizontalWheelScroll(coursesEl);
+                            enableHorizontalWheelScroll(themesEl);
                         }
                         function normalizeStaticText() {
                             var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};

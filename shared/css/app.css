@@ -1,6 +1,8 @@
 /* Підложка вікна з вкладками — заокруглені кути знизу, щоб контур збігався з вкладками */
 .tabbed-window {
     border-radius: 12px !important;
+    position: relative;
+    overflow: hidden;
 }
 
 /* Хедер вікна — виразна типографіка й окремий фон, щоб відділявся від контенту */
@@ -16,6 +18,9 @@
     align-items: stretch !important;
     gap: 0 !important;
     justify-content: flex-start !important;
+    position: relative;
+    z-index: 50;
+    overflow: visible;
 }
 
 /* Верхній ряд хедера: лівий спейсер | заголовок по центру | кнопки справа */
@@ -136,22 +141,43 @@ body.theme-kawaii .header-dev-close-btn:hover {
 
 /* Розгорнута панель — другий ряд з курсами та темами */
 .header-dev-panel {
-    display: none !important;
+    display: flex !important;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: 42;
     flex-direction: row;
-    align-items: center;
+    align-items: stretch;
     gap: 10px;
-    padding: 8px 0 10px;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 10px 12px 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background: #eceef1;
+    box-shadow: 0 12px 22px rgba(0, 0, 0, 0.2);
     min-height: 0;
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-8px);
+    overflow: hidden;
+    pointer-events: none;
+    transition: max-height 0.24s ease, opacity 0.2s ease, transform 0.24s ease;
 }
 body.dev-mode.header-dev-panel-open .header-dev-panel {
-    display: flex !important;
+    max-height: min(56vh, 360px);
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 body.theme-cyberpunk .header-dev-panel {
+    background: rgba(8, 12, 22, 0.98);
     border-top-color: rgba(0, 234, 255, 0.25);
+    border-bottom-color: rgba(0, 234, 255, 0.25);
 }
 body.theme-kawaii .header-dev-panel {
+    background: rgba(255, 240, 250, 0.98);
     border-top-color: rgba(233, 86, 195, 0.25);
+    border-bottom-color: rgba(233, 86, 195, 0.25);
 }
 
 /* Центральний заголовок хедера — по центру вікна (між двома однаковими блоками) */
@@ -163,37 +189,35 @@ body.theme-kawaii .header-dev-panel {
 
 /* Блоки курсів/тем — всередині панелі, горизонтальний скрол з градієнтом */
 .header-dev-block {
-    display: none !important;
+    display: flex !important;
     flex: 1 1 50%;
     min-width: 0;
     max-width: 50%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    -webkit-mask-image: linear-gradient(to right, transparent 0, black 12%, black 88%, transparent 100%);
-    mask-image: linear-gradient(to right, transparent 0, black 12%, black 88%, transparent 100%);
-    -webkit-mask-size: 100% 100%;
-    mask-size: 100% 100%;
+    max-height: min(46vh, 300px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    -ms-overflow-style: auto;
+    padding-right: 4px;
 }
 .header-dev-block::-webkit-scrollbar {
-    display: none;
-}
-.header-dev-panel .header-dev-block {
-    display: flex !important;
+    width: 8px;
 }
 .header-dev-scroll {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
     gap: 6px;
-    padding: 4px 8px;
-    min-width: min-content;
+    padding: 0;
+    width: 100%;
 }
 .header-dev-btn {
     flex: 0 0 auto;
     padding: 6px 10px;
     border-radius: 10px;
-    white-space: nowrap;
+    width: 100%;
+    white-space: normal;
+    text-align: left;
     font-size: 0.8rem;
     font-weight: 600;
     border: 1px solid rgba(0, 0, 0, 0.2);
@@ -237,6 +261,30 @@ body.theme-kawaii .header-dev-btn.active {
     background: rgba(255, 230, 248, 0.95);
 }
 
+.header-dev-backdrop {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 56px;
+    top: 48px;
+    z-index: 40;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.48);
+    cursor: pointer;
+}
+body.dev-mode.header-dev-panel-open .header-dev-backdrop {
+    display: block;
+}
+body.theme-kawaii .header-dev-backdrop {
+    background: rgba(69, 24, 56, 0.42);
+}
+body.theme-cyberpunk .header-dev-backdrop {
+    background: rgba(0, 10, 20, 0.62);
+}
+
 /* Приховати старий блок налаштувань на основній сторінці (тепер він на сторінці налаштувань) */
 #app-toolbar {
     display: none !important;
@@ -264,6 +312,10 @@ body.theme-kawaii .header-dev-btn.active {
     mask-size: 100% 100%;
     scroll-padding-top: var(--exercise-gap);
     scroll-padding-bottom: var(--exercise-fade-zone);
+}
+body.dev-mode.header-dev-panel-open #exercise-buttons {
+    overflow: hidden !important;
+    touch-action: none;
 }
 
 /* У кружечку лише номер — повна назва в плашці */
