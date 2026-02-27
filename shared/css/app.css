@@ -385,20 +385,31 @@ body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn {
     --exercise-center-fill: #fff;
 }
 
-/* Progress bar flash overlay (visible on the bar; independent of updateGateUI inline styles) */
-#stage-bar-wrap { position: relative; }
+/* Progress bar flash overlay — glow wraps the filled part like a neon tube (all sides) */
+#stage-bar-wrap { position: relative; overflow: visible; }
+#stage-bar {
+    overflow: hidden;
+}
 #stage-bar-flash {
     position: absolute; left: 0; top: 0; height: 100%; width: 0;
     border-radius: 999px; pointer-events: none; z-index: 2;
     opacity: 0; transition: opacity 0.12s ease-out;
 }
 
-/* Strong glow when flash is green/red — visible in all themes */
+/* Neon-tube glow: inner light + bright contour + outer halo (symmetric 0 0 = all sides) */
 #stage-bar-flash.stage-bar-flash-green {
-    box-shadow: inset 0 0 18px rgba(255,255,255,0.55), 0 0 28px 8px rgba(40, 180, 99, 0.9);
+    box-shadow:
+        inset 0 0 10px rgba(255,255,255,0.45),
+        inset 0 0 22px rgba(40, 180, 99, 0.55),
+        0 0 8px 2px rgba(40, 180, 99, 0.95),
+        0 0 20px 6px rgba(40, 180, 99, 0.8);
 }
 #stage-bar-flash.stage-bar-flash-red {
-    box-shadow: inset 0 0 16px rgba(255,255,255,0.5), 0 0 28px 8px rgba(220, 53, 69, 0.9);
+    box-shadow:
+        inset 0 0 10px rgba(255,255,255,0.4),
+        inset 0 0 20px rgba(220, 53, 69, 0.55),
+        0 0 8px 2px rgba(220, 53, 69, 0.95),
+        0 0 20px 6px rgba(220, 53, 69, 0.8);
 }
 
 /* Progress bar flash (correct = green once, penalty = red 3 times) */
