@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
@@ -162,6 +162,12 @@
             --exercise-diameter: clamp(78px, 9.5vh, 102px);
             --exercise-zigzag-shift: calc(var(--exercise-diameter) * 0.4);
             --exercise-gap: calc(var(--exercise-diameter) / 2);
+            --scroll-track-bg: linear-gradient(180deg, #ececf2, #e3e4ee);
+            --scroll-track-border: rgba(106, 90, 205, 0.28);
+            --scroll-thumb-bg: linear-gradient(180deg, #7b6ad8, #6453c9);
+            --scroll-thumb-border: rgba(67, 58, 126, 0.62);
+            --scroll-thumb-shadow: 0 0 8px rgba(106, 90, 205, 0.3);
+            --scroll-thumb-hover: linear-gradient(180deg, #8a7ae2, #7061d2);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -173,22 +179,40 @@
             padding: 2px 0 10px;
             margin-bottom: 8px;
             scrollbar-width: thin;
-            scrollbar-color: rgba(0, 234, 255, 0.75) rgba(7, 14, 34, 0.85);
+            scrollbar-color: #6a5acd #e4e5ef;
         }
         #exercise-buttons::-webkit-scrollbar { width: 10px; }
         #exercise-buttons::-webkit-scrollbar-track {
-            background: linear-gradient(180deg, rgba(6, 12, 28, 0.9), rgba(10, 18, 40, 0.95));
+            background: var(--scroll-track-bg);
             border-radius: 999px;
-            border: 1px solid rgba(0, 234, 255, 0.2);
+            border: 1px solid var(--scroll-track-border);
         }
         #exercise-buttons::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, rgba(0, 234, 255, 0.9), rgba(0, 170, 255, 0.85));
+            background: var(--scroll-thumb-bg);
             border-radius: 999px;
-            border: 1px solid rgba(0, 18, 36, 0.65);
-            box-shadow: 0 0 10px rgba(0, 234, 255, 0.35);
+            border: 1px solid var(--scroll-thumb-border);
+            box-shadow: var(--scroll-thumb-shadow);
         }
         #exercise-buttons::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, rgba(60, 245, 255, 0.98), rgba(40, 190, 255, 0.95));
+            background: var(--scroll-thumb-hover);
+        }
+        body.theme-cyberpunk #exercise-buttons {
+            --scroll-track-bg: linear-gradient(180deg, rgba(6, 12, 28, 0.9), rgba(10, 18, 40, 0.95));
+            --scroll-track-border: rgba(0, 234, 255, 0.2);
+            --scroll-thumb-bg: linear-gradient(180deg, rgba(0, 234, 255, 0.9), rgba(0, 170, 255, 0.85));
+            --scroll-thumb-border: rgba(0, 18, 36, 0.65);
+            --scroll-thumb-shadow: 0 0 10px rgba(0, 234, 255, 0.35);
+            --scroll-thumb-hover: linear-gradient(180deg, rgba(60, 245, 255, 0.98), rgba(40, 190, 255, 0.95));
+            scrollbar-color: rgba(0, 234, 255, 0.75) rgba(7, 14, 34, 0.85);
+        }
+        body.theme-kawaii #exercise-buttons {
+            --scroll-track-bg: linear-gradient(180deg, #f8eefd, #f2e2fa);
+            --scroll-track-border: rgba(233, 86, 195, 0.28);
+            --scroll-thumb-bg: linear-gradient(180deg, #ff69cb, #b04fe8);
+            --scroll-thumb-border: rgba(115, 36, 138, 0.52);
+            --scroll-thumb-shadow: 0 0 10px rgba(233, 86, 195, 0.28);
+            --scroll-thumb-hover: linear-gradient(180deg, #ff7fd4, #bf60ef);
+            scrollbar-color: #d954b7 #f3e5fb;
         }
         .exercise-nav-btn {
             border-radius: 50% !important;
