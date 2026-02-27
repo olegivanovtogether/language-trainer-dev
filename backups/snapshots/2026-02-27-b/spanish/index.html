@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spanish — Language trainer</title>
+    <script>
+        (function() {
+            var pathname = window.location.pathname || "/";
+            var base = pathname.replace(/\/spanish\/index\.html$/i, "").replace(/\/spanish\/?$/i, "").replace(/\/$/, "") || "";
+            if (base && base.charAt(0) !== "/") base = "/" + base;
+            var useRelative = window.location.protocol === "file:" || !window.location.origin || window.location.origin === "null";
+            var target = useRelative ? "../root/index.html?course=spanish" : (base ? base + "/" : "/") + "root/index.html?course=spanish";
+            window.location.replace(target);
+        })();
+    </script>
+    <meta http-equiv="refresh" content="0;url=../root/index.html?course=spanish">
+    <noscript><p>Redirecting to <a href="../root/index.html?course=spanish">Language trainer (Spanish)</a>...</p></noscript>
+</head>
+<body>
+    <p>Redirecting to <a href="../root/index.html?course=spanish">Language trainer (Spanish)</a>...</p>
+</body>
+</html>
