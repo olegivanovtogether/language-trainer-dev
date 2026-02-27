@@ -234,9 +234,6 @@ button.dev-mode-active,
 }
 
 /* Bottom tabs: always readable text (dark on light) */
-body.theme-classic .tabbed-window { border-radius: 12px 12px 0 0 !important; }
-body.theme-classic .tabbed-window .bottom-tabs { border-radius: 0 0 12px 12px !important; overflow: hidden; }
-body.theme-classic .tabbed-window .settings-content { border-radius: 12px 12px 0 0 !important; }
 body.theme-classic .bottom-tabs {
     background: rgba(255, 255, 255, 0.92) !important;
     border-top-color: rgba(0, 0, 0, 0.1);

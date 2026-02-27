@@ -448,9 +448,6 @@ body.theme-kawaii .exercise-preview-actions {
 }
 
 /* Bottom tabs: dark text on light so always readable (override button hover) */
-body.theme-kawaii .tabbed-window { border-radius: 12px 12px 0 0 !important; }
-body.theme-kawaii .tabbed-window .bottom-tabs { border-radius: 0 0 12px 12px !important; overflow: hidden; }
-body.theme-kawaii .tabbed-window .settings-content { border-radius: 12px 12px 0 0 !important; }
 body.theme-kawaii .bottom-tabs {
     background: rgba(255, 255, 255, 0.95) !important;
     border-top: 1px solid rgba(169, 77, 255, 0.3);
