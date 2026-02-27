@@ -559,24 +559,6 @@ body.theme-cyberpunk .header-dev-btn.active:hover:enabled {
     box-shadow: 0 0 18px rgba(0, 234, 255, 0.58) !important;
 }
 
-/* Exercise list: keep selected/resume-target highlight in cyberpunk.
-   Needed because generic button !important rules above can override it. */
-body.theme-cyberpunk .exercise-nav-btn.is-resume-target {
-    background: rgba(14, 28, 32, 0.9) !important;
-    border-color: #7dff5d !important;
-    color: #dfffe8 !important;
-    box-shadow:
-        0 0 0 5px rgba(125, 255, 93, 0.28),
-        0 0 22px rgba(125, 255, 93, 0.58) !important;
-}
-body.theme-cyberpunk .exercise-nav-btn.is-resume-target::before {
-    border-color: #7dff5d !important;
-}
-body.theme-cyberpunk .exercise-nav-btn.is-resume-target + .exercise-nav-label {
-    border-color: rgba(125, 255, 93, 0.55) !important;
-    box-shadow: 0 0 12px rgba(125, 255, 93, 0.24) !important;
-}
-
 /* Settings page - Cyberpunk theme */
 body.theme-cyberpunk .tabbed-window {
     background: var(--panel-bg) !important;
