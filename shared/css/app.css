@@ -28,3 +28,16 @@
 .tabbed-window #exercises-subtitle {
     display: none !important;
 }
+
+/* Градієнтні маски на списку вправ: зникають з прозорістю при скролі зверху й знизу */
+#exercise-buttons {
+    --exercise-fade-zone: 56px;
+    padding-top: var(--exercise-fade-zone) !important;
+    padding-bottom: var(--exercise-fade-zone) !important;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, black var(--exercise-fade-zone), black calc(100% - var(--exercise-fade-zone)), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, black var(--exercise-fade-zone), black calc(100% - var(--exercise-fade-zone)), transparent 100%);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    scroll-padding-top: var(--exercise-fade-zone);
+    scroll-padding-bottom: var(--exercise-fade-zone);
+}
