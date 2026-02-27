@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTS Diagnostic — Web Speech API</title>
+    <style>
+        :root {
+            --bg: #1a1a1a;
+            --panel: #252525;
+            --border: #404040;
+            --text: #e0e0e0;
+            --muted: #909090;
+            --green: #2e7d32;
+            --green-soft: #1b5e20;
+            --red: #c62828;
+            --red-soft: #b71c1c;
+            --red-dark: #8b1a1a;
+            --yellow: #f9a825;
+            --yellow-soft: #f57f17;
+            --accent: #ffb74d;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 0;
+            padding: 16px;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.45;
+            font-size: 14px;
+        }
+        h1 {
+            text-align: center;
+            margin: 0 0 16px;
+            font-size: 1.35rem;
+            color: var(--accent);
+        }
+        .panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        @media (max-width: 800px) {
+            .panels { grid-template-columns: 1fr; }
+        }
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            overflow: hidden;
+        }
+        .panel h2 {
+            margin: 0 0 10px;
+            font-size: 1.05rem;
+            color: var(--accent);
+        }
+        .info-line {
+            margin: 4px 0;
+            word-break: break-all;
+        }
+        .info-line small { color: var(--muted); }
+        .voices-list {
+            max-height: 320px;
+            overflow-y: auto;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+        .voice-item {
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 8px;
+            align-items: center;
+        }
+        .voice-item:nth-child(even) { background: rgba(255,255,255,0.03); }
+        .langs-list {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+        .btn-lang {
+            display: block;
+            width: 100%;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .btn-lang.available {
+            background: var(--green);
+            border-color: var(--green-soft);
+            color: #fff;
+        }
+        .btn-lang.available:hover:not(:disabled) {
+            background: var(--green-soft);
+        }
+        .btn-lang.unavailable {
+            background: var(--red-dark);
+            border-color: var(--red);
+            color: #fff;
+            cursor: not-allowed;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .btn-lang.unavailable .btn-lang-text { opacity: 0.5; }
+        .btn-lang.speaking {
+            background: var(--yellow);
+            border-color: var(--yellow-soft);
+            color: #1a1a1a;
+            cursor: pointer;
+            opacity: 1;
+        }
+        .btn-lang.speaking:hover {
+            background: var(--yellow-soft);
+            color: #1a1a1a;
+        }
+        .btn-lang:disabled { cursor: not-allowed; }
+        .sample-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🔊 TTS Diagnostic — Web Speech API</h1>
+    <div class="panels">
+        <div class="panel">
+            <h2>System &amp; Voices</h2>
+            <div class="info-line"><strong>OS</strong> <span id="os-line">—</span></div>
+            <div class="info-line"><strong>Browser</strong> <span id="browser-line">—</span></div>
+            <div class="info-line"><strong>uaData.platform</strong> <span id="uadata-platform">—</span></div>
+            <div class="info-line"><strong>uaData.platformVersion</strong> <span id="uadata-version">—</span></div>
+            <div class="info-line"><strong>speechSynthesis</strong> <span id="synth-status"></span></div>
+            <div class="info-line"><strong>Voices</strong> <span id="voice-count">0</span></div>
+            <div class="voices-list" id="voices-list"></div>
+            <div class="langs-list"><strong>Unique lang codes:</strong> <span id="langs-list"></span></div>
+        </div>
+        <div class="panel">
+            <h2>My language buttons</h2>
+            <button class="btn-lang unavailable" id="btn-uk" data-lang="uk-UA" data-prefix="uk" disabled><span class="btn-lang-text">Українська (uk-UA) — …</span></button>
+            <button class="btn-lang unavailable" id="btn-ru" data-lang="ru-RU" data-prefix="ru" disabled><span class="btn-lang-text">Русский (ru-RU) — …</span></button>
+            <button class="btn-lang unavailable" id="btn-en" data-lang="en-US" data-prefix="en" disabled><span class="btn-lang-text">English (en-US) — …</span></button>
+            <button class="btn-lang unavailable" id="btn-es" data-lang="es-ES" data-prefix="es" disabled><span class="btn-lang-text">Español (es-ES) — …</span></button>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            // Sample phrase per language (easy to edit)
+            var SAMPLES = {
+                'uk-UA': 'Привіт! Я хочу перевірити, чи ваш пристрій підтримує українську мову.',
+                'ru-RU': 'Привет! Я хочу проверить, поддерживает ли ваше устройство русский язык.',
+                'en-US': "Hi! I'd like to check whether your device supports English.",
+                'es-ES': '¡Hola! Quiero comprobar si tu dispositivo admite el español.'
+            };
+            var LABELS_AVAILABLE = {
+                'uk-UA': 'Українська (uk-UA) — відтворити',
+                'ru-RU': 'Русский (ru-RU) — воспроизвести',
+                'en-US': 'English (en-US) — play',
+                'es-ES': 'Español (es-ES) — reproducir'
+            };
+            var LABELS_UNAVAILABLE = {
+                'uk-UA': 'Українська (uk-UA) — недоступно',
+                'ru-RU': 'Русский (ru-RU) — недоступно',
+                'en-US': 'English (en-US) — unavailable',
+                'es-ES': 'Español (es-ES) — no disponible'
+            };
+            var LABEL_STOP = 'STOP';
+
+            var voices = [];
+            var activeBtn = null;
+            var osLineEl = document.getElementById('os-line');
+            var browserLineEl = document.getElementById('browser-line');
+            var uadataPlatformEl = document.getElementById('uadata-platform');
+            var uadataVersionEl = document.getElementById('uadata-version');
+            var synthStatusEl = document.getElementById('synth-status');
+            var voiceCountEl = document.getElementById('voice-count');
+            var voicesListEl = document.getElementById('voices-list');
+            var langsListEl = document.getElementById('langs-list');
+
+            function parseOS(ua) {
+                ua = ua || navigator.userAgent || '';
+                if (ua.indexOf('Windows') !== -1) return 'Windows (version unknown)';
+                if (ua.indexOf('Mac OS X') !== -1) {
+                    var m = ua.match(/Mac OS X ([\d_]+)/);
+                    if (m) return 'macOS ' + (m[1] || '').replace(/_/g, '.');
+                    return 'macOS';
+                }
+                if (ua.indexOf('Android') !== -1) {
+                    var a = ua.match(/Android ([\d.]+)/);
+                    return a ? 'Android ' + a[1] : 'Android';
+                }
+                if (ua.indexOf('iPhone') !== -1 || ua.indexOf('iPad') !== -1) {
+                    var i = ua.match(/OS ([\d_]+)/);
+                    return i ? 'iOS ' + (i[1] || '').replace(/_/g, '.') : 'iOS';
+                }
+                if (ua.indexOf('Linux') !== -1) return 'Linux';
+                return null;
+            }
+
+            function parseBrowser(ua) {
+                ua = ua || navigator.userAgent || '';
+                var edg = ua.match(/Edg\/([\d.]+)/);
+                if (edg) return { name: 'Edge', version: edg[1] };
+                var ff = ua.match(/Firefox\/([\d.]+)/);
+                if (ff) return { name: 'Firefox', version: ff[1] };
+                var chrome = ua.match(/Chrome\/([\d.]+)/);
+                if (chrome && ua.indexOf('Edg') === -1) return { name: 'Chrome', version: chrome[1] };
+                var safari = ua.match(/Version\/([\d.]+).*Safari\//) && ua.indexOf('Chrome') === -1 && ua.indexOf('Edg') === -1;
+                if (safari) {
+                    var v = ua.match(/Version\/([\d.]+)/);
+                    return { name: 'Safari', version: (v && v[1]) || '' };
+                }
+                return null;
+            }
+
+            function setButtonLabel(btn, text) {
+                var span = btn && btn.querySelector ? btn.querySelector('.btn-lang-text') : null;
+                if (span) span.textContent = text; else if (btn) btn.textContent = text;
+            }
+
+            function setSystemInfo() {
+                var ua = navigator.userAgent || '';
+                var browser = parseBrowser(ua);
+                if (browserLineEl) browserLineEl.textContent = browser ? browser.name + (browser.version ? ' ' + browser.version : '') : '—';
+
+                var uaData = navigator.userAgentData;
+                if (uaData && uaData.getHighEntropyValues) {
+                    uaData.getHighEntropyValues(['platformVersion', 'uaFullVersion']).then(function (hints) {
+                        var platform = uaData.platform;
+                        var platformVersion = (hints && hints.platformVersion) || '';
+                        if (uadataPlatformEl) uadataPlatformEl.textContent = platform || '—';
+                        if (uadataVersionEl) uadataVersionEl.textContent = platformVersion || '—';
+
+                        var os;
+                        if (platform === 'Windows') {
+                            var major = parseInt(platformVersion.split('.')[0], 10);
+                            if (!isNaN(major)) {
+                                os = (major >= 13) ? 'Windows 11' : 'Windows 10';
+                            } else {
+                                os = 'Windows (UA masked)';
+                            }
+                        } else {
+                            os = parseOS(ua);
+                        }
+                        if (osLineEl) osLineEl.textContent = os || '—';
+                    }).catch(function () {
+                        if (uadataPlatformEl) uadataPlatformEl.textContent = '—';
+                        if (uadataVersionEl) uadataVersionEl.textContent = '—';
+                        var os = (ua.indexOf('Windows') !== -1) ? 'Windows (UA masked)' : parseOS(ua);
+                        if (osLineEl) osLineEl.textContent = os || '—';
+                    });
+                } else {
+                    if (uadataPlatformEl) uadataPlatformEl.textContent = '—';
+                    if (uadataVersionEl) uadataVersionEl.textContent = '—';
+                    var os = parseOS(ua);
+                    if (ua.indexOf('Windows') !== -1) os = 'Windows (UA masked)';
+                    if (osLineEl) osLineEl.textContent = os || '—';
+                }
+            }
+            setSystemInfo();
+
+            var hasSynth = typeof window.speechSynthesis !== 'undefined';
+            if (synthStatusEl) synthStatusEl.textContent = hasSynth ? '✓ available' : '✗ not available';
+
+            function getVoices() {
+                return hasSynth ? (window.speechSynthesis.getVoices && window.speechSynthesis.getVoices()) || [] : [];
+            }
+
+            function restoreButton(btn) {
+                if (!btn) return;
+                var lang = btn.getAttribute('data-lang');
+                var available = findBestVoice(lang, btn.getAttribute('data-prefix')) !== null;
+                btn.disabled = !available;
+                btn.classList.remove('speaking');
+                btn.className = 'btn-lang ' + (available ? 'available' : 'unavailable');
+                setButtonLabel(btn, available ? LABELS_AVAILABLE[lang] : LABELS_UNAVAILABLE[lang]);
+            }
+
+            function setButtonSpeaking(btn) {
+                if (!btn) return;
+                btn.disabled = false;
+                btn.classList.remove('available', 'unavailable');
+                btn.classList.add('speaking');
+                setButtonLabel(btn, LABEL_STOP);
+            }
+
+            function renderVoices() {
+                voices = getVoices();
+                if (voiceCountEl) voiceCountEl.textContent = voices.length;
+
+                var html = '';
+                for (var i = 0; i < voices.length; i++) {
+                    var v = voices[i];
+                    html += '<div class="voice-item">';
+                    html += '<span title="' + (v.name || '') + '">' + (v.name || '—') + '</span>';
+                    html += '<span>' + (v.lang || '—') + '</span>';
+                    html += '<span>' + (v.localService ? 'local' : 'remote') + '</span>';
+                    html += '<span>' + (v.default ? 'default' : '') + '</span>';
+                    html += '</div>';
+                }
+                if (voicesListEl) voicesListEl.innerHTML = html || '<div class="voice-item">No voices</div>';
+
+                var langs = {};
+                for (var j = 0; j < voices.length; j++) {
+                    var l = (voices[j].lang || '').trim();
+                    if (l) langs[l] = true;
+                }
+                var langArr = Object.keys(langs).sort();
+                if (langsListEl) langsListEl.textContent = langArr.length ? langArr.join(', ') : '—';
+
+                updateLanguageButtons();
+            }
+
+            function voiceMatchesPrefix(voice, langPrefix) {
+                var lang = (voice.lang || '').toLowerCase();
+                return lang === langPrefix || lang.indexOf(langPrefix + '-') === 0 || lang.indexOf(langPrefix + '_') === 0;
+            }
+
+            function findBestVoice(targetLang, prefix) {
+                if (!voices.length) return null;
+                var exact = null;
+                var byPrefix = null;
+                for (var i = 0; i < voices.length; i++) {
+                    var v = voices[i];
+                    var l = (v.lang || '').trim();
+                    if (l === targetLang) exact = v;
+                    if (voiceMatchesPrefix(v, prefix)) byPrefix = byPrefix || v;
+                }
+                return exact || byPrefix || null;
+            }
+
+            function updateLanguageButtons() {
+                var configs = [
+                    { id: 'btn-uk', lang: 'uk-UA', prefix: 'uk' },
+                    { id: 'btn-ru', lang: 'ru-RU', prefix: 'ru' },
+                    { id: 'btn-en', lang: 'en-US', prefix: 'en' },
+                    { id: 'btn-es', lang: 'es-ES', prefix: 'es' }
+                ];
+                for (var i = 0; i < configs.length; i++) {
+                    var c = configs[i];
+                    var btn = document.getElementById(c.id);
+                    if (!btn) continue;
+                    if (btn === activeBtn) continue;
+                    var available = findBestVoice(c.lang, c.prefix) !== null;
+                    btn.disabled = !available;
+                    btn.classList.remove('speaking');
+                    btn.className = 'btn-lang ' + (available ? 'available' : 'unavailable');
+                    setButtonLabel(btn, available ? LABELS_AVAILABLE[c.lang] : LABELS_UNAVAILABLE[c.lang]);
+                }
+            }
+
+            function onSpeechEnd() {
+                var btn = activeBtn;
+                activeBtn = null;
+                restoreButton(btn);
+            }
+
+            function speak(langCode, prefix, btn) {
+                if (!hasSynth) return;
+                if (activeBtn === btn) {
+                    window.speechSynthesis.cancel();
+                    return;
+                }
+                window.speechSynthesis.cancel();
+                if (activeBtn) {
+                    restoreButton(activeBtn);
+                    activeBtn = null;
+                }
+                var sample = SAMPLES[langCode] || 'Test.';
+                var best = findBestVoice(langCode, prefix);
+                var u = new SpeechSynthesisUtterance(sample);
+                u.lang = langCode;
+                u.rate = 0.95;
+                u.pitch = 1;
+                if (best) u.voice = best;
+                u.onend = onSpeechEnd;
+                u.onerror = onSpeechEnd;
+                activeBtn = btn;
+                setButtonSpeaking(btn);
+                window.speechSynthesis.speak(u);
+            }
+
+            renderVoices();
+
+            if (hasSynth && window.speechSynthesis) {
+                window.speechSynthesis.onvoiceschanged = function () { renderVoices(); };
+                setTimeout(renderVoices, 500);
+                setTimeout(renderVoices, 1500);
+            }
+
+            ['btn-uk', 'btn-ru', 'btn-en', 'btn-es'].forEach(function (id) {
+                var btn = document.getElementById(id);
+                if (!btn) return;
+                btn.addEventListener('click', function () {
+                    var lang = btn.getAttribute('data-lang');
+                    var prefix = btn.getAttribute('data-prefix');
+                    if (btn.classList.contains('speaking')) {
+                        window.speechSynthesis.cancel();
+                        onSpeechEnd();
+                        return;
+                    }
+                    if (btn.disabled) return;
+                    speak(lang, prefix, btn);
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

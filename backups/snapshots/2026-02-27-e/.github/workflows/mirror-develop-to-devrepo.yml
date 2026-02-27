@@ -1,0 +1,33 @@
+﻿name: Mirror develop to devrepo main
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Push develop to language-trainer-dev/main
+        env:
+          DEVREPO_PUSH_TOKEN: ${{ secrets.DEVREPO_PUSH_TOKEN }}
+        run: |
+          if [ -z "$DEVREPO_PUSH_TOKEN" ]; then
+            echo "DEVREPO_PUSH_TOKEN is empty or missing"
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Do not mirror workflow files into the target repo to avoid extra workflow scope requirements.
+          git rm -r --ignore-unmatch .github/workflows
+          git commit -m "Remove workflow files from mirrored branch" || true
+          git remote add devrepo "https://x-access-token:${DEVREPO_PUSH_TOKEN}@github.com/olegivanovtogether/language-trainer-dev.git"
+          git push --force devrepo HEAD:main

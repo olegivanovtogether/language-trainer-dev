@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language trainer</title>
+    <script>
+        (function() {
+            var pathname = window.location.pathname || "/";
+            var base = pathname.replace(/\/index\.html$/i, "").replace(/\/$/, "") || "";
+            if (base && base.charAt(0) !== "/") base = "/" + base;
+            var useRelative = window.location.protocol === "file:" || !window.location.origin || window.location.origin === "null";
+            var search = window.location.search || "";
+            var target = useRelative ? "root/index.html" + search : (base ? base + "/" : "/") + "root/index.html" + search;
+            window.location.replace(target);
+        })();
+    </script>
+    <meta http-equiv="refresh" content="0;url=root/index.html">
+    <noscript><p>Перехід на <a href="root/index.html">Language trainer</a>...</p></noscript>
+</head>
+<body>
+    <p>Перехід на <a id="link" href="root/index.html">Language trainer</a>...</p>
+</body>
+</html>

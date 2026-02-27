@@ -50,17 +50,3 @@ When editing a large file or one where a failed write could corrupt or empty it 
 2. Perform the edit.
 3. If the file is 0 bytes or broken: restore from the temp backup, then retry with a smaller/safer edit (e.g. single line or small block).
 4. **Only after** confirming the file is OK: remove the temp backup file if you created one in the repo.
-
----
-
-# Backup Access and Restore Authority (Mandatory for All AI Agents)
-
-## Permission boundary
-
-- Agents must **not** copy, restore, or "take" files from any path under `backups/` without explicit user approval in the current task.
-- Backup folders are archival by default and are not a silent source for file recovery.
-
-## Default recovery source
-
-- If something is broken and no explicit backup-restore permission is given, recovery must use the latest git commit (`HEAD`) only.
-- Using `backups/` as a recovery source requires a direct user instruction.
