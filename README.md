@@ -6,8 +6,9 @@
 
 1. Відкрийте проєкт через локальний веб-сервер (наприклад Live Server у VS Code).
 2. Запускайте через:
-   - `root/index.html` — основний актуальний вхід.
-   - `english/index.html`, `spanish/index.html`, `russian/index.html` — редіректи на `root` з потрібним курсом.
+   - `root/index.html` — єдиний повнофункціональний вхід (список вправ, налаштування, вкладки).
+   - `english/index.html`, `spanish/index.html`, `russian/index.html` — входи за курсом: редірект на `root` з `?course=english|spanish|russian`.
+   - `index.html` у корені репо — редірект на `root/index.html` (збереження параметрів у рядку запиту).
 3. Оберіть курс/тему і проходьте вправи.
 
 ## Структура
