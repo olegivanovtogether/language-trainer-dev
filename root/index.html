@@ -525,9 +525,20 @@
     </div>
     <div id="tabbed-window" class="tabbed-window" style="display:none;">
         <div class="tabbed-window-header" id="tabbed-window-header" aria-hidden="true">
-            <div class="header-dev-block header-dev-courses" id="header-dev-courses" aria-hidden="true"></div>
-            <span id="tabbed-window-header-text" class="header-dev-title"></span>
-            <div class="header-dev-block header-dev-themes" id="header-dev-themes" aria-hidden="true"></div>
+            <div class="header-dev-main-row">
+                <div class="header-dev-left-spacer" aria-hidden="true"></div>
+                <span id="tabbed-window-header-text" class="header-dev-title"></span>
+                <div class="header-dev-right-wrap">
+                    <div class="header-dev-toggle-wrap" id="header-dev-toggle-wrap" aria-hidden="true" style="display:none">
+                        <button type="button" id="header-dev-expand-btn" class="header-dev-expand-btn" aria-label="Розгорнути">▼</button>
+                    </div>
+                    <button type="button" id="header-dev-close-btn" class="header-dev-close-btn" aria-label="Згорнути" style="display:none">×</button>
+                </div>
+            </div>
+            <div class="header-dev-panel" id="header-dev-panel" aria-hidden="true" style="display:none">
+                <div class="header-dev-block header-dev-courses" id="header-dev-courses"></div>
+                <div class="header-dev-block header-dev-themes" id="header-dev-themes"></div>
+            </div>
         </div>
         <div class="tabbed-window-content">
     <div id="settings-page" class="page" style="display:none;">
@@ -885,6 +896,17 @@
                                 };
                             }
                             initHeaderDevBlocks();
+                            initHeaderDevPanelToggle();
+                        }
+                        function initHeaderDevPanelToggle() {
+                            var expandBtn = document.getElementById("header-dev-expand-btn");
+                            var closeBtn = document.getElementById("header-dev-close-btn");
+                            if (expandBtn) expandBtn.onclick = function() {
+                                document.body.classList.add("header-dev-panel-open");
+                            };
+                            if (closeBtn) closeBtn.onclick = function() {
+                                document.body.classList.remove("header-dev-panel-open");
+                            };
                         }
                         function initHeaderDevBlocks() {
                             var coursesEl = document.getElementById("header-dev-courses");
@@ -939,8 +961,6 @@
                             }
                             enableHorizontalWheelScroll(coursesEl);
                             enableHorizontalWheelScroll(themesEl);
-                            coursesEl.setAttribute("aria-hidden", document.body.classList.contains("dev-mode") ? "false" : "true");
-                            themesEl.setAttribute("aria-hidden", document.body.classList.contains("dev-mode") ? "false" : "true");
                         }
                         function normalizeStaticText() {
                             var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};
@@ -1001,8 +1021,8 @@
                             closeExercisePreview(false);
                             if (i !== null && !isNaN(i)) openExercise(i);
                         });
-                        showPage("exercises");
                         initSettingsPage();
+                        showPage("exercises");
                     })();
                 });
             });

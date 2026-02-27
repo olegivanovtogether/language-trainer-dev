@@ -12,37 +12,174 @@
     letter-spacing: 0.02em !important;
     padding: 0 16px !important;
     display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    justify-content: space-between !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    justify-content: flex-start !important;
 }
 
-/* Центральний заголовок хедера */
+/* Верхній ряд хедера: лівий спейсер | заголовок по центру | кнопки справа */
+.header-dev-main-row {
+    flex: 0 0 auto;
+    min-height: 48px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+}
+
+/* Лівий спейсер = права частина по ширині, щоб заголовок по центру вікна */
+.header-dev-left-spacer {
+    flex: 1 1 0;
+    min-width: 0;
+}
+/* Права частина: кнопки ▼ або × справа */
+.header-dev-right-wrap {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Кнопка "▼" — показується тільки в dev mode, коли панель згорнута */
+.header-dev-toggle-wrap {
+    display: none !important;
+    flex: 0 0 auto;
+}
+body.dev-mode .header-dev-toggle-wrap {
+    display: flex !important;
+}
+body.dev-mode.header-dev-panel-open .header-dev-toggle-wrap {
+    display: none !important;
+}
+.header-dev-expand-btn {
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    color: #1a1a1a;
+    line-height: 1;
+    transition: background 0.15s, border-color 0.15s;
+}
+.header-dev-expand-btn:hover {
+    background: #fff;
+    border-color: rgba(0, 0, 0, 0.35);
+}
+body.theme-cyberpunk .header-dev-expand-btn {
+    border-color: rgba(0, 234, 255, 0.5);
+    background: rgba(10, 14, 24, 0.95);
+    color: #00eaff;
+}
+body.theme-cyberpunk .header-dev-expand-btn:hover {
+    background: rgba(20, 28, 48, 0.98);
+    border-color: #00eaff;
+}
+body.theme-kawaii .header-dev-expand-btn {
+    border-color: rgba(233, 86, 195, 0.5);
+    background: #fff;
+    color: #e956c3;
+}
+body.theme-kawaii .header-dev-expand-btn:hover {
+    border-color: #e956c3;
+    background: rgba(255, 230, 248, 0.98);
+}
+
+/* Хрестик згортання — зверху справа, тільки коли панель розгорнута */
+.header-dev-close-btn {
+    display: none !important;
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 10px;
+    font-size: 1.4rem;
+    line-height: 1;
+    font-weight: 700;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    color: #1a1a1a;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+}
+.header-dev-close-btn:hover {
+    background: #fff;
+    border-color: rgba(0, 0, 0, 0.35);
+}
+body.dev-mode.header-dev-panel-open .header-dev-close-btn {
+    display: flex !important;
+}
+body.theme-cyberpunk .header-dev-close-btn {
+    border-color: rgba(0, 234, 255, 0.5);
+    background: rgba(10, 14, 24, 0.95);
+    color: #00eaff;
+}
+body.theme-cyberpunk .header-dev-close-btn:hover {
+    border-color: #00eaff;
+    background: rgba(20, 28, 48, 0.98);
+}
+body.theme-kawaii .header-dev-close-btn {
+    border-color: rgba(233, 86, 195, 0.5);
+    background: #fff;
+    color: #e956c3;
+}
+body.theme-kawaii .header-dev-close-btn:hover {
+    border-color: #e956c3;
+    background: rgba(255, 230, 248, 0.98);
+}
+
+/* Розгорнута панель — другий ряд з курсами та темами */
+.header-dev-panel {
+    display: none !important;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    min-height: 0;
+}
+body.dev-mode.header-dev-panel-open .header-dev-panel {
+    display: flex !important;
+}
+body.theme-cyberpunk .header-dev-panel {
+    border-top-color: rgba(0, 234, 255, 0.25);
+}
+body.theme-kawaii .header-dev-panel {
+    border-top-color: rgba(233, 86, 195, 0.25);
+}
+
+/* Центральний заголовок хедера — по центру вікна (між двома однаковими блоками) */
 .tabbed-window-header .header-dev-title {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
     min-width: 0;
     text-align: center;
 }
 
-/* Блоки курсів/тем у хедері — тільки в режимі розробника, горизонтальний скрол з градієнтом */
+/* Блоки курсів/тем — всередині панелі, горизонтальний скрол з градієнтом */
 .header-dev-block {
     display: none !important;
-    flex: 0 1 22%;
+    flex: 1 1 50%;
     min-width: 0;
-    max-width: 22%;
+    max-width: 50%;
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    -webkit-mask-image: linear-gradient(to right, transparent 0, black 14%, black 86%, transparent 100%);
-    mask-image: linear-gradient(to right, transparent 0, black 14%, black 86%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, black 12%, black 88%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, black 12%, black 88%, transparent 100%);
     -webkit-mask-size: 100% 100%;
     mask-size: 100% 100%;
 }
 .header-dev-block::-webkit-scrollbar {
     display: none;
 }
-body.dev-mode .header-dev-block {
+.header-dev-panel .header-dev-block {
     display: flex !important;
 }
 .header-dev-scroll {
