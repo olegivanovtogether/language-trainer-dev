@@ -547,6 +547,18 @@ button.dev-mode-active,
     box-shadow: 0 0 10px rgba(0, 255, 136, 0.6) !important;
 }
 
+/* Header dev panel: selected course/theme button must stay visibly active */
+body.theme-cyberpunk .header-dev-btn.active {
+    background: rgba(0, 234, 255, 0.18) !important;
+    border-color: #00eaff !important;
+    color: #dffcff !important;
+    box-shadow: 0 0 14px rgba(0, 234, 255, 0.45) !important;
+}
+body.theme-cyberpunk .header-dev-btn.active:hover:enabled {
+    background: rgba(0, 234, 255, 0.24) !important;
+    box-shadow: 0 0 18px rgba(0, 234, 255, 0.58) !important;
+}
+
 /* Settings page - Cyberpunk theme */
 body.theme-cyberpunk .tabbed-window {
     background: var(--panel-bg) !important;

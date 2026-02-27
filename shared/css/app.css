@@ -272,14 +272,28 @@ body.theme-kawaii .header-dev-btn.active {
     border: 0;
     margin: 0;
     padding: 0;
-    background: rgba(0, 0, 0, 0.48);
+    background: linear-gradient(
+        to bottom,
+        rgba(248, 250, 253, 0.62) 0%,
+        rgba(248, 250, 253, 0.46) 45%,
+        rgba(248, 250, 253, 0.34) 100%
+    );
+    backdrop-filter: saturate(0.74) blur(1.6px);
+    -webkit-backdrop-filter: saturate(0.74) blur(1.6px);
     cursor: pointer;
 }
 body.dev-mode.header-dev-panel-open .header-dev-backdrop {
     display: block;
 }
 body.theme-kawaii .header-dev-backdrop {
-    background: rgba(69, 24, 56, 0.42);
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 236, 248, 0.62) 0%,
+        rgba(255, 228, 245, 0.46) 45%,
+        rgba(255, 220, 242, 0.34) 100%
+    );
+    backdrop-filter: saturate(0.78) blur(1.6px);
+    -webkit-backdrop-filter: saturate(0.78) blur(1.6px);
 }
 body.theme-cyberpunk .header-dev-backdrop {
     background: rgba(0, 10, 20, 0.62);

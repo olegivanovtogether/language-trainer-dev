@@ -838,6 +838,22 @@
                             });
                         }
 
+                        function syncHeaderDevButtonsState() {
+                            var coursesEl = document.getElementById("header-dev-courses");
+                            var themesEl = document.getElementById("header-dev-themes");
+                            var currentCourse = settingsCourseSelect ? settingsCourseSelect.value : (window.getCurrentCourse ? window.getCurrentCourse() : "");
+                            var currentTheme = settingsThemeSelect ? settingsThemeSelect.value : (window.getTheme ? window.getTheme() : "");
+                            if (coursesEl) {
+                                Array.prototype.forEach.call(coursesEl.querySelectorAll(".header-dev-btn"), function(btn) {
+                                    btn.classList.toggle("active", btn.dataset.course === currentCourse);
+                                });
+                            }
+                            if (themesEl) {
+                                Array.prototype.forEach.call(themesEl.querySelectorAll(".header-dev-btn"), function(btn) {
+                                    btn.classList.toggle("active", btn.dataset.theme === currentTheme);
+                                });
+                            }
+                        }
                         function initSettingsPage() {
                             var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};
                             var DEV_CODE = "19337";
@@ -873,7 +889,10 @@
                                     settingsThemeSelect.appendChild(opt);
                                 });
                                 settingsThemeSelect.value = window.getTheme ? window.getTheme() : "classic";
-                                settingsThemeSelect.onchange = function() { if (window.setTheme) window.setTheme(settingsThemeSelect.value); };
+                                settingsThemeSelect.onchange = function() {
+                                    if (window.setTheme) window.setTheme(settingsThemeSelect.value);
+                                    syncHeaderDevButtonsState();
+                                };
                             }
                             if (settingsDevModeBtn) {
                                 function updateDevModeButton() {
@@ -939,8 +958,8 @@
                             var coursesEl = document.getElementById("header-dev-courses");
                             var themesEl = document.getElementById("header-dev-themes");
                             if (!coursesEl || !themesEl || !settingsCourseSelect || !settingsThemeSelect) return;
-                            var currentCourse = window.getCurrentCourse ? window.getCurrentCourse() : "english";
-                            var currentTheme = window.getTheme ? window.getTheme() : "classic";
+                            var currentCourse = settingsCourseSelect ? settingsCourseSelect.value : (window.getCurrentCourse ? window.getCurrentCourse() : "english");
+                            var currentTheme = settingsThemeSelect ? settingsThemeSelect.value : (window.getTheme ? window.getTheme() : "classic");
                             function abbrevCourse(v) { return (v && v.length >= 2) ? v.slice(0, 2).toUpperCase() : (v || ""); }
                             coursesEl.innerHTML = "";
                             var scrollCourses = document.createElement("div");
@@ -954,6 +973,7 @@
                                 btn.onclick = function() {
                                     if (settingsCourseSelect.value === opt.value) return;
                                     settingsCourseSelect.value = opt.value;
+                                    syncHeaderDevButtonsState();
                                     if (settingsCourseSelect.onchange) settingsCourseSelect.onchange();
                                 };
                                 scrollCourses.appendChild(btn);
@@ -969,14 +989,14 @@
                                 btn.textContent = opt.textContent || opt.value;
                                 btn.dataset.theme = opt.value;
                                 btn.onclick = function() {
+                                    if (settingsThemeSelect) settingsThemeSelect.value = opt.value;
                                     if (window.setTheme) window.setTheme(opt.value);
-                                    var active = themesEl.querySelector(".header-dev-btn.active");
-                                    if (active) active.classList.remove("active");
-                                    btn.classList.add("active");
+                                    syncHeaderDevButtonsState();
                                 };
                                 scrollThemes.appendChild(btn);
                             });
                             themesEl.appendChild(scrollThemes);
+                            syncHeaderDevButtonsState();
                         }
                         function normalizeStaticText() {
                             var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};
