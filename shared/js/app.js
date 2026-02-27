@@ -124,7 +124,8 @@
             text: body,
             primaryText: ui.resumeContinue || "Продовжити",
             secondaryText: ui.resumeRestart || "З початку",
-            tertiaryText: ui.devModeCancel || "Закрити",
+            tertiaryText: "",
+            showCloseX: true,
             onPrimary: function () {
                 applyResumeState(progress);
                 if (handlers && typeof handlers.onContinue === "function") handlers.onContinue(progress);
@@ -136,8 +137,7 @@
                 } else {
                     loadBlock(0);
                 }
-            },
-            onTertiary: function () { }
+            }
         });
     }
 
@@ -704,9 +704,35 @@
     const modalPrimaryEl = document.getElementById("modalPrimary");
     const modalSecondaryEl = document.getElementById("modalSecondary");
     const modalTertiaryEl = document.getElementById("modalTertiary");
+    const modalEl = modalOverlayEl ? modalOverlayEl.querySelector(".modal") : null;
+    let modalCloseXEl = document.getElementById("modalCloseX");
+    if (!modalCloseXEl && modalEl) {
+        modalCloseXEl = document.createElement("button");
+        modalCloseXEl.type = "button";
+        modalCloseXEl.id = "modalCloseX";
+        modalCloseXEl.setAttribute("aria-label", "Close");
+        modalCloseXEl.innerHTML = "&times;";
+        modalCloseXEl.style.position = "absolute";
+        modalCloseXEl.style.top = "10px";
+        modalCloseXEl.style.right = "10px";
+        modalCloseXEl.style.width = "34px";
+        modalCloseXEl.style.height = "34px";
+        modalCloseXEl.style.minWidth = "34px";
+        modalCloseXEl.style.padding = "0";
+        modalCloseXEl.style.borderRadius = "10px";
+        modalCloseXEl.style.display = "none";
+        modalCloseXEl.style.alignItems = "center";
+        modalCloseXEl.style.justifyContent = "center";
+        modalCloseXEl.style.fontSize = "1.1rem";
+        modalCloseXEl.style.fontWeight = "700";
+        modalCloseXEl.style.lineHeight = "1";
+        modalEl.style.position = "relative";
+        modalEl.insertBefore(modalCloseXEl, modalEl.firstChild);
+    }
     let modalPrimaryAction = null;
     let modalSecondaryAction = null;
     let modalTertiaryAction = null;
+    let modalCloseXAction = null;
 
     function openModal(opts) {
         const title = opts.title || "";
@@ -722,8 +748,10 @@
         modalPrimaryAction = opts.onPrimary || null;
         modalSecondaryAction = opts.onSecondary || null;
         modalTertiaryAction = opts.onTertiary || null;
+        modalCloseXAction = opts.onCloseX || null;
         modalSecondaryEl.style.display = secondaryText ? "inline-flex" : "none";
         modalTertiaryEl.style.display = tertiaryText ? "inline-flex" : "none";
+        if (modalCloseXEl) modalCloseXEl.style.display = opts.showCloseX ? "inline-flex" : "none";
         modalOverlayEl.style.display = "flex";
         modalOverlayEl.setAttribute("aria-hidden", "false");
         document.body.classList.add("modal-open");
@@ -736,6 +764,7 @@
         modalPrimaryAction = null;
         modalSecondaryAction = null;
         modalTertiaryAction = null;
+        modalCloseXAction = null;
     }
     modalPrimaryEl.addEventListener("click", function () {
         const fn = modalPrimaryAction;
@@ -752,6 +781,13 @@
         closeModal();
         if (typeof fn === "function") fn();
     });
+    if (modalCloseXEl) {
+        modalCloseXEl.addEventListener("click", function () {
+            const fn = modalCloseXAction;
+            closeModal();
+            if (typeof fn === "function") fn();
+        });
+    }
     modalOverlayEl.addEventListener("click", function (e) {
         if (e.target === modalOverlayEl) closeModal();
     });
