@@ -928,6 +928,17 @@
                                 scrollThemes.appendChild(btn);
                             });
                             themesEl.appendChild(scrollThemes);
+                            function enableHorizontalWheelScroll(el) {
+                                if (!el) return;
+                                el.addEventListener("wheel", function(e) {
+                                    if (e.deltaY === 0 && e.deltaX === 0) return;
+                                    var delta = e.deltaY !== 0 ? e.deltaY : e.deltaX;
+                                    el.scrollLeft += delta;
+                                    e.preventDefault();
+                                }, { passive: false });
+                            }
+                            enableHorizontalWheelScroll(coursesEl);
+                            enableHorizontalWheelScroll(themesEl);
                             coursesEl.setAttribute("aria-hidden", document.body.classList.contains("dev-mode") ? "false" : "true");
                             themesEl.setAttribute("aria-hidden", document.body.classList.contains("dev-mode") ? "false" : "true");
                         }
