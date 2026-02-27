@@ -242,11 +242,31 @@
             overflow: hidden;
             border-width: 4px;
         }
-        #exercise-buttons .exercise-nav-btn:nth-child(odd) {
-            transform: translateX(calc(var(--exercise-zigzag-shift) * -1));
+        .exercise-nav-item {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
         }
-        #exercise-buttons .exercise-nav-btn:nth-child(even) {
-            transform: translateX(var(--exercise-zigzag-shift));
+        .exercise-nav-item:nth-child(even) { flex-direction: row-reverse; }
+        .exercise-nav-item:nth-child(odd) { transform: translateX(calc(var(--exercise-zigzag-shift) * -1)); }
+        .exercise-nav-item:nth-child(even) { transform: translateX(var(--exercise-zigzag-shift)); }
+        .exercise-nav-label {
+            max-width: min(52%, 260px);
+            width: min(52%, 260px);
+            padding: 10px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.92);
+            box-sizing: border-box;
+            overflow: hidden;
+            white-space: nowrap;
+            -webkit-mask-image: linear-gradient(to right, black 0, black 55%, transparent 100%);
+            mask-image: linear-gradient(to right, black 0, black 55%, transparent 100%);
+            -webkit-mask-size: 100% 100%;
+            mask-size: 100% 100%;
         }
         @media (max-width: 600px) {
             #exercise-buttons {
@@ -279,6 +299,21 @@
         body.theme-cyberpunk .exercise-nav-btn { border-color: #00eaff; }
         body.theme-kawaii .exercise-nav-btn { border-color: #ff6bd5; }
         body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn { border-color: #6a5acd; }
+        body.theme-cyberpunk .exercise-nav-label {
+            border-color: rgba(0, 234, 255, 0.45);
+            background: rgba(0, 234, 255, 0.08);
+            color: rgba(224, 224, 240, 0.96);
+        }
+        body.theme-kawaii .exercise-nav-label {
+            border-color: rgba(255, 105, 203, 0.55);
+            background: rgba(255, 105, 203, 0.12);
+            color: rgba(255, 255, 255, 0.95);
+        }
+        body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-label {
+            border-color: rgba(0, 0, 0, 0.14);
+            background: rgba(255, 255, 255, 0.92);
+            color: #1d1d1f;
+        }
         .exercise-nav-btn.is-resume-target {
             border-width: 7px;
             box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.2), 0 0 24px rgba(0, 234, 255, 0.65);
@@ -734,7 +769,9 @@
                             if (!blockSelect || !blockSelect.options) return;
                             var resumeBlockIndex = (window.getSavedProgressBlockIndex ? window.getSavedProgressBlockIndex() : -1);
                             Array.prototype.forEach.call(blockSelect.options, function(opt, idx) {
+                                var item = document.createElement("div");
                                 var btn = document.createElement("button");
+                                var label = document.createElement("div");
                                 var fallbackNumber = idx + 1;
                                 var fullLabel = (opt.textContent || ((ui.blockTitlePrefix || "Exercise ") + fallbackNumber)).replace(/\s+/g, " ").trim();
                                 var m = fullLabel.match(/^\s*(\d+)\.\s*(.*)$/);
@@ -742,12 +779,16 @@
                                 var titleText = m ? m[2] : fullLabel;
                                 var num = document.createElement("span");
                                 var title = document.createElement("span");
+                                item.className = "exercise-nav-item";
                                 btn.type = "button";
                                 btn.className = "exercise-nav-btn";
+                                label.className = "exercise-nav-label";
                                 num.className = "exercise-nav-num";
                                 title.className = "exercise-nav-title";
                                 num.textContent = numText;
                                 title.textContent = titleText;
+                                label.textContent = titleText;
+                                label.title = fullLabel;
                                 btn.appendChild(num);
                                 btn.appendChild(title);
                                 btn.title = fullLabel;
@@ -755,7 +796,7 @@
                                 if (!isNaN(targetIndex) && targetIndex === resumeBlockIndex) {
                                     btn.classList.add("is-resume-target");
                                 }
-                                btn.addEventListener("click", function() {
+                                function onOpen() {
                                     if (!isNaN(targetIndex) && targetIndex === resumeBlockIndex) {
                                         if (window.promptResumeBeforeExercises) {
                                             var shown = window.promptResumeBeforeExercises({
@@ -773,8 +814,12 @@
                                         return;
                                     }
                                     showExercisePreview(targetIndex, fullLabel);
-                                });
-                                exerciseButtonsWrap.appendChild(btn);
+                                }
+                                btn.addEventListener("click", onOpen);
+                                label.addEventListener("click", onOpen);
+                                item.appendChild(btn);
+                                item.appendChild(label);
+                                exerciseButtonsWrap.appendChild(item);
                             });
                         }
 
