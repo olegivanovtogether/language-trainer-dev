@@ -524,7 +524,11 @@
         <div class="small">Stats are stored while this page is open.</div>
     </div>
     <div id="tabbed-window" class="tabbed-window" style="display:none;">
-        <div class="tabbed-window-header" id="tabbed-window-header" aria-hidden="true"><span id="tabbed-window-header-text"></span></div>
+        <div class="tabbed-window-header" id="tabbed-window-header" aria-hidden="true">
+            <div class="header-dev-block header-dev-courses" id="header-dev-courses" aria-hidden="true"></div>
+            <span id="tabbed-window-header-text" class="header-dev-title"></span>
+            <div class="header-dev-block header-dev-themes" id="header-dev-themes" aria-hidden="true"></div>
+        </div>
         <div class="tabbed-window-content">
     <div id="settings-page" class="page" style="display:none;">
         <div class="settings-content">
@@ -880,6 +884,52 @@
                                     }
                                 };
                             }
+                            initHeaderDevBlocks();
+                        }
+                        function initHeaderDevBlocks() {
+                            var coursesEl = document.getElementById("header-dev-courses");
+                            var themesEl = document.getElementById("header-dev-themes");
+                            if (!coursesEl || !themesEl || !settingsCourseSelect || !settingsThemeSelect) return;
+                            var currentCourse = window.getCurrentCourse ? window.getCurrentCourse() : "english";
+                            var currentTheme = window.getTheme ? window.getTheme() : "classic";
+                            function abbrevCourse(v) { return (v && v.length >= 2) ? v.slice(0, 2).toUpperCase() : (v || ""); }
+                            coursesEl.innerHTML = "";
+                            var scrollCourses = document.createElement("div");
+                            scrollCourses.className = "header-dev-scroll";
+                            Array.prototype.forEach.call(settingsCourseSelect.options, function(opt) {
+                                var btn = document.createElement("button");
+                                btn.type = "button";
+                                btn.className = "header-dev-btn" + (opt.value === currentCourse ? " active" : "");
+                                btn.textContent = abbrevCourse(opt.value);
+                                btn.dataset.course = opt.value;
+                                btn.onclick = function() {
+                                    if (settingsCourseSelect.value === opt.value) return;
+                                    settingsCourseSelect.value = opt.value;
+                                    if (settingsCourseSelect.onchange) settingsCourseSelect.onchange();
+                                };
+                                scrollCourses.appendChild(btn);
+                            });
+                            coursesEl.appendChild(scrollCourses);
+                            themesEl.innerHTML = "";
+                            var scrollThemes = document.createElement("div");
+                            scrollThemes.className = "header-dev-scroll";
+                            Array.prototype.forEach.call(settingsThemeSelect.options, function(opt) {
+                                var btn = document.createElement("button");
+                                btn.type = "button";
+                                btn.className = "header-dev-btn" + (opt.value === currentTheme ? " active" : "");
+                                btn.textContent = opt.textContent || opt.value;
+                                btn.dataset.theme = opt.value;
+                                btn.onclick = function() {
+                                    if (window.setTheme) window.setTheme(opt.value);
+                                    var active = themesEl.querySelector(".header-dev-btn.active");
+                                    if (active) active.classList.remove("active");
+                                    btn.classList.add("active");
+                                };
+                                scrollThemes.appendChild(btn);
+                            });
+                            themesEl.appendChild(scrollThemes);
+                            coursesEl.setAttribute("aria-hidden", document.body.classList.contains("dev-mode") ? "false" : "true");
+                            themesEl.setAttribute("aria-hidden", document.body.classList.contains("dev-mode") ? "false" : "true");
                         }
                         function normalizeStaticText() {
                             var ui = window.COURSE_CONFIG && window.COURSE_CONFIG.ui ? window.COURSE_CONFIG.ui : {};
@@ -941,6 +991,7 @@
                             if (i !== null && !isNaN(i)) openExercise(i);
                         });
                         showPage("exercises");
+                        initSettingsPage();
                     })();
                 });
             });
