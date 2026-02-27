@@ -1217,15 +1217,16 @@
         if (!stageBarEl || !stageBarFlashEl) { if (callback) callback(); return; }
         stageBarFlashEl.style.width = stageBarEl.style.width || "0%";
         stageBarFlashEl.style.backgroundColor = "rgba(40, 180, 99, 0.95)";
-        stageBarFlashEl.style.boxShadow = "inset 0 0 14px rgba(255,255,255,0.4)";
+        stageBarFlashEl.classList.remove("stage-bar-flash-red");
+        stageBarFlashEl.classList.add("stage-bar-flash-green");
         stageBarFlashEl.style.opacity = "1";
         stageBarFlashEl.offsetHeight;
         setTimeout(function () {
             stageBarFlashEl.style.opacity = "0";
             setTimeout(function () {
+                stageBarFlashEl.classList.remove("stage-bar-flash-green");
                 stageBarFlashEl.style.width = "0";
                 stageBarFlashEl.style.backgroundColor = "";
-                stageBarFlashEl.style.boxShadow = "";
                 if (callback) callback();
             }, 150);
         }, 500);
@@ -1235,15 +1236,16 @@
         stageBarEl.offsetHeight;
         stageBarFlashEl.style.width = stageBarEl.style.width || "0%";
         stageBarFlashEl.style.backgroundColor = "rgba(220, 53, 69, 0.95)";
-        stageBarFlashEl.style.boxShadow = "inset 0 0 12px rgba(255,255,255,0.3)";
+        stageBarFlashEl.classList.remove("stage-bar-flash-green");
+        stageBarFlashEl.classList.add("stage-bar-flash-red");
         stageBarFlashEl.style.opacity = "1";
         stageBarFlashEl.offsetHeight;
         setTimeout(function () {
             stageBarFlashEl.style.opacity = "0";
             setTimeout(function () {
+                stageBarFlashEl.classList.remove("stage-bar-flash-red");
                 stageBarFlashEl.style.width = "0";
                 stageBarFlashEl.style.backgroundColor = "";
-                stageBarFlashEl.style.boxShadow = "";
                 if (callback) callback();
             }, 150);
         }, 220);
@@ -1255,9 +1257,9 @@
             if (count >= 3) {
                 stageBarFlashEl.style.opacity = "0";
                 setTimeout(function () {
+                    stageBarFlashEl.classList.remove("stage-bar-flash-red");
                     stageBarFlashEl.style.width = "0";
                     stageBarFlashEl.style.backgroundColor = "";
-                    stageBarFlashEl.style.boxShadow = "";
                     if (callback) callback();
                 }, 150);
                 return;
@@ -1265,7 +1267,8 @@
             stageBarEl.offsetHeight;
             stageBarFlashEl.style.width = stageBarEl.style.width || "0%";
             stageBarFlashEl.style.backgroundColor = "rgba(220, 53, 69, 0.95)";
-            stageBarFlashEl.style.boxShadow = "inset 0 0 12px rgba(255,255,255,0.3)";
+            stageBarFlashEl.classList.remove("stage-bar-flash-green");
+            stageBarFlashEl.classList.add("stage-bar-flash-red");
             stageBarFlashEl.style.opacity = "1";
             stageBarFlashEl.offsetHeight;
             setTimeout(function () {

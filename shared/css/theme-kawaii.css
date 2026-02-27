@@ -279,6 +279,14 @@ select:focus {
     background: linear-gradient(90deg, #ff75c9, #b16bff);
 }
 
+/* Progress bar flash glow — strong so it hits the eye in kawaii theme */
+#stage-bar-flash.stage-bar-flash-green {
+    box-shadow: inset 0 0 20px rgba(255,255,255,0.6), 0 0 30px 10px rgba(46, 153, 87, 0.85);
+}
+#stage-bar-flash.stage-bar-flash-red {
+    box-shadow: inset 0 0 18px rgba(255,255,255,0.55), 0 0 30px 10px rgba(216, 59, 118, 0.85);
+}
+
 .feedback.correct {
     color: #2e9957;
 }
