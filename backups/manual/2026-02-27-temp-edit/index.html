@@ -775,7 +775,7 @@
                                 var fallbackNumber = idx + 1;
                                 var fullLabel = (opt.textContent || ((ui.blockTitlePrefix || "Exercise ") + fallbackNumber)).replace(/\s+/g, " ").trim();
                                 var m = fullLabel.match(/^\s*(\d+)\.\s*(.*)$/);
-                                var numText = m ? m[1] : String(fallbackNumber);
+                                var numText = m ? (m[1] + ".") : String(fallbackNumber) + ".";
                                 var titleText = m ? m[2] : fullLabel;
                                 var num = document.createElement("span");
                                 var title = document.createElement("span");

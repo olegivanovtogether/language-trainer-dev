@@ -41,3 +41,56 @@
     scroll-padding-top: var(--exercise-gap);
     scroll-padding-bottom: var(--exercise-fade-zone);
 }
+
+/* У кружечку лише номер — повна назва в плашці */
+.exercise-nav-btn .exercise-nav-title {
+    display: none !important;
+}
+.exercise-nav-btn {
+    position: relative !important;
+    --exercise-num-font: 1.725rem;
+    --exercise-ring-gap: 0.575rem;
+    --exercise-ring-fill: rgba(0, 0, 0, 0.06);
+    --exercise-center-fill: #fff;
+    background: var(--exercise-ring-fill) !important;
+    -webkit-mask-image: radial-gradient(circle, black 68%, transparent 100%);
+    mask-image: radial-gradient(circle, black 68%, transparent 100%);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+}
+.exercise-nav-btn::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(var(--exercise-diameter) - 8px - 2 * var(--exercise-ring-gap));
+    height: calc(var(--exercise-diameter) - 8px - 2 * var(--exercise-ring-gap));
+    margin-left: calc(-0.5 * (var(--exercise-diameter) - 8px - 2 * var(--exercise-ring-gap)));
+    margin-top: calc(-0.5 * (var(--exercise-diameter) - 8px - 2 * var(--exercise-ring-gap)));
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    border-color: inherit;
+    background: var(--exercise-center-fill) !important;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+.exercise-nav-btn .exercise-nav-num {
+    font-size: var(--exercise-num-font) !important;
+    margin-bottom: 0 !important;
+    position: relative;
+    z-index: 1;
+}
+
+body.theme-cyberpunk .exercise-nav-btn {
+    --exercise-ring-fill: rgba(0, 234, 255, 0.12);
+    --exercise-center-fill: rgba(10, 14, 24, 0.95);
+}
+body.theme-kawaii .exercise-nav-btn {
+    --exercise-ring-fill: rgba(255, 105, 203, 0.2);
+    --exercise-center-fill: rgba(255, 255, 255, 0.92);
+}
+body.theme-classic .exercise-nav-btn,
+body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn {
+    --exercise-ring-fill: rgba(106, 90, 205, 0.12);
+    --exercise-center-fill: #fff;
+}

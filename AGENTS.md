@@ -30,3 +30,23 @@ Use only the `backups/` root:
 
 - `backups/snapshots/2025-02-25/`
 - `backups/legacy-engines/2026-02-16/`
+
+---
+
+# Editing Large or Risky Files (Mandatory for All AI Agents)
+
+When editing a large file or one where a failed write could corrupt or empty it (e.g. big HTML/JS inline in one file):
+
+## Responsibility
+
+- **Do not** say "the file is empty" or blame the environment. If the file ends up 0 bytes after your edit, **take responsibility** and restore it.
+- Before making edits that could wipe the file, **create a temp backup** of that file (e.g. copy to `backups/manual/YYYY-MM-DD-temp-edit/` or a single temp path like `root/index.html.temp-edit`).
+- **If you discover the file is 0 bytes** (or clearly corrupted), **restore it from that temp backup immediately**. Do not leave the user with an empty file.
+- **Delete the temp backup only after** you have verified that the restored/current file is correct and the app works (or the user confirms). Until then, keep the temp file.
+
+## Workflow
+
+1. **Before** risky edit: copy the file to a temp backup path.
+2. Perform the edit.
+3. If the file is 0 bytes or broken: restore from the temp backup, then retry with a smaller/safer edit (e.g. single line or small block).
+4. **Only after** confirming the file is OK: remove the temp backup file if you created one in the repo.
