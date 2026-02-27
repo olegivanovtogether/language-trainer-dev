@@ -4,31 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>U MUST LEARN</title>
-    <script>
-        (function() {
-            var theme = "cyberpunk";
-            try {
-                var saved = typeof localStorage !== "undefined" ? localStorage.getItem("ui-theme") : null;
-                if (saved === "classic" || saved === "cyberpunk" || saved === "kawaii") theme = saved;
-            } catch (e) {}
-            document.documentElement.setAttribute("data-boot-theme", theme);
-            document.documentElement.classList.add("boot-loading-active");
-        })();
-    </script>
     <style>
         :root { --base-font: 16px; --accent: #ffb74d; --accent-soft: #fff4e0; --card-bg: #ffffff; --brand-icon-url: url("./assets/MainIcon.png"); --content-max-width: 500px; --bottom-tabs-height: 56px; --body-vertical-padding: 36px; --tabbed-window-min-height: 320px; --tabbed-window-offset: 16px; }
         body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 900px; margin: 0 auto; padding: 12px 12px 24px; line-height: 1.5; font-size: var(--base-font); box-sizing: border-box; background: #f5f5f5; transition: background-color 0.15s; }
-        #boot-loading { position: fixed !important; inset: 0 !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; max-width: none !important; margin: 0 !important; padding: 0 !important; z-index: 12000; display: block; color: #1d1d1f; background: #f5f5f5; transition: opacity 0.22s ease, visibility 0.22s ease; }
-        #boot-loading.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        html.boot-loading-active #app-content-wrap { visibility: hidden; }
-        .boot-loading-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px; text-align: center; }
-        .boot-loading-text { font-size: 1rem; font-weight: 700; letter-spacing: 0.03em; }
-        .boot-loading-spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(0, 0, 0, 0.18); border-top-color: rgba(0, 0, 0, 0.62); animation: boot-spin 0.75s linear infinite; }
-        @keyframes boot-spin { to { transform: rotate(360deg); } }
-        html[data-boot-theme="cyberpunk"] #boot-loading { color: #00eaff; background: radial-gradient(circle at 50% 30%, rgba(0, 234, 255, 0.08) 0%, rgba(0, 234, 255, 0.02) 28%, transparent 56%), linear-gradient(180deg, rgba(2, 8, 18, 0.985), rgba(6, 14, 28, 0.995)); }
-        html[data-boot-theme="cyberpunk"] .boot-loading-spinner { border-color: rgba(0, 234, 255, 0.2); border-top-color: rgba(0, 234, 255, 0.98); box-shadow: 0 0 18px rgba(0, 234, 255, 0.28); }
-        html[data-boot-theme="kawaii"] #boot-loading { color: #6c2f7f; background: linear-gradient(145deg, #ffe8f6 0%, #f3ddff 52%, #ebd5ff 100%); }
-        html[data-boot-theme="kawaii"] .boot-loading-spinner { border-color: rgba(233, 86, 195, 0.22); border-top-color: rgba(233, 86, 195, 0.92); box-shadow: 0 0 14px rgba(233, 86, 195, 0.24); }
         .page { width: 100%; }
         #course-home-page, #main-page, #settings-page, #exercises-page { position: relative; z-index: 5; }
         .landing-shell { max-width: 760px; margin: 22px auto 12px; }
@@ -482,12 +460,6 @@
     </style>
 </head>
 <body>
-    <div id="boot-loading" aria-live="polite" aria-label="Loading">
-        <div class="boot-loading-center">
-            <div class="boot-loading-spinner" aria-hidden="true"></div>
-            <div class="boot-loading-text">Loading...</div>
-        </div>
-    </div>
     <div id="app-content-wrap" class="app-content-wrap">
     <div id="course-home-page" class="page" style="display:none;"></div>
     <div id="main-page" class="page" style="display:none;">
@@ -1071,18 +1043,6 @@
                             setFirst("#ex3 .label:nth-of-type(2)", ui.translateLabel || "Translate:");
                             setFirst(".small", ui.sessionStatsHint || "Stats are stored while this page is open.");
                         }
-                        function hideBootLoading(delayMs) {
-                            var boot = document.getElementById("boot-loading");
-                            if (!boot) return;
-                            var wait = typeof delayMs === "number" ? delayMs : 0;
-                            window.setTimeout(function() {
-                                document.documentElement.classList.remove("boot-loading-active");
-                                boot.classList.add("is-hidden");
-                                window.setTimeout(function() {
-                                    if (boot && boot.parentNode) boot.parentNode.removeChild(boot);
-                                }, 260);
-                            }, wait);
-                        }
                         initBrandIconRender();
                         normalizeStaticText();
                         if (tabExercisesBtn) tabExercisesBtn.addEventListener("click", function() { showExercisesPage(); });
@@ -1099,7 +1059,6 @@
                         });
                         initSettingsPage();
                         showPage("exercises");
-                        hideBootLoading(1000);
                     })();
                 });
             });
