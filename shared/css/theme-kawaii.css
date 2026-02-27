@@ -477,3 +477,8 @@ body.theme-kawaii .bottom-tabs .tab-btn.active {
     background: rgba(255, 93, 177, 0.2) !important;
     border-bottom-color: var(--kawaii-accent) !important;
 }
+
+/* Цифри в кружечках вправ — контрастні до білої заливки (кнопки в темі мають color: #fff) */
+body.theme-kawaii .exercise-nav-btn .exercise-nav-num {
+    color: var(--kawaii-text) !important;
+}
