@@ -73,6 +73,7 @@
                 mcBatchPos: mcBatchPos,
                 writeBatchPhase: writeBatchPhase,
                 writeMistakeCounts: Array.isArray(writeMistakeCounts) ? writeMistakeCounts.slice() : [],
+                mcMistakeCounts: Array.isArray(mcMistakeCounts) ? mcMistakeCounts.slice() : [],
                 remediationActive: !!remediationActive,
                 remediationRound: remediationRound,
                 remediationWrongThisRound: Array.isArray(remediationWrongThisRound) ? remediationWrongThisRound.slice() : []
@@ -245,6 +246,9 @@
         writeMistakeCounts = Array.isArray(progress.writeMistakeCounts) ? progress.writeMistakeCounts.slice() : [];
         while (writeMistakeCounts.length < nV) writeMistakeCounts.push(0);
         if (writeMistakeCounts.length > nV) writeMistakeCounts = writeMistakeCounts.slice(0, nV);
+        mcMistakeCounts = Array.isArray(progress.mcMistakeCounts) ? progress.mcMistakeCounts.slice() : [];
+        while (mcMistakeCounts.length < nV) mcMistakeCounts.push(0);
+        if (mcMistakeCounts.length > nV) mcMistakeCounts = mcMistakeCounts.slice(0, nV);
         remediationActive = !!progress.remediationActive;
         remediationRound = Math.max(0, progress.remediationRound != null ? progress.remediationRound : 0);
         remediationWrongThisRound = Array.isArray(progress.remediationWrongThisRound) ? progress.remediationWrongThisRound.slice() : [];
@@ -272,6 +276,8 @@
         if (nS > 0) GAME.stage.sent.needCorrect = nS * 4;
         while (writeMistakeCounts.length < nV) writeMistakeCounts.push(0);
         if (writeMistakeCounts.length > nV) writeMistakeCounts = writeMistakeCounts.slice(0, nV);
+        while (mcMistakeCounts.length < nV) mcMistakeCounts.push(0);
+        if (mcMistakeCounts.length > nV) mcMistakeCounts = mcMistakeCounts.slice(0, nV);
         const total = blocks.length;
         blockTitleEl.textContent = (ui.blockTitlePrefix || "Вправа ") + (currentBlockIndex + 1) + (ui.blockTitleSuffix || ". ") + block.title;
         blockProgressTextEl.textContent = (ui.blockTitlePrefix || "Вправа ") + (currentBlockIndex + 1) + (ui.blockProgressOf || " з ") + total;
@@ -637,6 +643,7 @@
     let mcBatchPos = 0;
     let writeBatchPhase = 1;
     let writeMistakeCounts = [];
+    let mcMistakeCounts = [];
     let remediationActive = false;
     let remediationRound = 0;
     let remediationWrongThisRound = [];
@@ -681,18 +688,24 @@
     }
     function collectWriteMistakeIndices() {
         const out = [];
-        for (let i = 0; i < writeMistakeCounts.length; i++) {
-            if ((writeMistakeCounts[i] || 0) > 0) out.push(i);
+        const n = Math.max(writeMistakeCounts.length, mcMistakeCounts.length);
+        for (let i = 0; i < n; i++) {
+            if ((writeMistakeCounts[i] || 0) > 0 || (mcMistakeCounts[i] || 0) > 0) out.push(i);
         }
         return out;
     }
     function setWriteMistakeIndices(indices) {
         const n = getNFor("write");
         writeMistakeCounts = [];
+        mcMistakeCounts = [];
         for (let i = 0; i < n; i++) writeMistakeCounts.push(0);
+        for (let i = 0; i < n; i++) mcMistakeCounts.push(0);
         for (let i = 0; i < indices.length; i++) {
             const idx = indices[i];
-            if (idx >= 0 && idx < n) writeMistakeCounts[idx] = 1;
+            if (idx >= 0 && idx < n) {
+                writeMistakeCounts[idx] = 1;
+                mcMistakeCounts[idx] = 1;
+            }
         }
     }
     function collectRoundMistakesUnique() {
@@ -1138,6 +1151,15 @@
             }
         });
     }
+
+    function completeCombinedStageAndProceed() {
+        stageState.mc.cleared = true;
+        stageState.write.cleared = true;
+        stageState.mc.stars = calcStars("mc");
+        stageState.write.stars = calcStars("write");
+        saveProgress();
+        nextExerciseStep();
+    }
     function advanceToFinalStage() {
         currentExerciseStep = 2;
         updateExerciseVisibility();
@@ -1232,6 +1254,10 @@
             if (ps && ps.phase === 1 && ps.wrongInPhase1) {
                 const idx = kind === "mc" ? currentVocabIndexMC : currentVocabIndexWrite;
                 if (ps.wrongInPhase1.indexOf(idx) < 0) ps.wrongInPhase1.push(idx);
+                if (kind === "mc" && currentExerciseStep === 1 && idx >= 0) {
+                    while (mcMistakeCounts.length <= idx) mcMistakeCounts.push(0);
+                    mcMistakeCounts[idx] = (mcMistakeCounts[idx] || 0) + 1;
+                }
             }
             if (kind === "write" && currentExerciseStep === 1) {
                 const idxw = currentVocabIndexWrite;
@@ -1857,9 +1883,7 @@
             if (idx < 0) {
                 currentBatchStart += getBatchSize(n);
                 if (currentBatchStart >= n) {
-                    stageState.mc.cleared = true;
-                    stageState.write.cleared = true;
-                    showVictory("write");
+                    completeCombinedStageAndProceed();
                 } else {
                     combinedStagePart = "mc";
                     mcBatchPhase = 1;
