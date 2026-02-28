@@ -254,6 +254,11 @@
         remediationWrongThisRound = Array.isArray(progress.remediationWrongThisRound) ? progress.remediationWrongThisRound.slice() : [];
         if (phaseState.mc) phaseState.mc.phase = (mcBatchPhase === 2) ? 2 : 1;
         if (phaseState.write) phaseState.write.phase = (writeBatchPhase === 2) ? 2 : 1;
+        if (currentExerciseStep === 1) {
+            const syncedLives = Math.min(stageState.mc.lives, stageState.write.lives);
+            stageState.mc.lives = syncedLives;
+            stageState.write.lives = syncedLives;
+        }
         lastVocabIndexMC = -1;
         lastVocabIndexWrite = -1;
         lastSentenceIndex = -1;
@@ -662,6 +667,13 @@
     function getRollbackSteps(kind) {
         const n = getNFor(kind);
         return (n < 10) ? 3 : 5;
+    }
+    function syncCombinedLives(kind) {
+        if (currentExerciseStep !== 1) return;
+        if (kind !== "mc" && kind !== "write") return;
+        const other = kind === "mc" ? "write" : "mc";
+        if (!stageState[kind] || !stageState[other]) return;
+        stageState[other].lives = stageState[kind].lives;
     }
     function getBatchSize(n) { return (n >= 10) ? 5 : 3; }
     function getBatchSpecs(n) {
@@ -1188,6 +1200,7 @@
         const s = stageState[kind];
         s.correct = Math.max(0, s.correct - rollback);
         s.lives = getLivesMax(kind);
+        syncCombinedLives(kind);
         const isCombinedStage = (currentExerciseStep === 1) && (kind === "mc" || kind === "write");
         if (isCombinedStage && !remediationActive) {
             applyCombinedRollback(rollback);
@@ -1331,6 +1344,7 @@
         s.attempts++;
         s.streak = 0;
         s.lives--;
+        syncCombinedLives(kind);
         if (kind === "mc" || kind === "write") {
             const ps = phaseState[kind];
             if (ps && ps.phase === 1 && ps.wrongInPhase1) {
