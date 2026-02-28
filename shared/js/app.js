@@ -63,8 +63,15 @@
                     mc: phaseState.mc ? { phase: phaseState.mc.phase, wrongInPhase1: phaseState.mc.wrongInPhase1 ? phaseState.mc.wrongInPhase1.slice() : [], phase2Correct: phaseState.mc.phase2Correct ? phaseState.mc.phase2Correct.slice() : [] } : getDefaultPhaseState(0),
                     write: phaseState.write ? { phase: phaseState.write.phase, wrongInPhase1: phaseState.write.wrongInPhase1 ? phaseState.write.wrongInPhase1.slice() : [], phase2Correct: phaseState.write.phase2Correct ? phaseState.write.phase2Correct.slice() : [] } : getDefaultPhaseState(0)
                 },
-                lastEncouragementMilestone: { mc: lastEncouragementMilestone.mc, write: lastEncouragementMilestone.write },
-                correctSinceRollback: { mc: correctSinceRollback.mc, write: correctSinceRollback.write }
+                lastEncouragementMilestone: { mc: lastEncouragementMilestone.mc, write: lastEncouragementMilestone.write, combined: lastEncouragementMilestone.combined },
+                correctSinceRollback: { mc: correctSinceRollback.mc, write: correctSinceRollback.write },
+                currentBatchStart: currentBatchStart,
+                combinedStagePart: combinedStagePart,
+                writeQueue: Array.isArray(writeQueue) ? writeQueue.slice() : [],
+                writeQueuePos: writeQueuePos,
+                mcBatchPhase: mcBatchPhase,
+                mcBatchPos: mcBatchPos,
+                writeBatchPhase: writeBatchPhase
             };
             localStorage.setItem(getProgressKey(), JSON.stringify(p));
         } catch (e) { }
@@ -88,17 +95,16 @@
     function getResumePreview(progress) {
         const block = blocks[progress.blockIndex];
         if (!block) return "";
-        const step = progress.step;
+        let step = progress.step;
+        if (step === 3) step = 2;
         if (step === 1 && block.vocab && block.vocab.length) {
-            const pos = Math.max(0, Math.min(progress.mcPos, block.vocab.length - 1));
+            let pos = Math.max(0, Math.min(progress.mcPos != null ? progress.mcPos : 0, block.vocab.length - 1));
+            if (progress.combinedStagePart === "write" && progress.writeQueue && progress.writeQueue.length && progress.writeQueuePos != null && progress.writeQueue[progress.writeQueuePos] != null)
+                pos = progress.writeQueue[progress.writeQueuePos];
             return (block.vocab[pos] && block.vocab[pos].ua) ? block.vocab[pos].ua : "";
         }
-        if (step === 2 && block.vocab && block.vocab.length) {
-            const pos = Math.max(0, Math.min(progress.writePos, block.vocab.length - 1));
-            return (block.vocab[pos] && block.vocab[pos].ua) ? block.vocab[pos].ua : "";
-        }
-        if (step === 3 && block.sentences && block.sentences.length) {
-            const pos = Math.max(0, Math.min(progress.sentPos, block.sentences.length - 1));
+        if (step === 2 && block.sentences && block.sentences.length) {
+            const pos = Math.max(0, Math.min(progress.sentPos || 0, block.sentences.length - 1));
             return (block.sentences[pos] && block.sentences[pos].ua) ? block.sentences[pos].ua : "";
         }
         return "";
@@ -113,13 +119,16 @@
     function showResumeModal(progress, handlers) {
         const block = blocks[progress.blockIndex];
         if (!block) { loadBlock(0); return; }
-        const stageNames = (ui.stageNames && ui.stageNames.length >= 4) ? ui.stageNames : ["Вступ", "Вибір", "Вписати", "Речення"];
-        const stage = stageNames[progress.step] || ("Етап " + progress.step);
+        const stageNames = (ui.stageNames && ui.stageNames.length >= 3) ? ui.stageNames : ["Вступ", "Вибір + Вписати", "Речення"];
+        let step = progress.step;
+        if (step === 3) step = 2;
+        const stage = stageNames[step] || ("Етап " + step);
         const preview = getResumePreview(progress);
         let k = 0;
-        if (progress.step === 1) k = (progress.mcPos || 0) + 1;
-        else if (progress.step === 2) k = (progress.writePos || 0) + 1;
-        else if (progress.step === 3) k = (progress.sentPos || 0) + 1;
+        if (step === 1) {
+            if (progress.combinedStagePart === "write" && progress.writeQueuePos != null) k = progress.writeQueuePos + 1;
+            else k = (progress.mcPos != null ? progress.mcPos : 0) + 1;
+        } else if (step === 2) k = (progress.sentPos || 0) + 1;
         const body = (ui.resumeBodyTemplate || "Продовжити з: {exerciseTitle}\nЕтап: {stage}\nКартка: {k}\n«{preview}»")
             .replace(/\{exerciseTitle\}/g, block.title)
             .replace(/\{stage\}/g, stage)
@@ -169,7 +178,7 @@
         const block = blocks[progress.blockIndex];
         if (!block) { loadBlock(0); return; }
         currentBlockIndex = progress.blockIndex;
-        currentExerciseStep = (progress.step === 0) ? 1 : progress.step;
+        currentExerciseStep = (progress.step === 0) ? 1 : (progress.step === 3 ? 2 : progress.step);
         explainVisible = false;
         const nV = (block.vocab && block.vocab.length) ? block.vocab.length : 0;
         const nS = (block.sentences && block.sentences.length) ? block.sentences.length : 0;
@@ -216,11 +225,21 @@
         if (progress.lastEncouragementMilestone) {
             lastEncouragementMilestone.mc = progress.lastEncouragementMilestone.mc != null ? progress.lastEncouragementMilestone.mc : 0;
             lastEncouragementMilestone.write = progress.lastEncouragementMilestone.write != null ? progress.lastEncouragementMilestone.write : 0;
+            lastEncouragementMilestone.combined = progress.lastEncouragementMilestone.combined != null ? progress.lastEncouragementMilestone.combined : 0;
         }
         if (progress.correctSinceRollback) {
             correctSinceRollback.mc = progress.correctSinceRollback.mc != null ? progress.correctSinceRollback.mc : 0;
             correctSinceRollback.write = progress.correctSinceRollback.write != null ? progress.correctSinceRollback.write : 0;
         }
+        if (progress.currentBatchStart != null) currentBatchStart = Math.max(0, progress.currentBatchStart);
+        combinedStagePart = (progress.combinedStagePart === "write") ? "write" : "mc";
+        writeQueue = Array.isArray(progress.writeQueue) ? progress.writeQueue.slice() : [];
+        writeQueuePos = Math.max(0, (progress.writeQueuePos != null ? progress.writeQueuePos : 0));
+        if (progress.mcBatchPhase != null) mcBatchPhase = progress.mcBatchPhase;
+        if (progress.mcBatchPos != null) mcBatchPos = Math.max(0, progress.mcBatchPos);
+        if (progress.writeBatchPhase != null) writeBatchPhase = progress.writeBatchPhase;
+        if (phaseState.mc) phaseState.mc.phase = (mcBatchPhase === 2) ? 2 : 1;
+        if (phaseState.write) phaseState.write.phase = (writeBatchPhase === 2) ? 2 : 1;
         lastVocabIndexMC = -1;
         lastVocabIndexWrite = -1;
         lastSentenceIndex = -1;
@@ -257,9 +276,10 @@
         ensureStatsForBlock(currentBlockIndex);
         updateStatsView();
         updateExerciseVisibility();
-        if (currentExerciseStep === 1) loadMCQuestion();
-        else if (currentExerciseStep === 2) loadWQuestion();
-        else if (currentExerciseStep === 3) loadSentence();
+        if (currentExerciseStep === 1) {
+            if (combinedStagePart === "write") loadWQuestion();
+            else loadMCQuestion();
+        } else if (currentExerciseStep === 2) loadSentence();
         updateGateUI();
     }
 
@@ -580,7 +600,7 @@
         mc: getDefaultPhaseState(0),
         write: getDefaultPhaseState(0)
     };
-    let lastEncouragementMilestone = { mc: 0, write: 0 };
+    let lastEncouragementMilestone = { mc: 0, write: 0, combined: 0 };
     let correctSinceRollback = { mc: 0, write: 0 };
 
     let currentBlockIndex = 0;
@@ -597,6 +617,13 @@
     let currentVocabIndexMC = 0;
     let currentVocabIndexWrite = 0;
     let currentSentenceIndex = 0;
+    let currentBatchStart = 0;
+    let combinedStagePart = "mc";
+    let writeQueue = [];
+    let writeQueuePos = 0;
+    let mcBatchPhase = 1;
+    let mcBatchPos = 0;
+    let writeBatchPhase = 1;
     const stats = {};
 
     function getNFor(kind) {
@@ -611,6 +638,55 @@
     function getRollbackSteps(kind) {
         const n = getNFor(kind);
         return (n < 10) ? 3 : 5;
+    }
+    function getBatchSize(n) { return (n >= 10) ? 5 : 3; }
+    function getMcBatchIndices() {
+        const n = getNFor("mc");
+        if (n <= 0) return [];
+        const B = getBatchSize(n);
+        const start = currentBatchStart;
+        const end = Math.min(start + B, n);
+        const arr = [];
+        for (let i = start; i < end; i++) arr.push(i);
+        return arr;
+    }
+    function nextIndexMCBatch() {
+        const n = getNFor("mc");
+        const batchIndices = getMcBatchIndices();
+        if (batchIndices.length === 0) return -1;
+        ensurePhaseState("mc", n);
+        const ps = phaseState.mc;
+        if (mcBatchPhase === 1) {
+            if (mcBatchPos < batchIndices.length) return batchIndices[mcBatchPos];
+            ps.phase = 2;
+            mcBatchPhase = 2;
+        }
+        const need = [];
+        for (let i = 0; i < batchIndices.length; i++) {
+            const idx = batchIndices[i];
+            const required = ps.wrongInPhase1.indexOf(idx) >= 0 ? 3 : 1;
+            if ((ps.phase2Correct[idx] || 0) < required) need.push(idx);
+        }
+        if (need.length === 0) return -1;
+        return need[randInt(need.length)];
+    }
+    function getNextWriteBatchIndex() {
+        if (writeBatchPhase === 1) {
+            if (writeQueuePos < writeQueue.length) return writeQueue[writeQueuePos];
+            writeBatchPhase = 2;
+            if (phaseState.write) phaseState.write.phase = 2;
+        }
+        const n = getNFor("write");
+        ensurePhaseState("write", n);
+        const ps = phaseState.write;
+        const need = [];
+        for (let i = 0; i < writeQueue.length; i++) {
+            const idx = writeQueue[i];
+            const required = ps.wrongInPhase1.indexOf(idx) >= 0 ? 3 : 1;
+            if ((ps.phase2Correct[idx] || 0) < required) need.push(idx);
+        }
+        if (need.length === 0) return -1;
+        return need[randInt(need.length)];
     }
 
     function showToast(msg) {
@@ -769,9 +845,9 @@
     }
 
     function currentKind() {
+        if (currentExerciseStep === 2) return "sent";
+        if (currentExerciseStep === 1 && combinedStagePart === "write") return "write";
         if (currentExerciseStep === 1) return "mc";
-        if (currentExerciseStep === 2) return "write";
-        if (currentExerciseStep === 3) return "sent";
         return null;
     }
     function stageAccuracy(kind) {
@@ -900,7 +976,7 @@
 
     function showVictory(kind) {
         clearAutoNext();
-        const stageNumber = (kind === "mc") ? 1 : (kind === "write") ? 2 : 3;
+        const stageNumber = (kind === "mc") ? 1 : (kind === "write") ? 1 : 2;
         const isFinalStage = (kind === "sent");
         const exerciseDone = isFinalStage && stageState.mc.cleared && stageState.write.cleared && stageState.sent.cleared;
         const stars = calcStars(kind);
@@ -978,9 +1054,20 @@
         s.streak++;
         gameXP += 10;
         if (kind === "mc" || kind === "write") {
+            if (currentExerciseStep === 1) {
+                if (kind === "mc" && mcBatchPhase === 1) mcBatchPos++;
+                if (kind === "write" && writeBatchPhase === 1) writeQueuePos++;
+            }
             const ps = phaseState[kind];
             if (ps && ps.phase === 1) {
                 if (seq[kind]) seq[kind].pos++;
+                // Phase 1 correct answer counts as the baseline "1 correct" for this card.
+                if (ps.phase2Correct) {
+                    const idx1 = kind === "mc" ? currentVocabIndexMC : currentVocabIndexWrite;
+                    if (idx1 >= 0 && idx1 < ps.phase2Correct.length) {
+                        ps.phase2Correct[idx1] = (ps.phase2Correct[idx1] || 0) + 1;
+                    }
+                }
             }
             if (ps && ps.phase === 2 && ps.phase2Correct) {
                 const idx = kind === "mc" ? currentVocabIndexMC : currentVocabIndexWrite;
@@ -988,10 +1075,11 @@
             }
             correctSinceRollback[kind]++;
             const rollbackSteps = getRollbackSteps(kind);
-            const progressPct = Math.round(getProgressPercentMcWrite(kind) * 100);
+            const progressPct = Math.round((currentExerciseStep === 1 ? getProgressPercentCombined() : getProgressPercentMcWrite(kind)) * 100);
+            const milestoneKey = (currentExerciseStep === 1) ? "combined" : kind;
             if (correctSinceRollback[kind] >= rollbackSteps) {
-                if (progressPct >= 75 && lastEncouragementMilestone[kind] < 75) {
-                    lastEncouragementMilestone[kind] = 75;
+                if (progressPct >= 75 && lastEncouragementMilestone[milestoneKey] < 75) {
+                    lastEncouragementMilestone[milestoneKey] = 75;
                     saveProgress();
                     addFlashBlockOverlay();
                     flashProgressBarGreen(function () {
@@ -999,8 +1087,8 @@
                         openModal({ title: "", text: ui.encourageNearEnd || "Ще трохи — і ти завершиш етап!", primaryText: ui.ok || "Ок", onPrimary: closeModal });
                     });
                     return;
-                } else if (progressPct >= 50 && lastEncouragementMilestone[kind] < 50) {
-                    lastEncouragementMilestone[kind] = 50;
+                } else if (progressPct >= 50 && lastEncouragementMilestone[milestoneKey] < 50) {
+                    lastEncouragementMilestone[milestoneKey] = 50;
                     saveProgress();
                     addFlashBlockOverlay();
                     flashProgressBarGreen(function () {
@@ -1008,8 +1096,8 @@
                         openModal({ title: "", text: ui.encourageHalf || "Вітаємо! Ти вже пройшов половину.", primaryText: ui.ok || "Ок", onPrimary: closeModal });
                     });
                     return;
-                } else if (progressPct >= 25 && lastEncouragementMilestone[kind] < 25) {
-                    lastEncouragementMilestone[kind] = 25;
+                } else if (progressPct >= 25 && lastEncouragementMilestone[milestoneKey] < 25) {
+                    lastEncouragementMilestone[milestoneKey] = 25;
                     saveProgress();
                     addFlashBlockOverlay();
                     flashProgressBarGreen(function () {
@@ -1020,7 +1108,8 @@
                 }
             }
         }
-        if (!s.cleared && stageGoalMet(kind)) {
+        const allowAutoStageGoal = !(currentExerciseStep === 1 && (kind === "mc" || kind === "write"));
+        if (allowAutoStageGoal && !s.cleared && stageGoalMet(kind)) {
             s.cleared = true;
             s.stars = calcStars(kind);
             updateGateUI();
@@ -1166,6 +1255,62 @@
         for (let i = 0; i < (ps.phase2Correct || []).length; i++) completed += ps.phase2Correct[i] || 0;
         return 0.5 + 0.5 * Math.min(1, completed / needPhase2);
     }
+    function getProgressPercentForBatchCombined() {
+        const nV = getNFor("mc");
+        if (nV <= 0) return 0;
+        const B = getBatchSize(nV);
+        const totalBatches = Math.ceil(nV / B);
+        if (totalBatches <= 0) return 0;
+        const completedBatchCount = Math.floor(currentBatchStart / B);
+        const batchIndices = getMcBatchIndices();
+        const batchSize = batchIndices.length;
+        if (batchSize <= 0) return Math.min(1, completedBatchCount / totalBatches);
+        let progressInBatch = 0;
+        if (combinedStagePart === "mc") {
+            ensurePhaseState("mc", nV);
+            const ps = phaseState.mc;
+            if (mcBatchPhase === 1) {
+                progressInBatch = (batchSize > 0) ? Math.min(1, mcBatchPos / batchSize) * 0.5 : 0;
+            } else {
+                let wrongInBatch = 0;
+                let phase2Completed = 0;
+                for (let i = 0; i < batchIndices.length; i++) {
+                    const idx = batchIndices[i];
+                    if (ps.wrongInPhase1 && ps.wrongInPhase1.indexOf(idx) >= 0) wrongInBatch++;
+                    phase2Completed += ps.phase2Correct && ps.phase2Correct[idx] ? ps.phase2Correct[idx] : 0;
+                }
+                const need = batchSize + 2 * wrongInBatch;
+                progressInBatch = need <= 0 ? 0.5 : 0.5 + 0.5 * Math.min(1, phase2Completed / need);
+            }
+        } else {
+            if (writeQueue.length <= 0) progressInBatch = 0.5;
+            else {
+                ensurePhaseState("write", nV);
+                const ps = phaseState.write;
+                if (writeBatchPhase === 1) {
+                    progressInBatch = 0.5 + 0.5 * Math.min(1, writeQueuePos / writeQueue.length);
+                } else {
+                    let wrongInBatch = 0;
+                    let phase2Completed = 0;
+                    for (let i = 0; i < writeQueue.length; i++) {
+                        const idx = writeQueue[i];
+                        if (ps.wrongInPhase1 && ps.wrongInPhase1.indexOf(idx) >= 0) wrongInBatch++;
+                        phase2Completed += ps.phase2Correct && ps.phase2Correct[idx] ? ps.phase2Correct[idx] : 0;
+                    }
+                    const need = writeQueue.length + 2 * wrongInBatch;
+                    progressInBatch = need <= 0 ? 1 : 0.5 + 0.5 * Math.min(1, phase2Completed / need);
+                }
+            }
+        }
+        return Math.min(1, (completedBatchCount + progressInBatch) / totalBatches);
+    }
+    function getProgressPercentCombined() {
+        const nV = getNFor("mc");
+        if (nV > 0 && currentExerciseStep === 1) return getProgressPercentForBatchCombined();
+        const pmc = getProgressPercentMcWrite("mc");
+        const pwrite = getProgressPercentMcWrite("write");
+        return (pmc + pwrite) * 0.5;
+    }
 
     function updateGateUI() {
         const kind = currentKind();
@@ -1192,7 +1337,7 @@
         let progress = 0;
         let progressText = "";
         if (kind === "mc" || kind === "write") {
-            progress = getProgressPercentMcWrite(kind);
+            progress = getProgressPercentCombined();
             progressText = " • " + (ui.progressLabel || "Прогрес") + " " + Math.round(progress * 100) + "%";
         } else {
             progress = Math.max(0, Math.min(1, s.correct / cfg.needCorrect));
@@ -1209,7 +1354,9 @@
         }
         const stepLabel = ui.stepLabel !== undefined ? ui.stepLabel : "Етап ";
         const stepOf = ui.stepOf !== undefined ? ui.stepOf : " з ";
-        exerciseStepEl.textContent = stepLabel + currentExerciseStep + stepOf + "3 • ❤️ " + s.lives + progressText + " • 🎯 " + acc + "% (" + (ui.needAccLabel || "") + needAcc + "%) • XP " + gameXP;
+        const displayStep = (currentExerciseStep === 1 || currentExerciseStep === 2) ? currentExerciseStep : 2;
+        const stepTotal = 2;
+        exerciseStepEl.textContent = stepLabel + displayStep + stepOf + stepTotal + " • ❤️ " + s.lives + progressText + " • 🎯 " + acc + "% (" + (ui.needAccLabel || "") + needAcc + "%) • XP " + gameXP;
     }
 
     function flashProgressBarGreen(callback) {
@@ -1281,20 +1428,17 @@
     }
 
     function updateExerciseVisibility() {
-        ex1Card.style.display = (currentExerciseStep === 1) ? "block" : "none";
-        ex2Card.style.display = (currentExerciseStep === 2) ? "block" : "none";
-        ex3Card.style.display = (currentExerciseStep === 3) ? "block" : "none";
+        ex1Card.style.display = (currentExerciseStep === 1 && combinedStagePart === "mc") ? "block" : "none";
+        ex2Card.style.display = (currentExerciseStep === 1 && combinedStagePart === "write") ? "block" : "none";
+        ex3Card.style.display = (currentExerciseStep === 2) ? "block" : "none";
         if (currentExerciseStep === 0) {
             exerciseStepEl.textContent = ui.introText || "";
             btnNextEx.textContent = ui.startExercises || "";
         } else if (currentExerciseStep === 1) {
             exerciseStepEl.textContent = ui.stage1Desc || "";
-            btnNextEx.textContent = ui.goToStage2 || "";
-        } else if (currentExerciseStep === 2) {
-            exerciseStepEl.textContent = ui.stage2Desc || "";
-            btnNextEx.textContent = ui.goToStage3 || "";
+            btnNextEx.textContent = ui.goToStage3 || ui.goToStage2 || "";
         } else {
-            exerciseStepEl.textContent = ui.stage3Desc || "";
+            exerciseStepEl.textContent = ui.stage3Desc || ui.stage2Desc || "";
             btnNextEx.textContent = ui.allStagesDone || "";
         }
         updateExplainVisibility();
@@ -1310,12 +1454,17 @@
             saveProgress();
             return;
         }
-        if (currentExerciseStep < 3) {
+        if (currentExerciseStep < 2) {
             currentExerciseStep++;
             updateExerciseVisibility();
+            if (currentExerciseStep === 2) loadSentence();
             saveProgress();
         } else {
-            openModal({ title: ui.lastStageTitle || "", text: ui.lastStageText || "", primaryText: ui.ok || "OK" });
+            if (currentBlockIndex < blocks.length - 1) {
+                nextBlock();
+            } else {
+                openModal({ title: ui.lastStageTitle || "", text: ui.lastStageText || "", primaryText: ui.ok || "OK" });
+            }
         }
     }
 
@@ -1325,6 +1474,13 @@
         if (kind === "mc") {
             wrongAttemptsMC = 0;
             lastVocabIndexMC = -1;
+            currentBatchStart = 0;
+            combinedStagePart = "mc";
+            writeQueue = [];
+            writeQueuePos = 0;
+            mcBatchPhase = 1;
+            mcBatchPos = 0;
+            writeBatchPhase = 1;
             try {
                 const b = blocks[currentBlockIndex];
                 resetSeq("mc", (b && b.vocab && b.vocab.length) ? b.vocab.length : 0);
@@ -1334,11 +1490,18 @@
         if (kind === "write") {
             wrongAttemptsWrite = 0;
             lastVocabIndexWrite = -1;
+            currentBatchStart = 0;
+            combinedStagePart = "mc";
+            writeQueue = [];
+            writeQueuePos = 0;
+            mcBatchPhase = 1;
+            mcBatchPos = 0;
+            writeBatchPhase = 1;
             try {
                 const b = blocks[currentBlockIndex];
                 resetSeq("write", (b && b.vocab && b.vocab.length) ? b.vocab.length : 0);
             } catch (e) { }
-            loadWQuestion();
+            loadMCQuestion();
         }
         if (kind === "sent") {
             wrongAttemptsSent = 0;
@@ -1405,6 +1568,13 @@
         currentExerciseStep = 1;
         explainVisible = false;
         topPanelVisibleInPractice = true;
+        currentBatchStart = 0;
+        combinedStagePart = "mc";
+        writeQueue = [];
+        writeQueuePos = 0;
+        mcBatchPhase = 1;
+        mcBatchPos = 0;
+        writeBatchPhase = 1;
         resetAllStages();
         lastVocabIndexMC = -1;
         lastVocabIndexWrite = -1;
@@ -1433,8 +1603,6 @@
         if (btnPrev) btnPrev.disabled = currentBlockIndex === 0;
         if (btnNext) btnNext.disabled = currentBlockIndex === total - 1;
         loadMCQuestion();
-        loadWQuestion();
-        loadSentence();
         mcFeedbackEl.textContent = "";
         mcFeedbackEl.className = "feedback";
         wFeedbackEl.textContent = "";
@@ -1456,12 +1624,41 @@
             mcOptionsEl.innerHTML = "";
             return;
         }
-        if (stageGoalMet("mc")) {
-            showVictory("mc");
-            return;
+        const n = block.vocab.length;
+        if (currentExerciseStep === 1 && combinedStagePart === "mc") {
+            const idx = nextIndexMCBatch();
+            if (idx < 0) {
+                const text = ui.beforeWritePartText || ui.encourageHarderSuffix || "А тепер трохи складніше.";
+                openModal({
+                    title: ui.encourageTitle || "",
+                    text: text,
+                    primaryText: ui.continueLabel || "Продовжити",
+                    secondaryText: "",
+                    tertiaryText: "",
+                    showCloseX: false,
+                    onPrimary: function () {
+                        combinedStagePart = "write";
+                        writeQueue = getMcBatchIndices().slice();
+                        writeQueuePos = 0;
+                        writeBatchPhase = 1;
+                        phaseState.write.phase = 1;
+                        updateExerciseVisibility();
+                        loadWQuestion();
+                        saveProgress();
+                    }
+                });
+                return;
+            }
+            currentVocabIndexMC = idx;
+            lastVocabIndexMC = idx;
+        } else {
+            if (stageGoalMet("mc")) {
+                showVictory("mc");
+                return;
+            }
+            currentVocabIndexMC = nextIndexMcOrWrite("mc", n);
+            lastVocabIndexMC = currentVocabIndexMC;
         }
-        currentVocabIndexMC = nextIndexMcOrWrite("mc", block.vocab.length);
-        lastVocabIndexMC = currentVocabIndexMC;
         const card = block.vocab[currentVocabIndexMC];
         mcQuestionEl.textContent = card.ua;
         mcFeedbackEl.textContent = "";
@@ -1522,12 +1719,40 @@
             wQuestionEl.textContent = ui.noWords || "";
             return;
         }
-        if (stageGoalMet("write")) {
-            showVictory("write");
-            return;
+        const n = block.vocab.length;
+        if (currentExerciseStep === 1 && combinedStagePart === "write") {
+            const idx = getNextWriteBatchIndex();
+            if (idx < 0) {
+                currentBatchStart += getBatchSize(n);
+                if (currentBatchStart >= n) {
+                    stageState.mc.cleared = true;
+                    stageState.write.cleared = true;
+                    showVictory("write");
+                } else {
+                    combinedStagePart = "mc";
+                    mcBatchPhase = 1;
+                    mcBatchPos = 0;
+                    phaseState.mc.phase = 1;
+                    writeQueue = [];
+                    writeQueuePos = 0;
+                    writeBatchPhase = 1;
+                    phaseState.write.phase = 1;
+                    updateExerciseVisibility();
+                    loadMCQuestion();
+                }
+                saveProgress();
+                return;
+            }
+            currentVocabIndexWrite = idx;
+            lastVocabIndexWrite = idx;
+        } else {
+            if (stageGoalMet("write")) {
+                showVictory("write");
+                return;
+            }
+            currentVocabIndexWrite = nextIndexMcOrWrite("write", n);
+            lastVocabIndexWrite = currentVocabIndexWrite;
         }
-        currentVocabIndexWrite = nextIndexMcOrWrite("write", block.vocab.length);
-        lastVocabIndexWrite = currentVocabIndexWrite;
         const card = block.vocab[currentVocabIndexWrite];
         wQuestionEl.textContent = card.ua;
         wInputEl.value = "";
@@ -1679,11 +1904,16 @@
         gameXP = 0;
         // Restart should return directly to stage 1 (no intro/explanation screen).
         currentExerciseStep = 1;
+        currentBatchStart = 0;
+        combinedStagePart = "mc";
+        writeQueue = [];
+        writeQueuePos = 0;
+        mcBatchPhase = 1;
+        mcBatchPos = 0;
+        writeBatchPhase = 1;
         explainVisible = false;
         updateExerciseVisibility();
         loadMCQuestion();
-        loadWQuestion();
-        loadSentence();
         window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
