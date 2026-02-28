@@ -75,7 +75,6 @@
                 writeBatchPhase: writeBatchPhase,
                 writeMistakeCounts: Array.isArray(writeMistakeCounts) ? writeMistakeCounts.slice() : [],
                 mcMistakeCounts: Array.isArray(mcMistakeCounts) ? mcMistakeCounts.slice() : [],
-                stage1PassStrikeCount: stage1PassStrikeCount,
                 sentQueue: Array.isArray(sentQueue) ? sentQueue.slice() : [],
                 remediationActive: !!remediationActive,
                 remediationRound: remediationRound,
@@ -257,16 +256,15 @@
         mcMistakeCounts = Array.isArray(progress.mcMistakeCounts) ? progress.mcMistakeCounts.slice() : [];
         while (mcMistakeCounts.length < nV) mcMistakeCounts.push(0);
         if (mcMistakeCounts.length > nV) mcMistakeCounts = mcMistakeCounts.slice(0, nV);
-        stage1PassStrikeCount = Math.max(0, Math.min(3, progress.stage1PassStrikeCount != null ? progress.stage1PassStrikeCount : 0));
         remediationActive = !!progress.remediationActive;
         remediationRound = Math.max(0, progress.remediationRound != null ? progress.remediationRound : 0);
         remediationWrongThisRound = Array.isArray(progress.remediationWrongThisRound) ? progress.remediationWrongThisRound.slice() : [];
         if (phaseState.mc) phaseState.mc.phase = (mcBatchPhase === 2) ? 2 : 1;
         if (phaseState.write) phaseState.write.phase = (writeBatchPhase === 2) ? 2 : 1;
         if (currentExerciseStep === 1) {
-            const stage1Lives = Math.max(0, 3 - stage1PassStrikeCount);
-            stageState.mc.lives = stage1Lives;
-            stageState.write.lives = stage1Lives;
+            const syncedLives = Math.min(stageState.mc.lives, stageState.write.lives);
+            stageState.mc.lives = syncedLives;
+            stageState.write.lives = syncedLives;
         }
         lastVocabIndexMC = -1;
         lastVocabIndexWrite = -1;
@@ -663,7 +661,6 @@
     let writeBatchPhase = 1;
     let writeMistakeCounts = [];
     let mcMistakeCounts = [];
-    let stage1PassStrikeCount = 0;
     let remediationActive = false;
     let remediationRound = 0;
     let remediationWrongThisRound = [];
@@ -881,9 +878,6 @@
     function startRemediationRound(indices) {
         remediationActive = true;
         remediationRound++;
-        stage1PassStrikeCount = 0;
-        stageState.mc.lives = 3;
-        stageState.write.lives = 3;
         combinedStagePart = "write";
         writeQueue = indices.slice();
         writeQueuePos = 0;
@@ -897,9 +891,6 @@
     function finishRemediationRound() {
         const nextIndices = collectRoundMistakesUnique();
         remediationActive = false;
-        stage1PassStrikeCount = 0;
-        stageState.mc.lives = 3;
-        stageState.write.lives = 3;
         remediationWrongThisRound = [];
         combinedStagePart = "write";
         writeQueue = [];
@@ -937,9 +928,10 @@
             title: ui.remediationContinueTitle || "",
             text: (ui.remediationContinueText || "Є фрази, які варто ще раз пропрацювати:\n\n") + preview,
             primaryText: ui.remediationPracticeBtn || "Опрацювати помилки",
-            secondaryText: "",
+            secondaryText: ui.goToStage3 || "Перейти до фінального етапу",
             tertiaryText: "",
-            onPrimary: function () { startRemediationRound(nextIndices); }
+            onPrimary: function () { startRemediationRound(nextIndices); },
+            onSecondary: advanceToFinalStage
         });
         saveProgress();
     }
@@ -1264,47 +1256,6 @@
         });
     }
 
-    function getStage1CurrentPassPos(kind) {
-        if (currentExerciseStep !== 1) return 1;
-        if (remediationActive) return Math.max(1, writeQueuePos + 1);
-        if (combinedStagePart === "mc") return Math.max(1, mcBatchPos + 1);
-        return Math.max(1, writeQueuePos + 1);
-    }
-    function getStage1AnchorRollbackSteps(kind) {
-        const R = getRollbackSteps(kind);
-        const pos = getStage1CurrentPassPos(kind);
-        if (pos <= 1) return 0; // anti-demotivation: no rollback on very first item
-        const inAnchor = ((pos - 1) % R) + 1;
-        return inAnchor;
-    }
-    function applyStage1AnchorRollback(kind, steps) {
-        const rollback = Math.max(0, steps || 0);
-        if (rollback <= 0) return;
-        if (remediationActive || combinedStagePart === "write") {
-            writeQueuePos = Math.max(0, writeQueuePos - rollback);
-        } else {
-            mcBatchPos = Math.max(0, mcBatchPos - rollback);
-        }
-    }
-    function resetStage1StrikeCounter() {
-        stage1PassStrikeCount = 0;
-        stageState.mc.lives = 3;
-        stageState.write.lives = 3;
-    }
-    function applyStage1StrikePenalty(kind) {
-        const rollback = getStage1AnchorRollbackSteps(kind);
-        showFeedback(false, null);
-        if (rollback > 0) {
-            applyStage1AnchorRollback(kind, rollback);
-            showToast((ui.toastPenalty || "") + rollback);
-        }
-        resetStage1StrikeCounter();
-        updateGateUI();
-        if (combinedStagePart === "write") loadWQuestion();
-        else loadMCQuestion();
-        saveProgress();
-    }
-
     function showFail(kind) {
         clearAutoNext();
         const rollback = getRollbackSteps(kind);
@@ -1351,7 +1302,6 @@
     function showRollbackModalThenFail(kind) {
         const texts = (ui.rollbackModalTexts && Array.isArray(ui.rollbackModalTexts) && ui.rollbackModalTexts.length) ? ui.rollbackModalTexts : (ui.rollbackModalText ? [ui.rollbackModalText] : ["Ой, як шкода! Повернемось назад і спробуємо ще раз."]);
         const text = texts[Math.floor(Math.random() * texts.length)];
-        const isStage1Combined = currentExerciseStep === 1 && (kind === "mc" || kind === "write");
         openModal({
             title: "",
             text: text,
@@ -1360,8 +1310,7 @@
             tertiaryText: "",
             onPrimary: function () {
                 closeModal();
-                if (isStage1Combined) applyStage1StrikePenalty(kind);
-                else showFail(kind);
+                showFail(kind);
             }
         });
     }
@@ -1470,16 +1419,8 @@
         const s = stageState[kind];
         s.attempts++;
         s.streak = 0;
-        const isStage1Combined = currentExerciseStep === 1 && (kind === "mc" || kind === "write");
-        if (isStage1Combined) {
-            stage1PassStrikeCount = Math.max(0, stage1PassStrikeCount) + 1;
-            const left = Math.max(0, 3 - stage1PassStrikeCount);
-            stageState.mc.lives = left;
-            stageState.write.lives = left;
-        } else {
-            s.lives--;
-            syncCombinedLives(kind);
-        }
+        s.lives--;
+        syncCombinedLives(kind);
         if (kind === "mc" || kind === "write") {
             const ps = phaseState[kind];
             if (ps && ps.phase === 1 && ps.wrongInPhase1) {
@@ -1501,18 +1442,6 @@
             correctSinceRollback[kind] = 0;
         }
         updateGateUI();
-        if (isStage1Combined) {
-            if (stage1PassStrikeCount < 3) {
-                flashProgressBarRedThree(function () { saveProgress(); });
-                return;
-            }
-            addFlashBlockOverlay();
-            flashProgressBarRedThree(function () {
-                removeFlashBlockOverlay();
-                showRollbackModalThenFail(kind);
-            });
-            return;
-        }
         if (s.lives > 0) {
             flashProgressBarRedThree(function () { saveProgress(); });
             return;
@@ -1638,22 +1567,30 @@
         if (currentExerciseStep === 1) {
             baseDoneUnits = Math.max(0, Math.min(baseTotalUnits, getCombinedDoneUnits()));
         }
-        const totalUnits = Math.max(1, baseTotalUnits);
-        const doneUnits = Math.max(0, Math.min(totalUnits, baseDoneUnits));
+
+        let extraTotalUnits = 0;
+        let extraDoneUnits = 0;
+        const pendingMistakes = collectWriteMistakeIndices().length;
+        const baseCompleted = baseDoneUnits >= baseTotalUnits;
+
+        // Dynamic tail: when base cycle is done, include additional remediation workload.
+        if (currentExerciseStep === 1 && (remediationActive || baseCompleted)) {
+            if (remediationActive) {
+                extraTotalUnits = Math.max(0, writeQueue.length);
+                extraDoneUnits = Math.max(0, Math.min(extraTotalUnits, writeQueuePos));
+            } else if (pendingMistakes > 0) {
+                extraTotalUnits = pendingMistakes;
+                extraDoneUnits = 0;
+            }
+        }
+
+        const totalUnits = Math.max(1, baseTotalUnits + extraTotalUnits);
+        const doneUnits = Math.max(0, Math.min(totalUnits, baseDoneUnits + extraDoneUnits));
         return doneUnits / totalUnits;
-    }
-    function getProgressPercentStage1Remediation() {
-        if (!remediationActive) return 0;
-        const total = Math.max(1, writeQueue.length);
-        const done = Math.max(0, Math.min(total, writeQueuePos));
-        return done / total;
     }
     function getProgressPercentCombined() {
         const nV = getNFor("mc");
-        if (nV > 0 && currentExerciseStep === 1) {
-            if (remediationActive) return getProgressPercentStage1Remediation();
-            return getProgressPercentForBatchCombined();
-        }
+        if (nV > 0 && currentExerciseStep === 1) return getProgressPercentForBatchCombined();
         const pmc = getProgressPercentMcWrite("mc");
         const pwrite = getProgressPercentMcWrite("write");
         return (pmc + pwrite) * 0.5;
@@ -1825,9 +1762,6 @@
         if (currentExerciseStep === 0) {
             currentExerciseStep = 1;
             explainVisible = false;
-            stage1PassStrikeCount = 0;
-            stageState.mc.lives = 3;
-            stageState.write.lives = 3;
             updateExerciseVisibility();
             saveProgress();
             return;
@@ -1840,9 +1774,10 @@
                     title: ui.remediationStartTitle || "",
                     text: (ui.remediationStartText || "Перед фінальним етапом можна допрацювати ці фрази:\n\n") + preview,
                     primaryText: ui.remediationPracticeBtn || "Опрацювати помилки",
-                    secondaryText: "",
+                    secondaryText: ui.goToStage3 || "Перейти до фінального етапу",
                     tertiaryText: "",
-                    onPrimary: function () { startRemediationRound(toPractice); }
+                    onPrimary: function () { startRemediationRound(toPractice); },
+                    onSecondary: advanceToFinalStage
                 });
                 return;
             }
@@ -1895,9 +1830,6 @@
             remediationActive = false;
             remediationRound = 0;
             remediationWrongThisRound = [];
-            stage1PassStrikeCount = 0;
-            stageState.mc.lives = 3;
-            stageState.write.lives = 3;
             setWriteMistakeIndices([]);
             try {
                 const b = blocks[currentBlockIndex];
@@ -1918,9 +1850,6 @@
             remediationActive = false;
             remediationRound = 0;
             remediationWrongThisRound = [];
-            stage1PassStrikeCount = 0;
-            stageState.mc.lives = 3;
-            stageState.write.lives = 3;
             setWriteMistakeIndices([]);
             try {
                 const b = blocks[currentBlockIndex];
@@ -2000,7 +1929,6 @@
         combinedStagePart = "mc";
         writeQueue = [];
         writeQueuePos = 0;
-        stage1PassStrikeCount = 0;
         sentQueue = [];
         sentQueuePos = 0;
         mcBatchPhase = 1;
@@ -2010,8 +1938,6 @@
         remediationRound = 0;
         remediationWrongThisRound = [];
         resetAllStages();
-        stageState.mc.lives = 3;
-        stageState.write.lives = 3;
         lastVocabIndexMC = -1;
         lastVocabIndexWrite = -1;
         lastSentenceIndex = -1;
@@ -2075,9 +2001,6 @@
                     showCloseX: false,
                     onPrimary: function () {
                         combinedStagePart = "write";
-                        stage1PassStrikeCount = 0;
-                        stageState.mc.lives = 3;
-                        stageState.write.lives = 3;
                         writeQueue = getMcBatchIndices().slice();
                         writeQueuePos = 0;
                         writeBatchPhase = 1;
@@ -2192,9 +2115,6 @@
                         showCloseX: false,
                         onPrimary: function () {
                             combinedStagePart = "mc";
-                            stage1PassStrikeCount = 0;
-                            stageState.mc.lives = 3;
-                            stageState.write.lives = 3;
                             mcBatchPhase = 1;
                             mcBatchPos = 0;
                             phaseState.mc.phase = 1;
@@ -2384,8 +2304,6 @@
         stats[currentBlockIndex] = { mc: { correct: 0, total: 0 }, write: { correct: 0, total: 0 }, sent: { correct: 0, total: 0 } };
         updateStatsView();
         resetAllStages();
-        stageState.mc.lives = 3;
-        stageState.write.lives = 3;
         lastVocabIndexMC = -1;
         lastVocabIndexWrite = -1;
         lastSentenceIndex = -1;
@@ -2403,7 +2321,6 @@
         combinedStagePart = "mc";
         writeQueue = [];
         writeQueuePos = 0;
-        stage1PassStrikeCount = 0;
         sentQueue = [];
         sentQueuePos = 0;
         mcBatchPhase = 1;
@@ -2412,8 +2329,6 @@
         remediationActive = false;
         remediationRound = 0;
         remediationWrongThisRound = [];
-        stageState.mc.lives = 3;
-        stageState.write.lives = 3;
         explainVisible = false;
         updateExerciseVisibility();
         loadMCQuestion();
