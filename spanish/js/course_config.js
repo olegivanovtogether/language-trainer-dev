@@ -43,6 +43,15 @@ window.COURSE_CONFIG = {
         encourageHalf: "Вітаємо! Ти вже пройшов половину.",
         encourageNearEnd: "Ще трохи — і ти завершиш етап!",
         beforeWritePartText: "А тепер трохи складніше.",
+        remediationStartTitle: "Важливе повідомлення",
+        remediationStartText: "Перед фінальним етапом можна допрацювати ці фрази:\n\n",
+        remediationPracticeBtn: "Опрацювати помилки",
+        remediationLaterTitle: "Важливе повідомлення",
+        remediationLaterText: "Ще є фрази для практики. Попрацюємо пізніше.\n\n",
+        remediationContinueTitle: "Важливе повідомлення",
+        remediationContinueText: "Є фрази, які варто ще раз пропрацювати:\n\n",
+        remediationDoneTitle: "Важливе повідомлення",
+        remediationDoneText: "Помилок не залишилось. Можеш перейти до фінального етапу.",
         motivationalMessages: {
             upTo25: [
                 "Чудовий старт! Ти вже в темі.",
