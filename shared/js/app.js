@@ -71,7 +71,11 @@
                 writeQueuePos: writeQueuePos,
                 mcBatchPhase: mcBatchPhase,
                 mcBatchPos: mcBatchPos,
-                writeBatchPhase: writeBatchPhase
+                writeBatchPhase: writeBatchPhase,
+                writeMistakeCounts: Array.isArray(writeMistakeCounts) ? writeMistakeCounts.slice() : [],
+                remediationActive: !!remediationActive,
+                remediationRound: remediationRound,
+                remediationWrongThisRound: Array.isArray(remediationWrongThisRound) ? remediationWrongThisRound.slice() : []
             };
             localStorage.setItem(getProgressKey(), JSON.stringify(p));
         } catch (e) { }
@@ -238,6 +242,12 @@
         if (progress.mcBatchPhase != null) mcBatchPhase = progress.mcBatchPhase;
         if (progress.mcBatchPos != null) mcBatchPos = Math.max(0, progress.mcBatchPos);
         if (progress.writeBatchPhase != null) writeBatchPhase = progress.writeBatchPhase;
+        writeMistakeCounts = Array.isArray(progress.writeMistakeCounts) ? progress.writeMistakeCounts.slice() : [];
+        while (writeMistakeCounts.length < nV) writeMistakeCounts.push(0);
+        if (writeMistakeCounts.length > nV) writeMistakeCounts = writeMistakeCounts.slice(0, nV);
+        remediationActive = !!progress.remediationActive;
+        remediationRound = Math.max(0, progress.remediationRound != null ? progress.remediationRound : 0);
+        remediationWrongThisRound = Array.isArray(progress.remediationWrongThisRound) ? progress.remediationWrongThisRound.slice() : [];
         if (phaseState.mc) phaseState.mc.phase = (mcBatchPhase === 2) ? 2 : 1;
         if (phaseState.write) phaseState.write.phase = (writeBatchPhase === 2) ? 2 : 1;
         lastVocabIndexMC = -1;
@@ -260,6 +270,8 @@
             GAME.stage.write.needCorrect = nV * 4;
         }
         if (nS > 0) GAME.stage.sent.needCorrect = nS * 4;
+        while (writeMistakeCounts.length < nV) writeMistakeCounts.push(0);
+        if (writeMistakeCounts.length > nV) writeMistakeCounts = writeMistakeCounts.slice(0, nV);
         const total = blocks.length;
         blockTitleEl.textContent = (ui.blockTitlePrefix || "Вправа ") + (currentBlockIndex + 1) + (ui.blockTitleSuffix || ". ") + block.title;
         blockProgressTextEl.textContent = (ui.blockTitlePrefix || "Вправа ") + (currentBlockIndex + 1) + (ui.blockProgressOf || " з ") + total;
@@ -624,6 +636,11 @@
     let mcBatchPhase = 1;
     let mcBatchPos = 0;
     let writeBatchPhase = 1;
+    let writeMistakeCounts = [];
+    let remediationActive = false;
+    let remediationRound = 0;
+    let remediationWrongThisRound = [];
+    const remediationMaxRounds = 3;
     const stats = {};
 
     function getNFor(kind) {
@@ -655,38 +672,113 @@
         const batchIndices = getMcBatchIndices();
         if (batchIndices.length === 0) return -1;
         ensurePhaseState("mc", n);
-        const ps = phaseState.mc;
-        if (mcBatchPhase === 1) {
-            if (mcBatchPos < batchIndices.length) return batchIndices[mcBatchPos];
-            ps.phase = 2;
-            mcBatchPhase = 2;
-        }
-        const need = [];
-        for (let i = 0; i < batchIndices.length; i++) {
-            const idx = batchIndices[i];
-            const required = ps.wrongInPhase1.indexOf(idx) >= 0 ? 3 : 1;
-            if ((ps.phase2Correct[idx] || 0) < required) need.push(idx);
-        }
-        if (need.length === 0) return -1;
-        return need[randInt(need.length)];
+        if (mcBatchPos < batchIndices.length) return batchIndices[mcBatchPos];
+        return -1;
     }
     function getNextWriteBatchIndex() {
-        if (writeBatchPhase === 1) {
-            if (writeQueuePos < writeQueue.length) return writeQueue[writeQueuePos];
-            writeBatchPhase = 2;
-            if (phaseState.write) phaseState.write.phase = 2;
+        if (writeQueuePos < writeQueue.length) return writeQueue[writeQueuePos];
+        return -1;
+    }
+    function collectWriteMistakeIndices() {
+        const out = [];
+        for (let i = 0; i < writeMistakeCounts.length; i++) {
+            if ((writeMistakeCounts[i] || 0) > 0) out.push(i);
         }
+        return out;
+    }
+    function setWriteMistakeIndices(indices) {
         const n = getNFor("write");
-        ensurePhaseState("write", n);
-        const ps = phaseState.write;
-        const need = [];
-        for (let i = 0; i < writeQueue.length; i++) {
-            const idx = writeQueue[i];
-            const required = ps.wrongInPhase1.indexOf(idx) >= 0 ? 3 : 1;
-            if ((ps.phase2Correct[idx] || 0) < required) need.push(idx);
+        writeMistakeCounts = [];
+        for (let i = 0; i < n; i++) writeMistakeCounts.push(0);
+        for (let i = 0; i < indices.length; i++) {
+            const idx = indices[i];
+            if (idx >= 0 && idx < n) writeMistakeCounts[idx] = 1;
         }
-        if (need.length === 0) return -1;
-        return need[randInt(need.length)];
+    }
+    function collectRoundMistakesUnique() {
+        const seen = {};
+        const out = [];
+        for (let i = 0; i < remediationWrongThisRound.length; i++) {
+            const idx = remediationWrongThisRound[i];
+            if (!seen[idx]) {
+                seen[idx] = true;
+                out.push(idx);
+            }
+        }
+        return out;
+    }
+    function buildMistakesPreview(indices) {
+        const block = blocks[currentBlockIndex];
+        if (!block || !block.vocab || !block.vocab.length || !indices.length) return "";
+        const maxItems = 8;
+        const lines = [];
+        for (let i = 0; i < indices.length && i < maxItems; i++) {
+            const idx = indices[i];
+            const card = block.vocab[idx];
+            if (card && card.ua) lines.push("• " + card.ua);
+        }
+        if (indices.length > maxItems) lines.push("… +" + (indices.length - maxItems));
+        return lines.join("\n");
+    }
+    function startRemediationRound(indices) {
+        remediationActive = true;
+        remediationRound++;
+        combinedStagePart = "write";
+        writeQueue = indices.slice();
+        writeQueuePos = 0;
+        writeBatchPhase = 1;
+        if (phaseState.write) phaseState.write.phase = 1;
+        remediationWrongThisRound = [];
+        updateExerciseVisibility();
+        loadWQuestion();
+        saveProgress();
+    }
+    function finishRemediationRound() {
+        const nextIndices = collectRoundMistakesUnique();
+        remediationActive = false;
+        remediationWrongThisRound = [];
+        combinedStagePart = "write";
+        writeQueue = [];
+        writeQueuePos = 0;
+        writeBatchPhase = 1;
+        if (phaseState.write) phaseState.write.phase = 1;
+        setWriteMistakeIndices(nextIndices);
+        updateExerciseVisibility();
+        if (nextIndices.length <= 0) {
+            openModal({
+                title: ui.remediationDoneTitle || "",
+                text: ui.remediationDoneText || "Помилок не залишилось. Можеш перейти до фінального етапу.",
+                primaryText: ui.goToStage3 || "Перейти до фінального етапу",
+                secondaryText: "",
+                tertiaryText: "",
+                onPrimary: advanceToFinalStage
+            });
+            saveProgress();
+            return;
+        }
+        const preview = buildMistakesPreview(nextIndices);
+        if (remediationRound >= remediationMaxRounds) {
+            openModal({
+                title: ui.remediationLaterTitle || "",
+                text: (ui.remediationLaterText || "Ще є фрази для практики. Попрацюємо пізніше.\n\n") + preview,
+                primaryText: ui.goToStage3 || "Перейти до фінального етапу",
+                secondaryText: "",
+                tertiaryText: "",
+                onPrimary: advanceToFinalStage
+            });
+            saveProgress();
+            return;
+        }
+        openModal({
+            title: ui.remediationContinueTitle || "",
+            text: (ui.remediationContinueText || "Є фрази, які варто ще раз пропрацювати:\n\n") + preview,
+            primaryText: ui.remediationPracticeBtn || "Опрацювати помилки",
+            secondaryText: ui.goToStage3 || "Перейти до фінального етапу",
+            tertiaryText: "",
+            onPrimary: function () { startRemediationRound(nextIndices); },
+            onSecondary: advanceToFinalStage
+        });
+        saveProgress();
     }
 
     function showToast(msg) {
@@ -1046,6 +1138,12 @@
             }
         });
     }
+    function advanceToFinalStage() {
+        currentExerciseStep = 2;
+        updateExerciseVisibility();
+        loadSentence();
+        saveProgress();
+    }
 
     function onCorrect(kind) {
         const s = stageState[kind];
@@ -1134,6 +1232,14 @@
             if (ps && ps.phase === 1 && ps.wrongInPhase1) {
                 const idx = kind === "mc" ? currentVocabIndexMC : currentVocabIndexWrite;
                 if (ps.wrongInPhase1.indexOf(idx) < 0) ps.wrongInPhase1.push(idx);
+            }
+            if (kind === "write" && currentExerciseStep === 1) {
+                const idxw = currentVocabIndexWrite;
+                if (idxw >= 0) {
+                    while (writeMistakeCounts.length <= idxw) writeMistakeCounts.push(0);
+                    writeMistakeCounts[idxw] = (writeMistakeCounts[idxw] || 0) + 1;
+                    if (remediationActive) remediationWrongThisRound.push(idxw);
+                }
             }
             correctSinceRollback[kind] = 0;
         }
@@ -1267,40 +1373,10 @@
         if (batchSize <= 0) return Math.min(1, completedBatchCount / totalBatches);
         let progressInBatch = 0;
         if (combinedStagePart === "mc") {
-            ensurePhaseState("mc", nV);
-            const ps = phaseState.mc;
-            if (mcBatchPhase === 1) {
-                progressInBatch = (batchSize > 0) ? Math.min(1, mcBatchPos / batchSize) * 0.5 : 0;
-            } else {
-                let wrongInBatch = 0;
-                let phase2Completed = 0;
-                for (let i = 0; i < batchIndices.length; i++) {
-                    const idx = batchIndices[i];
-                    if (ps.wrongInPhase1 && ps.wrongInPhase1.indexOf(idx) >= 0) wrongInBatch++;
-                    phase2Completed += ps.phase2Correct && ps.phase2Correct[idx] ? ps.phase2Correct[idx] : 0;
-                }
-                const need = batchSize + 2 * wrongInBatch;
-                progressInBatch = need <= 0 ? 0.5 : 0.5 + 0.5 * Math.min(1, phase2Completed / need);
-            }
+            progressInBatch = (batchSize > 0) ? Math.min(1, mcBatchPos / batchSize) * 0.5 : 0;
         } else {
             if (writeQueue.length <= 0) progressInBatch = 0.5;
-            else {
-                ensurePhaseState("write", nV);
-                const ps = phaseState.write;
-                if (writeBatchPhase === 1) {
-                    progressInBatch = 0.5 + 0.5 * Math.min(1, writeQueuePos / writeQueue.length);
-                } else {
-                    let wrongInBatch = 0;
-                    let phase2Completed = 0;
-                    for (let i = 0; i < writeQueue.length; i++) {
-                        const idx = writeQueue[i];
-                        if (ps.wrongInPhase1 && ps.wrongInPhase1.indexOf(idx) >= 0) wrongInBatch++;
-                        phase2Completed += ps.phase2Correct && ps.phase2Correct[idx] ? ps.phase2Correct[idx] : 0;
-                    }
-                    const need = writeQueue.length + 2 * wrongInBatch;
-                    progressInBatch = need <= 0 ? 1 : 0.5 + 0.5 * Math.min(1, phase2Completed / need);
-                }
-            }
+            else progressInBatch = 0.5 + 0.5 * Math.min(1, writeQueuePos / writeQueue.length);
         }
         return Math.min(1, (completedBatchCount + progressInBatch) / totalBatches);
     }
@@ -1454,6 +1530,34 @@
             saveProgress();
             return;
         }
+        if (currentExerciseStep === 1) {
+            const toPractice = collectWriteMistakeIndices();
+            if (!remediationActive && toPractice.length > 0 && remediationRound < remediationMaxRounds) {
+                const preview = buildMistakesPreview(toPractice);
+                openModal({
+                    title: ui.remediationStartTitle || "",
+                    text: (ui.remediationStartText || "Перед фінальним етапом можна допрацювати ці фрази:\n\n") + preview,
+                    primaryText: ui.remediationPracticeBtn || "Опрацювати помилки",
+                    secondaryText: ui.goToStage3 || "Перейти до фінального етапу",
+                    tertiaryText: "",
+                    onPrimary: function () { startRemediationRound(toPractice); },
+                    onSecondary: advanceToFinalStage
+                });
+                return;
+            }
+            if (!remediationActive && toPractice.length > 0 && remediationRound >= remediationMaxRounds) {
+                const preview = buildMistakesPreview(toPractice);
+                openModal({
+                    title: ui.remediationLaterTitle || "",
+                    text: (ui.remediationLaterText || "Ще є фрази для практики. Попрацюємо пізніше.\n\n") + preview,
+                    primaryText: ui.goToStage3 || "Перейти до фінального етапу",
+                    secondaryText: "",
+                    tertiaryText: "",
+                    onPrimary: advanceToFinalStage
+                });
+                return;
+            }
+        }
         if (currentExerciseStep < 2) {
             currentExerciseStep++;
             updateExerciseVisibility();
@@ -1481,6 +1585,10 @@
             mcBatchPhase = 1;
             mcBatchPos = 0;
             writeBatchPhase = 1;
+            remediationActive = false;
+            remediationRound = 0;
+            remediationWrongThisRound = [];
+            setWriteMistakeIndices([]);
             try {
                 const b = blocks[currentBlockIndex];
                 resetSeq("mc", (b && b.vocab && b.vocab.length) ? b.vocab.length : 0);
@@ -1497,6 +1605,10 @@
             mcBatchPhase = 1;
             mcBatchPos = 0;
             writeBatchPhase = 1;
+            remediationActive = false;
+            remediationRound = 0;
+            remediationWrongThisRound = [];
+            setWriteMistakeIndices([]);
             try {
                 const b = blocks[currentBlockIndex];
                 resetSeq("write", (b && b.vocab && b.vocab.length) ? b.vocab.length : 0);
@@ -1575,6 +1687,9 @@
         mcBatchPhase = 1;
         mcBatchPos = 0;
         writeBatchPhase = 1;
+        remediationActive = false;
+        remediationRound = 0;
+        remediationWrongThisRound = [];
         resetAllStages();
         lastVocabIndexMC = -1;
         lastVocabIndexWrite = -1;
@@ -1584,6 +1699,7 @@
             resetSeq("mc", (b && b.vocab && b.vocab.length) ? b.vocab.length : 0);
             resetSeq("write", (b && b.vocab && b.vocab.length) ? b.vocab.length : 0);
             resetSeq("sent", (b && b.sentences && b.sentences.length) ? b.sentences.length : 0);
+            setWriteMistakeIndices([]);
         } catch (e) { }
         const block = blocks[currentBlockIndex];
         if (!block) return;
@@ -1721,6 +1837,22 @@
         }
         const n = block.vocab.length;
         if (currentExerciseStep === 1 && combinedStagePart === "write") {
+            if (remediationActive) {
+                if (writeQueuePos >= writeQueue.length) {
+                    finishRemediationRound();
+                    return;
+                }
+                const ridx = writeQueue[writeQueuePos];
+                currentVocabIndexWrite = ridx;
+                lastVocabIndexWrite = ridx;
+                const rcard = block.vocab[ridx];
+                wQuestionEl.textContent = rcard.ua;
+                wInputEl.value = "";
+                wFeedbackEl.textContent = "";
+                wFeedbackEl.className = "feedback";
+                saveProgress();
+                return;
+            }
             const idx = getNextWriteBatchIndex();
             if (idx < 0) {
                 currentBatchStart += getBatchSize(n);
@@ -1900,6 +2032,7 @@
             resetSeq("mc", (b && b.vocab && b.vocab.length) ? b.vocab.length : 0);
             resetSeq("write", (b && b.vocab && b.vocab.length) ? b.vocab.length : 0);
             resetSeq("sent", (b && b.sentences && b.sentences.length) ? b.sentences.length : 0);
+            setWriteMistakeIndices([]);
         } catch (e) { }
         gameXP = 0;
         // Restart should return directly to stage 1 (no intro/explanation screen).
@@ -1911,6 +2044,9 @@
         mcBatchPhase = 1;
         mcBatchPos = 0;
         writeBatchPhase = 1;
+        remediationActive = false;
+        remediationRound = 0;
+        remediationWrongThisRound = [];
         explainVisible = false;
         updateExerciseVisibility();
         loadMCQuestion();
