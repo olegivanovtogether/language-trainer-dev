@@ -433,8 +433,18 @@ body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn {
 /* Modal layout: explicit header/body/actions for readability across all themes */
 .modal {
     width: min(420px, 92vw) !important;
+    max-height: calc(100dvh - 56px) !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
     padding: 0 !important;
     overflow: hidden;
+}
+
+#modalOverlay,
+.modal-overlay {
+    padding-top: 28px !important;
+    padding-bottom: 28px !important;
 }
 
 .modal h2,
@@ -452,6 +462,10 @@ body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn {
 
 .modal p,
 #modalText {
+    flex: 0 1 auto;
+    max-height: min(48dvh, 360px);
+    overflow-y: auto;
+    overflow-x: hidden;
     margin: 0 !important;
     padding: 14px 16px 8px !important;
     line-height: 1.56 !important;
@@ -462,6 +476,7 @@ body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn {
 
 .modal .modal-actions {
     display: flex !important;
+    flex: 0 0 auto;
     align-items: stretch !important;
     flex-wrap: wrap;
     margin: 0 !important;
@@ -492,6 +507,8 @@ body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn {
 @media (max-width: 480px) {
     .modal {
         width: min(400px, 94vw) !important;
+        max-height: calc(100dvh - 44px) !important;
+        height: auto !important;
     }
     .modal h2,
     #modalTitle {
@@ -500,6 +517,7 @@ body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn {
     }
     .modal p,
     #modalText {
+        max-height: min(54dvh, 420px);
         padding: 12px 14px 6px !important;
         font-size: 0.98rem !important;
         line-height: 1.5 !important;
