@@ -50,7 +50,6 @@
                 mcPos: currentVocabIndexMC,
                 writePos: currentVocabIndexWrite,
                 sentPos: currentSentenceIndex,
-                sentQueuePos: sentQueuePos,
                 ts: Date.now(),
                 seqMC: seq.mc ? seq.mc.pos : 0,
                 seqWrite: seq.write ? seq.write.pos : 0,
@@ -75,7 +74,6 @@
                 writeBatchPhase: writeBatchPhase,
                 writeMistakeCounts: Array.isArray(writeMistakeCounts) ? writeMistakeCounts.slice() : [],
                 mcMistakeCounts: Array.isArray(mcMistakeCounts) ? mcMistakeCounts.slice() : [],
-                sentQueue: Array.isArray(sentQueue) ? sentQueue.slice() : [],
                 remediationActive: !!remediationActive,
                 remediationRound: remediationRound,
                 remediationWrongThisRound: Array.isArray(remediationWrongThisRound) ? remediationWrongThisRound.slice() : []
@@ -111,10 +109,7 @@
             return (block.vocab[pos] && block.vocab[pos].ua) ? block.vocab[pos].ua : "";
         }
         if (step === 2 && block.sentences && block.sentences.length) {
-            let pos = Math.max(0, Math.min(progress.sentPos || 0, block.sentences.length - 1));
-            if (progress.sentQueue && progress.sentQueue.length && progress.sentQueuePos != null && progress.sentQueue[progress.sentQueuePos] != null) {
-                pos = Math.max(0, Math.min(progress.sentQueue[progress.sentQueuePos], block.sentences.length - 1));
-            }
+            const pos = Math.max(0, Math.min(progress.sentPos || 0, block.sentences.length - 1));
             return (block.sentences[pos] && block.sentences[pos].ua) ? block.sentences[pos].ua : "";
         }
         return "";
@@ -138,7 +133,7 @@
         if (step === 1) {
             if (progress.combinedStagePart === "write" && progress.writeQueuePos != null) k = progress.writeQueuePos + 1;
             else k = (progress.mcPos != null ? progress.mcPos : 0) + 1;
-        } else if (step === 2) k = (progress.sentQueuePos != null ? progress.sentQueuePos : (progress.sentPos || 0)) + 1;
+        } else if (step === 2) k = (progress.sentPos || 0) + 1;
         const body = (ui.resumeBodyTemplate || "Продовжити з: {exerciseTitle}\nЕтап: {stage}\nКартка: {k}\n«{preview}»")
             .replace(/\{exerciseTitle\}/g, block.title)
             .replace(/\{stage\}/g, stage)
@@ -248,8 +243,6 @@
         if (progress.mcBatchPhase != null) mcBatchPhase = progress.mcBatchPhase;
         if (progress.mcBatchPos != null) mcBatchPos = Math.max(0, progress.mcBatchPos);
         if (progress.writeBatchPhase != null) writeBatchPhase = progress.writeBatchPhase;
-        sentQueue = Array.isArray(progress.sentQueue) ? progress.sentQueue.slice() : [];
-        sentQueuePos = Math.max(0, (progress.sentQueuePos != null ? progress.sentQueuePos : 0));
         writeMistakeCounts = Array.isArray(progress.writeMistakeCounts) ? progress.writeMistakeCounts.slice() : [];
         while (writeMistakeCounts.length < nV) writeMistakeCounts.push(0);
         if (writeMistakeCounts.length > nV) writeMistakeCounts = writeMistakeCounts.slice(0, nV);
@@ -274,18 +267,18 @@
         resetSeq("sent", nS);
         const seqMC = progress.seqMC !== undefined ? progress.seqMC : (progress.mcPos != null ? progress.mcPos : 0);
         const seqWrite = progress.seqWrite !== undefined ? progress.seqWrite : (progress.writePos != null ? progress.writePos : 0);
-        const seqSent = progress.seqSent !== undefined ? progress.seqSent : (progress.sentQueuePos != null ? progress.sentQueuePos : (progress.sentPos != null ? progress.sentPos : 0));
+        const seqSent = progress.seqSent !== undefined ? progress.seqSent : (progress.sentPos != null ? progress.sentPos : 0);
         seq.mc.pos = Math.max(0, Math.min(seqMC, nV));
         seq.mc.last = -1;
         seq.write.pos = Math.max(0, Math.min(seqWrite, nV));
         seq.write.last = -1;
-        seq.sent.pos = Math.max(0, Math.min(seqSent, getFinalStageTargetCount()));
+        seq.sent.pos = Math.max(0, Math.min(seqSent, nS));
         seq.sent.last = -1;
         if (nV > 0) {
             GAME.stage.mc.needCorrect = nV * 4;
             GAME.stage.write.needCorrect = nV * 4;
         }
-        if (nS > 0) GAME.stage.sent.needCorrect = getFinalStageTargetCount();
+        if (nS > 0) GAME.stage.sent.needCorrect = nS * 4;
         while (writeMistakeCounts.length < nV) writeMistakeCounts.push(0);
         if (writeMistakeCounts.length > nV) writeMistakeCounts = writeMistakeCounts.slice(0, nV);
         while (mcMistakeCounts.length < nV) mcMistakeCounts.push(0);
@@ -309,10 +302,7 @@
         if (currentExerciseStep === 1) {
             if (combinedStagePart === "write") loadWQuestion();
             else loadMCQuestion();
-        } else if (currentExerciseStep === 2) {
-            ensureFinalStageQueue(false);
-            loadSentence();
-        }
+        } else if (currentExerciseStep === 2) loadSentence();
         updateGateUI();
     }
 
@@ -650,8 +640,6 @@
     let currentVocabIndexMC = 0;
     let currentVocabIndexWrite = 0;
     let currentSentenceIndex = 0;
-    let sentQueue = [];
-    let sentQueuePos = 0;
     let currentBatchStart = 0;
     let combinedStagePart = "mc";
     let writeQueue = [];
@@ -671,56 +659,6 @@
         const b = blocks[currentBlockIndex];
         if (kind === "sent") return (b && b.sentences && b.sentences.length) ? b.sentences.length : 0;
         return (b && b.vocab && b.vocab.length) ? b.vocab.length : 0;
-    }
-    function getFinalStageTargetCountByTotal(total) {
-        if (total <= 0) return 0;
-        if (total === 1) return 1;
-        return Math.max(5, Math.ceil(total / 3));
-    }
-    function buildFinalStageQueue(total) {
-        if (total <= 0) return [];
-        if (total === 1) return [0];
-        const target = getFinalStageTargetCountByTotal(total);
-        const source = [];
-        for (let i = 0; i < total; i++) source.push(i);
-        if (total >= 5) {
-            const uniqueCount = Math.min(total, target);
-            const shuffled = source.slice();
-            shuffle(shuffled);
-            return shuffled.slice(0, uniqueCount);
-        }
-        // 2..4 sentences: repeat shuffled cycles until reaching 5 cards.
-        const out = [];
-        while (out.length < target) {
-            const cycle = source.slice();
-            shuffle(cycle);
-            for (let i = 0; i < cycle.length && out.length < target; i++) out.push(cycle[i]);
-        }
-        return out;
-    }
-    function getFinalStageTargetCount() {
-        const total = getNFor("sent");
-        if (total <= 0) return 0;
-        if (Array.isArray(sentQueue) && sentQueue.length) return sentQueue.length;
-        return getFinalStageTargetCountByTotal(total);
-    }
-    function ensureFinalStageQueue(forceRebuild) {
-        const total = getNFor("sent");
-        if (total <= 0) {
-            sentQueue = [];
-            sentQueuePos = 0;
-            return;
-        }
-        const hasValidQueue = Array.isArray(sentQueue) && sentQueue.length && sentQueue.every(function (idx) {
-            return typeof idx === "number" && idx >= 0 && idx < total;
-        });
-        if (forceRebuild || !hasValidQueue) {
-            sentQueue = buildFinalStageQueue(total);
-            sentQueuePos = 0;
-        }
-        if (sentQueuePos < 0) sentQueuePos = 0;
-        if (sentQueuePos >= sentQueue.length) sentQueuePos = Math.max(0, sentQueue.length - 1);
-        GAME.stage.sent.needCorrect = Math.max(1, sentQueue.length);
     }
     function getLivesMax(kind) {
         const n = getNFor(kind);
@@ -1268,12 +1206,6 @@
             applyCombinedRollback(rollback);
         } else if (isCombinedStage && remediationActive) {
             writeQueuePos = Math.max(0, writeQueuePos - rollback);
-        } else if (kind === "sent") {
-            sentQueuePos = Math.max(0, sentQueuePos - rollback);
-            if (seq && seq.sent) {
-                seq.sent.pos = sentQueuePos;
-                seq.sent.last = -1;
-            }
         } else {
             try {
                 if (seq && seq[kind]) {
@@ -1325,10 +1257,6 @@
     }
     function advanceToFinalStage() {
         currentExerciseStep = 2;
-        resetStage("sent");
-        sentQueue = [];
-        sentQueuePos = 0;
-        ensureFinalStageQueue(true);
         updateExerciseVisibility();
         loadSentence();
         saveProgress();
@@ -1340,10 +1268,6 @@
         s.correct++;
         s.streak++;
         gameXP += 10;
-        if (kind === "sent" && currentExerciseStep === 2) {
-            sentQueuePos++;
-            if (seq && seq.sent) seq.sent.pos = sentQueuePos;
-        }
         if (kind === "mc" || kind === "write") {
             if (currentExerciseStep === 1) {
                 if (kind === "mc" && mcBatchPhase === 1) mcBatchPos++;
@@ -1653,7 +1577,7 @@
             progressText = " • " + (ui.progressLabel || "Прогрес") + " " + Math.round(progress * 100) + "%";
         } else {
             progress = Math.max(0, Math.min(1, s.correct / cfg.needCorrect));
-            progressText = " • " + (ui.progressLabel || "Прогрес") + " " + Math.round(progress * 100) + "%";
+            progressText = " • ✅ " + s.correct + "/" + cfg.needCorrect;
         }
         if (stageBarWrapEl && stageBarEl) {
             if (currentExerciseStep === 0) {
@@ -1796,12 +1720,6 @@
         }
         if (currentExerciseStep < 2) {
             currentExerciseStep++;
-            if (currentExerciseStep === 2) {
-                resetStage("sent");
-                sentQueue = [];
-                sentQueuePos = 0;
-                ensureFinalStageQueue(true);
-            }
             updateExerciseVisibility();
             if (currentExerciseStep === 2) loadSentence();
             saveProgress();
@@ -1860,9 +1778,6 @@
         if (kind === "sent") {
             wrongAttemptsSent = 0;
             lastSentenceIndex = -1;
-            sentQueue = [];
-            sentQueuePos = 0;
-            ensureFinalStageQueue(true);
             try {
                 const b = blocks[currentBlockIndex];
                 resetSeq("sent", (b && b.sentences && b.sentences.length) ? b.sentences.length : 0);
@@ -1929,8 +1844,6 @@
         combinedStagePart = "mc";
         writeQueue = [];
         writeQueuePos = 0;
-        sentQueue = [];
-        sentQueuePos = 0;
         mcBatchPhase = 1;
         mcBatchPos = 0;
         writeBatchPhase = 1;
@@ -1957,7 +1870,7 @@
                 GAME.stage.mc.needCorrect = nV * 4;
                 GAME.stage.write.needCorrect = nV * 4;
             }
-            if (nS > 0) GAME.stage.sent.needCorrect = getFinalStageTargetCountByTotal(nS);
+            if (nS > 0) GAME.stage.sent.needCorrect = nS * 4;
         } catch (e) { }
         blockTitleEl.textContent = (ui.blockTitlePrefix || "Вправа ") + (currentBlockIndex + 1) + (ui.blockTitleSuffix || ". ") + block.title;
         blockProgressTextEl.textContent = (ui.blockTitlePrefix || "Вправа ") + (currentBlockIndex + 1) + (ui.blockProgressOf || " з ") + total;
@@ -2205,24 +2118,9 @@
             sFeedbackEl.className = "feedback";
             return;
         }
-        ensureFinalStageQueue(false);
-        if (!sentQueue.length) {
-            sQuestionEl.textContent = ui.noSentences || "";
-            sInputEl.value = "";
-            sFeedbackEl.textContent = "";
-            sFeedbackEl.className = "feedback";
-            return;
-        }
-        if (sentQueuePos < 0) sentQueuePos = 0;
-        if (sentQueuePos >= sentQueue.length) {
-            if (stageGoalMet("sent")) return;
-            sentQueuePos = Math.max(0, sentQueue.length - 1);
-        }
-        currentSentenceIndex = sentQueue[sentQueuePos];
-        if (seq && seq.sent) seq.sent.pos = sentQueuePos;
+        currentSentenceIndex = nextIndex("sent", block.sentences.length);
         lastSentenceIndex = currentSentenceIndex;
         const card = block.sentences[currentSentenceIndex];
-        if (!card) return;
         sQuestionEl.textContent = card.ua;
         sInputEl.value = "";
         sFeedbackEl.textContent = "";
@@ -2235,7 +2133,6 @@
         const block = blocks[currentBlockIndex];
         if (!block || !block.sentences || !block.sentences.length) return;
         const card = block.sentences[currentSentenceIndex];
-        if (!card) return;
         const user = sInputEl.value;
         if (!user.trim()) return;
         ensureStatsForBlock(currentBlockIndex);
@@ -2265,7 +2162,6 @@
         const block = blocks[currentBlockIndex];
         if (!block || !block.sentences || !block.sentences.length) return;
         const card = block.sentences[currentSentenceIndex];
-        if (!card) return;
         sFeedbackEl.textContent = (ui.sShowAnswer || "") + card.en;
         sFeedbackEl.className = "feedback";
         speak(card.en);
@@ -2273,14 +2169,7 @@
 
     sCheckBtn.addEventListener("click", checkSentence);
     sShowBtn.addEventListener("click", showSentenceAnswer);
-    sNextBtn.addEventListener("click", function () {
-        if (currentExerciseStep === 2) {
-            ensureFinalStageQueue(false);
-            if (sentQueuePos < sentQueue.length - 1) sentQueuePos++;
-            if (seq && seq.sent) seq.sent.pos = sentQueuePos;
-        }
-        loadSentence();
-    });
+    sNextBtn.addEventListener("click", loadSentence);
     sInputEl.addEventListener("keydown", function (e) { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) checkSentence(); });
 
     if (btnPrev) btnPrev.addEventListener("click", function () { if (currentBlockIndex > 0) loadBlock(currentBlockIndex - 1); });
@@ -2321,8 +2210,6 @@
         combinedStagePart = "mc";
         writeQueue = [];
         writeQueuePos = 0;
-        sentQueue = [];
-        sentQueuePos = 0;
         mcBatchPhase = 1;
         mcBatchPos = 0;
         writeBatchPhase = 1;
