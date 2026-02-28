@@ -1290,16 +1290,16 @@
             }
             correctSinceRollback[kind]++;
             const rollbackSteps = getRollbackSteps(kind);
-            if (currentExerciseStep !== 1 && correctSinceRollback[kind] >= rollbackSteps) {
-                const progressPct = Math.round(getProgressPercentMcWrite(kind) * 100);
-                const milestoneKey = kind;
+            const progressPct = Math.round((currentExerciseStep === 1 ? getProgressPercentCombined() : getProgressPercentMcWrite(kind)) * 100);
+            const milestoneKey = (currentExerciseStep === 1) ? "combined" : kind;
+            if (correctSinceRollback[kind] >= rollbackSteps) {
                 if (progressPct >= 75 && lastEncouragementMilestone[milestoneKey] < 75) {
                     lastEncouragementMilestone[milestoneKey] = 75;
                     saveProgress();
                     addFlashBlockOverlay();
                     flashProgressBarGreen(function () {
                         removeFlashBlockOverlay();
-                        openModal({ title: "", text: pickRandomMessage(getMotivationalMessagesByProgress(progressPct)), primaryText: ui.ok || "Ок", onPrimary: closeModal });
+                        openModal({ title: "", text: ui.encourageNearEnd || "Ще трохи — і ти завершиш етап!", primaryText: ui.ok || "Ок", onPrimary: closeModal });
                     });
                     return;
                 } else if (progressPct >= 50 && lastEncouragementMilestone[milestoneKey] < 50) {
@@ -1308,7 +1308,7 @@
                     addFlashBlockOverlay();
                     flashProgressBarGreen(function () {
                         removeFlashBlockOverlay();
-                        openModal({ title: "", text: pickRandomMessage(getMotivationalMessagesByProgress(progressPct)), primaryText: ui.ok || "Ок", onPrimary: closeModal });
+                        openModal({ title: "", text: ui.encourageHalf || "Вітаємо! Ти вже пройшов половину.", primaryText: ui.ok || "Ок", onPrimary: closeModal });
                     });
                     return;
                 } else if (progressPct >= 25 && lastEncouragementMilestone[milestoneKey] < 25) {
@@ -1317,7 +1317,7 @@
                     addFlashBlockOverlay();
                     flashProgressBarGreen(function () {
                         removeFlashBlockOverlay();
-                        openModal({ title: "", text: pickRandomMessage(getMotivationalMessagesByProgress(progressPct)), primaryText: ui.ok || "Ок", onPrimary: closeModal });
+                        openModal({ title: "", text: ui.encourageUnder50 || "Який ти молодець! Ти йдеш до успіху.", primaryText: ui.ok || "Ок", onPrimary: closeModal });
                     });
                     return;
                 }
@@ -1518,34 +1518,6 @@
         const pmc = getProgressPercentMcWrite("mc");
         const pwrite = getProgressPercentMcWrite("write");
         return (pmc + pwrite) * 0.5;
-    }
-    function pickRandomMessage(list) {
-        if (!Array.isArray(list) || !list.length) return "";
-        return list[randInt(list.length)] || "";
-    }
-    function getMotivationalMessagesByProgress(progressPct) {
-        const normalized = Math.max(0, Math.min(100, progressPct || 0));
-        const cfg = ui.motivationalMessages || {};
-        let list = [];
-        if (normalized < 25) list = cfg.upTo25 || [];
-        else if (normalized < 50) list = cfg.upTo50 || [];
-        else if (normalized < 75) list = cfg.upTo75 || [];
-        else list = cfg.upTo100 || [];
-        if (Array.isArray(list) && list.length) return list;
-        if (normalized < 50) return [ui.encourageUnder50 || "Чудовий старт!"];
-        if (normalized < 75) return [ui.encourageHalf || "Ти вже пройшов більше половини."];
-        return [ui.encourageNearEnd || "Ще трохи і фініш!"];
-    }
-    function getCombinedTransitionModalText(fromPart, toPart) {
-        const progressPct = Math.round(getProgressPercentCombined() * 100);
-        const motivation = pickRandomMessage(getMotivationalMessagesByProgress(progressPct));
-        const harderText = ui.beforeWritePartText || ui.encourageHarderSuffix || "А тепер трохи складніше.";
-        if (fromPart === "mc" && toPart === "write") {
-            if (motivation) return motivation + "\n\n" + harderText;
-            return harderText;
-        }
-        if (motivation) return motivation;
-        return ui.encourageUnder50 || "Рухаємось далі.";
     }
 
     function updateGateUI() {
@@ -1904,7 +1876,7 @@
         if (currentExerciseStep === 1 && combinedStagePart === "mc") {
             const idx = nextIndexMCBatch();
             if (idx < 0) {
-                const text = getCombinedTransitionModalText("mc", "write");
+                const text = ui.beforeWritePartText || ui.encourageHarderSuffix || "А тепер трохи складніше.";
                 openModal({
                     title: ui.encourageTitle || "",
                     text: text,
@@ -2019,27 +1991,16 @@
                 if (currentBatchStart >= n) {
                     completeCombinedStageAndProceed();
                 } else {
-                    openModal({
-                        title: ui.encourageTitle || "",
-                        text: getCombinedTransitionModalText("write", "mc"),
-                        primaryText: ui.continueLabel || "Продовжити",
-                        secondaryText: "",
-                        tertiaryText: "",
-                        showCloseX: false,
-                        onPrimary: function () {
-                            combinedStagePart = "mc";
-                            mcBatchPhase = 1;
-                            mcBatchPos = 0;
-                            phaseState.mc.phase = 1;
-                            writeQueue = [];
-                            writeQueuePos = 0;
-                            writeBatchPhase = 1;
-                            phaseState.write.phase = 1;
-                            updateExerciseVisibility();
-                            loadMCQuestion();
-                            saveProgress();
-                        }
-                    });
+                    combinedStagePart = "mc";
+                    mcBatchPhase = 1;
+                    mcBatchPos = 0;
+                    phaseState.mc.phase = 1;
+                    writeQueue = [];
+                    writeQueuePos = 0;
+                    writeBatchPhase = 1;
+                    phaseState.write.phase = 1;
+                    updateExerciseVisibility();
+                    loadMCQuestion();
                 }
                 saveProgress();
                 return;

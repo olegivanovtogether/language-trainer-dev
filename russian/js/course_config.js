@@ -45,6 +45,28 @@ window.COURSE_CONFIG = {
         encourageHalf: "¡Enhorabuena! Ya has pasado la mitad.",
         encourageNearEnd: "¡Un poco más y terminas esta etapa!",
         beforeWritePartText: "Ahora un poco más difícil.",
+        motivationalMessages: {
+            upTo25: [
+                "¡Excelente inicio! Ya estás en ritmo.",
+                "Buen comienzo, sigue así.",
+                "Muy bien, los primeros pasos ya están hechos."
+            ],
+            upTo50: [
+                "Vas muy bien, casi llegas a la mitad.",
+                "Buen progreso, mantén el ritmo.",
+                "Se nota el avance, continuemos."
+            ],
+            upTo75: [
+                "¡Genial! Ya superaste la mitad.",
+                "Resultado sólido, no te detengas.",
+                "Llevas muy buen ritmo, sigue adelante."
+            ],
+            upTo100: [
+                "Casi en la meta, queda muy poco.",
+                "Último empuje, ya casi terminas.",
+                "Unos pasos más y cierras esta etapa."
+            ]
+        },
         continueLabel: "Continuar",
         blockTitlePrefix: "Ejercicio ",
         blockTitleSuffix: ". ",
