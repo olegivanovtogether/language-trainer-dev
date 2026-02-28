@@ -1,0 +1,531 @@
+/* Підложка вікна з вкладками — заокруглені кути знизу, щоб контур збігався з вкладками */
+.tabbed-window {
+    border-radius: 12px !important;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Хедер вікна — виразна типографіка й окремий фон, щоб відділявся від контенту */
+.tabbed-window-header {
+    background: #eceef1 !important;
+    border-bottom-width: 2px !important;
+    font-weight: 700 !important;
+    font-size: 1.1rem !important;
+    letter-spacing: 0.02em !important;
+    padding: 0 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    justify-content: flex-start !important;
+    position: relative;
+    z-index: 50;
+    overflow: visible;
+}
+
+/* Верхній ряд хедера: лівий спейсер | заголовок по центру | кнопки справа */
+.header-dev-main-row {
+    flex: 0 0 auto;
+    min-height: 48px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+}
+
+/* Лівий спейсер = права частина по ширині, щоб заголовок по центру вікна */
+.header-dev-left-spacer {
+    flex: 1 1 0;
+    min-width: 0;
+}
+/* Права частина: кнопки ▼ або × справа */
+.header-dev-right-wrap {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Кнопка "▼" — показується тільки в dev mode, коли панель згорнута */
+.header-dev-toggle-wrap {
+    display: none !important;
+    flex: 0 0 auto;
+}
+body.dev-mode .header-dev-toggle-wrap {
+    display: flex !important;
+}
+body.dev-mode.header-dev-panel-open .header-dev-toggle-wrap {
+    display: none !important;
+}
+.header-dev-expand-btn {
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    color: #1a1a1a;
+    line-height: 1;
+    transition: background 0.15s, border-color 0.15s;
+}
+.header-dev-expand-btn:hover {
+    background: #fff;
+    border-color: rgba(0, 0, 0, 0.35);
+}
+body.theme-cyberpunk .header-dev-expand-btn {
+    border-color: rgba(0, 234, 255, 0.5);
+    background: rgba(10, 14, 24, 0.95);
+    color: #00eaff;
+}
+body.theme-cyberpunk .header-dev-expand-btn:hover {
+    background: rgba(20, 28, 48, 0.98);
+    border-color: #00eaff;
+}
+body.theme-kawaii .header-dev-expand-btn {
+    border-color: rgba(233, 86, 195, 0.5);
+    background: #fff;
+    color: #e956c3;
+}
+body.theme-kawaii .header-dev-expand-btn:hover {
+    border-color: #e956c3;
+    background: rgba(255, 230, 248, 0.98);
+}
+
+/* Хрестик згортання — зверху справа, тільки коли панель розгорнута */
+.header-dev-close-btn {
+    display: none !important;
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 10px;
+    font-size: 1.4rem;
+    line-height: 1;
+    font-weight: 700;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    color: #1a1a1a;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+}
+.header-dev-close-btn:hover {
+    background: #fff;
+    border-color: rgba(0, 0, 0, 0.35);
+}
+body.dev-mode.header-dev-panel-open .header-dev-close-btn {
+    display: flex !important;
+}
+body.theme-cyberpunk .header-dev-close-btn {
+    border-color: rgba(0, 234, 255, 0.5);
+    background: rgba(10, 14, 24, 0.95);
+    color: #00eaff;
+}
+body.theme-cyberpunk .header-dev-close-btn:hover {
+    border-color: #00eaff;
+    background: rgba(20, 28, 48, 0.98);
+}
+body.theme-kawaii .header-dev-close-btn {
+    border-color: rgba(233, 86, 195, 0.5);
+    background: #fff;
+    color: #e956c3;
+}
+body.theme-kawaii .header-dev-close-btn:hover {
+    border-color: #e956c3;
+    background: rgba(255, 230, 248, 0.98);
+}
+
+/* Розгорнута панель — другий ряд з курсами та темами */
+.header-dev-panel {
+    display: flex !important;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: 42;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 12px 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background: #eceef1;
+    box-shadow: 0 12px 22px rgba(0, 0, 0, 0.2);
+    min-height: 0;
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-8px);
+    overflow: hidden;
+    pointer-events: none;
+    transition: max-height 0.24s ease, opacity 0.2s ease, transform 0.24s ease;
+}
+body.dev-mode.header-dev-panel-open .header-dev-panel {
+    max-height: min(56vh, 360px);
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+body.theme-cyberpunk .header-dev-panel {
+    background: rgba(8, 12, 22, 0.98);
+    border-top-color: rgba(0, 234, 255, 0.25);
+    border-bottom-color: rgba(0, 234, 255, 0.25);
+}
+body.theme-kawaii .header-dev-panel {
+    background: rgba(255, 240, 250, 0.98);
+    border-top-color: rgba(233, 86, 195, 0.25);
+    border-bottom-color: rgba(233, 86, 195, 0.25);
+}
+
+/* Центральний заголовок хедера — по центру вікна (між двома однаковими блоками) */
+.tabbed-window-header .header-dev-title {
+    flex: 0 0 auto;
+    min-width: 0;
+    text-align: center;
+}
+
+/* Блоки курсів/тем — всередині панелі, горизонтальний скрол з градієнтом */
+.header-dev-block {
+    display: flex !important;
+    flex: 1 1 50%;
+    min-width: 0;
+    max-width: 50%;
+    max-height: min(46vh, 300px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    -ms-overflow-style: auto;
+    padding-right: 4px;
+}
+.header-dev-block::-webkit-scrollbar {
+    width: 8px;
+}
+.header-dev-scroll {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 0;
+    width: 100%;
+}
+.header-dev-btn {
+    flex: 0 0 auto;
+    padding: 6px 10px;
+    border-radius: 10px;
+    width: 100%;
+    white-space: normal;
+    text-align: left;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    color: #1a1a1a;
+    transition: background 0.15s, border-color 0.15s;
+}
+.header-dev-btn:hover {
+    background: #fff;
+    border-color: rgba(0, 0, 0, 0.35);
+}
+.header-dev-btn.active {
+    border-color: var(--accent, #6a5acd);
+    background: var(--accent-soft, #f0edff);
+}
+body.theme-cyberpunk .header-dev-btn {
+    border-color: rgba(0, 234, 255, 0.4);
+    background: rgba(10, 14, 24, 0.9);
+    color: #e0e0f0;
+}
+body.theme-cyberpunk .header-dev-btn:hover {
+    background: rgba(20, 28, 48, 0.95);
+    border-color: rgba(0, 234, 255, 0.6);
+}
+body.theme-cyberpunk .header-dev-btn.active {
+    border-color: #00eaff;
+    background: rgba(0, 234, 255, 0.15);
+}
+body.theme-kawaii .header-dev-btn {
+    border-color: rgba(233, 86, 195, 0.4);
+    background: rgba(255, 255, 255, 0.95);
+    color: #4a2a57;
+}
+body.theme-kawaii .header-dev-btn:hover {
+    background: #fff;
+    border-color: rgba(233, 86, 195, 0.6);
+}
+body.theme-kawaii .header-dev-btn.active {
+    border-color: #e956c3;
+    background: rgba(255, 230, 248, 0.95);
+}
+
+.header-dev-backdrop {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 56px;
+    top: 48px;
+    z-index: 40;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(248, 250, 253, 0.62) 0%,
+        rgba(248, 250, 253, 0.46) 45%,
+        rgba(248, 250, 253, 0.34) 100%
+    );
+    backdrop-filter: saturate(0.74) blur(1.6px);
+    -webkit-backdrop-filter: saturate(0.74) blur(1.6px);
+    cursor: pointer;
+}
+body.dev-mode.header-dev-panel-open .header-dev-backdrop {
+    display: block;
+}
+body.theme-kawaii .header-dev-backdrop {
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 236, 248, 0.62) 0%,
+        rgba(255, 228, 245, 0.46) 45%,
+        rgba(255, 220, 242, 0.34) 100%
+    );
+    backdrop-filter: saturate(0.78) blur(1.6px);
+    -webkit-backdrop-filter: saturate(0.78) blur(1.6px);
+}
+body.theme-cyberpunk .header-dev-backdrop {
+    background: rgba(0, 10, 20, 0.62);
+}
+
+/* Приховати старий блок налаштувань на основній сторінці (тепер він на сторінці налаштувань) */
+#app-toolbar {
+    display: none !important;
+}
+
+/* Декоративні шари (серця, матриця) приховані за замовчуванням; показуються лише при відповідній темі */
+#kawaii-hearts,
+#cp-matrix {
+    display: none !important;
+}
+
+/* Підзаголовок "Оберіть номер вправи" недоречний — хедер "Вправи" і кнопки вправ достатні */
+.tabbed-window #exercises-subtitle {
+    display: none !important;
+}
+
+/* Градієнтні маски на списку вправ: зникають з прозорістю при скролі зверху й знизу */
+#exercise-buttons {
+    --exercise-fade-zone: 112px;
+    padding-top: var(--exercise-gap) !important;
+    padding-bottom: var(--exercise-fade-zone) !important;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, black var(--exercise-fade-zone), black calc(100% - var(--exercise-fade-zone)), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, black var(--exercise-fade-zone), black calc(100% - var(--exercise-fade-zone)), transparent 100%);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    scroll-padding-top: var(--exercise-gap);
+    scroll-padding-bottom: var(--exercise-fade-zone);
+}
+body.dev-mode.header-dev-panel-open #exercise-buttons {
+    overflow: hidden !important;
+    touch-action: none;
+}
+
+/* У кружечку лише номер — повна назва в плашці */
+.exercise-nav-btn .exercise-nav-title {
+    display: none !important;
+}
+.exercise-nav-btn {
+    position: relative !important;
+    --exercise-num-font: 1.725rem;
+    --exercise-ring-gap: 0.575rem;
+    --exercise-ring-fill: rgba(0, 0, 0, 0.06);
+    --exercise-center-fill: #fff;
+    background: var(--exercise-ring-fill) !important;
+    -webkit-mask-image: radial-gradient(circle, black 68%, transparent 100%);
+    mask-image: radial-gradient(circle, black 68%, transparent 100%);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+}
+.exercise-nav-btn::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(var(--exercise-diameter) - 8px - 2 * var(--exercise-ring-gap));
+    height: calc(var(--exercise-diameter) - 8px - 2 * var(--exercise-ring-gap));
+    margin-left: calc(-0.5 * (var(--exercise-diameter) - 8px - 2 * var(--exercise-ring-gap)));
+    margin-top: calc(-0.5 * (var(--exercise-diameter) - 8px - 2 * var(--exercise-ring-gap)));
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    border-color: inherit;
+    background: var(--exercise-center-fill) !important;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+.exercise-nav-btn .exercise-nav-num {
+    font-size: var(--exercise-num-font) !important;
+    margin-bottom: 0 !important;
+    position: relative;
+    z-index: 1;
+}
+
+body.theme-cyberpunk .exercise-nav-btn {
+    --exercise-ring-fill: rgba(0, 234, 255, 0.12);
+    --exercise-center-fill: rgba(10, 14, 24, 0.95);
+}
+body.theme-kawaii .exercise-nav-btn {
+    --exercise-ring-fill: rgba(255, 105, 203, 0.2);
+    --exercise-center-fill: rgba(255, 255, 255, 0.92);
+}
+body.theme-classic .exercise-nav-btn,
+body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-nav-btn {
+    --exercise-ring-fill: rgba(106, 90, 205, 0.12);
+    --exercise-center-fill: #fff;
+}
+
+/* Progress bar flash overlay — glow wraps the filled part like a neon tube (all sides) */
+#stage-bar-wrap { position: relative; overflow: visible; }
+#stage-bar {
+    overflow: hidden;
+}
+#stage-bar-flash {
+    position: absolute; left: 0; top: 0; height: 100%; width: 0;
+    border-radius: 999px; pointer-events: none; z-index: 2;
+    opacity: 0; transition: opacity 0.12s ease-out;
+}
+
+/* Neon-tube glow: inner light + bright contour + outer halo (symmetric 0 0 = all sides) */
+#stage-bar-flash.stage-bar-flash-green {
+    box-shadow:
+        inset 0 0 10px rgba(255,255,255,0.45),
+        inset 0 0 22px rgba(40, 180, 99, 0.55),
+        0 0 8px 2px rgba(40, 180, 99, 0.95),
+        0 0 20px 6px rgba(40, 180, 99, 0.8);
+}
+#stage-bar-flash.stage-bar-flash-red {
+    box-shadow:
+        inset 0 0 10px rgba(255,255,255,0.4),
+        inset 0 0 20px rgba(220, 53, 69, 0.55),
+        0 0 8px 2px rgba(220, 53, 69, 0.95),
+        0 0 20px 6px rgba(220, 53, 69, 0.8);
+}
+
+/* Progress bar flash (correct = green once, penalty = red 3 times) */
+#stage-bar.progress-bar-flash-green {
+    animation: progress-flash-green 0.5s ease-out;
+}
+#stage-bar.progress-bar-flash-red {
+    animation: progress-flash-red 0.12s ease-out;
+}
+@keyframes progress-flash-green {
+    0% { box-shadow: 0 0 0 0 rgba(40, 180, 99, 0.9); }
+    50% { box-shadow: 0 0 14px 4px rgba(40, 180, 99, 0.7); }
+    100% { box-shadow: none; }
+}
+@keyframes progress-flash-red {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.9); }
+    50% { box-shadow: 0 0 14px 4px rgba(220, 53, 69, 0.8); }
+    100% { box-shadow: none; }
+}
+
+/* Modal layout: explicit header/body/actions for readability across all themes */
+.modal {
+    width: min(420px, 92vw) !important;
+    max-height: calc(100dvh - 56px) !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+#modalOverlay,
+.modal-overlay {
+    padding-top: 28px !important;
+    padding-bottom: 28px !important;
+}
+
+.modal h2,
+#modalTitle {
+    margin: 0 !important;
+    padding: 14px 16px 12px !important;
+    font-size: 1.08rem !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+    letter-spacing: 0.01em;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(127, 127, 127, 0.28) !important;
+    text-decoration: none !important;
+}
+
+.modal p,
+#modalText {
+    flex: 0 1 auto;
+    max-height: min(48dvh, 360px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: 0 !important;
+    padding: 14px 16px 8px !important;
+    line-height: 1.56 !important;
+    font-size: 1rem !important;
+    white-space: pre-wrap;
+    text-wrap: pretty;
+}
+
+.modal .modal-actions {
+    display: flex !important;
+    flex: 0 0 auto;
+    align-items: stretch !important;
+    flex-wrap: wrap;
+    margin: 0 !important;
+    padding: 12px 16px 16px !important;
+    gap: 10px;
+}
+
+.modal .modal-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    margin: 0 !important;
+    min-width: 132px;
+    min-height: 42px;
+    padding: 10px 14px;
+    font-weight: 700;
+    line-height: 1.2 !important;
+    vertical-align: middle;
+    transform: none !important;
+}
+
+.modal .modal-actions button:hover:enabled,
+.modal .modal-actions button:active:enabled {
+    transform: none !important;
+}
+
+@media (max-width: 480px) {
+    .modal {
+        width: min(400px, 94vw) !important;
+        max-height: calc(100dvh - 44px) !important;
+        height: auto !important;
+    }
+    .modal h2,
+    #modalTitle {
+        padding: 12px 14px 10px !important;
+        font-size: 1.02rem !important;
+    }
+    .modal p,
+    #modalText {
+        max-height: min(54dvh, 420px);
+        padding: 12px 14px 6px !important;
+        font-size: 0.98rem !important;
+        line-height: 1.5 !important;
+    }
+    .modal .modal-actions {
+        padding: 10px 14px 14px !important;
+    }
+    .modal .modal-actions button {
+        min-width: 120px;
+    }
+}

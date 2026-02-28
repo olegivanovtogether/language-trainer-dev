@@ -1,0 +1,315 @@
+/* theme-classic: macOS-style light theme — glass, blur, soft shadows */
+:root {
+    --base-font: 16px;
+    --accent: #007aff;
+    --accent-soft: rgba(0, 122, 255, 0.12);
+    --card-bg: rgba(255, 255, 255, 0.7);
+    --fx-x: 50vw;
+    --fx-y: 50vh;
+}
+
+body.theme-classic {
+    background:
+        radial-gradient(circle at 50% 0%, rgba(255,255,255,0.95), rgba(240,240,245,0.98) 40%, rgba(220,220,230,1) 100%),
+        linear-gradient(to bottom, #f5f5f7, #e5e5ea);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    color: #1d1d1f;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Text",
+        "Helvetica Neue",
+        Arial,
+        sans-serif;
+}
+
+/* Ripple feedback: concentric rounded rectangles from click (classic theme only) */
+body.fx-ok::before,
+body.fx-ok::after,
+body.fx-bad::before,
+body.fx-bad::after {
+    content: "";
+    position: fixed;
+    left: var(--fx-x, 50vw);
+    top: var(--fx-y, 50vh);
+    width: 40px;
+    height: 40px;
+    transform: translate(-50%, -50%) scale(0);
+    border-radius: 14px;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+body.fx-ok::before,
+body.fx-ok::after {
+    border: 2px solid rgba(52, 199, 89, 0.9);
+    box-shadow: 0 0 12px rgba(52, 199, 89, 0.5);
+    animation: rippleRect 600ms ease-out forwards;
+}
+
+body.fx-bad::before,
+body.fx-bad::after {
+    border: 2px solid rgba(255, 59, 48, 0.9);
+    box-shadow: 0 0 12px rgba(255, 59, 48, 0.5);
+    animation: rippleRect 600ms ease-out forwards;
+}
+
+body.fx-ok::after,
+body.fx-bad::after {
+    animation-delay: 120ms;
+}
+
+@keyframes rippleRect {
+    0% {
+        transform: translate(-50%, -50%) scale(0.2);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(22);
+        opacity: 0;
+    }
+}
+
+/* Panels / cards — glass, blur, soft shadows */
+.panel,
+.card,
+.container,
+.explain,
+.stats {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Buttons */
+button {
+    background: linear-gradient(180deg, #ffffff, #f0f0f3);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #1d1d1f;
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.1),
+        inset 0 1px rgba(255, 255, 255, 0.6);
+    transition: all 0.15s ease;
+}
+
+button:hover:enabled {
+    background: linear-gradient(180deg, #ffffff, #e8e8ed);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+button:active:enabled {
+    transform: scale(0.97);
+}
+
+button.primary {
+    border-color: rgba(0, 0, 0, 0.2);
+    background: linear-gradient(180deg, #ffffff, #e8e8ed);
+}
+
+/* Inputs */
+select,
+input[type="text"],
+input,
+textarea {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    color: #1d1d1f;
+    transition: all 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #007aff;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+}
+
+/* Progress bars */
+.progress-bar {
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+#stage-bar-wrap {
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    overflow: visible;
+}
+
+#stage-bar,
+.progress-bar .fill {
+    background: linear-gradient(90deg, #007aff, #5ac8fa);
+    border-radius: 8px;
+    transition: width 0.3s ease;
+}
+
+#stage-bar {
+    height: 100%;
+}
+
+/* Progress bar flash — neon-tube glow (filled part lit on all sides), theme colors */
+#stage-bar-flash.stage-bar-flash-green {
+    box-shadow:
+        inset 0 0 10px rgba(255,255,255,0.5),
+        inset 0 0 24px rgba(52, 199, 89, 0.5),
+        0 0 8px 2px rgba(52, 199, 89, 0.95),
+        0 0 22px 6px rgba(52, 199, 89, 0.8);
+}
+#stage-bar-flash.stage-bar-flash-red {
+    box-shadow:
+        inset 0 0 10px rgba(255,255,255,0.45),
+        inset 0 0 22px rgba(255, 59, 48, 0.5),
+        0 0 8px 2px rgba(255, 59, 48, 0.95),
+        0 0 22px 6px rgba(255, 59, 48, 0.8);
+}
+
+/* Option buttons — keep semantic colors */
+.option-btn.correct {
+    border-color: #34c759;
+    background: rgba(52, 199, 89, 0.15);
+}
+
+.option-btn.wrong {
+    border-color: #ff3b30;
+    background: rgba(255, 59, 48, 0.1);
+}
+
+.feedback.correct { color: #34c759; }
+.feedback.wrong { color: #ff3b30; }
+
+/* Modal overlay — fully isolate screen */
+.modal-overlay,
+#modalOverlay {
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 0%, rgba(255,255,255,0.95), rgba(240,240,245,0.98) 40%, rgba(220,220,230,1) 100%),
+        linear-gradient(to bottom, #f5f5f7, #e5e5ea);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    z-index: 9998;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+/* Modal — glass style */
+.modal {
+    position: relative;
+    z-index: 9999;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 14px;
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Чорна кнопка «Продовжити» в модалці — при hover лишається темною, білий текст видимий */
+.modal-actions button.primary:hover:enabled {
+    background: #333 !important;
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Exercise preview start button: keep dark background + white text on hover in classic theme */
+body.theme-classic .exercise-preview-actions .primary,
+body.theme-classic #ex-preview-start,
+body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-preview-actions .primary,
+body:not(.theme-cyberpunk):not(.theme-kawaii) #ex-preview-start {
+    background: #222 !important;
+    color: #fff !important;
+    border-color: #222 !important;
+}
+body.theme-classic .exercise-preview-actions .primary:hover:enabled,
+body.theme-classic #ex-preview-start:hover:enabled,
+body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-preview-actions .primary:hover:enabled,
+body:not(.theme-cyberpunk):not(.theme-kawaii) #ex-preview-start:hover:enabled {
+    background: #333 !important;
+    color: #fff !important;
+    border-color: #333 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+body.theme-classic .exercise-preview-actions .primary:disabled,
+body.theme-classic #ex-preview-start:disabled,
+body:not(.theme-cyberpunk):not(.theme-kawaii) .exercise-preview-actions .primary:disabled,
+body:not(.theme-cyberpunk):not(.theme-kawaii) #ex-preview-start:disabled {
+    background: #e5e5ea !important;
+    color: #6e6e73 !important;
+    border-color: #c7c7cc !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    text-shadow: none !important;
+}
+
+/* Disable body scroll when modal is open */
+body.modal-open {
+    overflow: hidden;
+}
+
+/* Dev Mode toggle when active */
+button.dev-mode-active,
+#btn-dev-mode.dev-mode-active {
+    border-color: #34c759;
+    box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.25);
+}
+
+/* Hide cyberpunk glyph matrix when classic theme is active */
+#cp-matrix {
+    display: none !important;
+}
+
+/* Bottom tabs: always readable text (dark on light) */
+body.theme-classic .tabbed-window { border-radius: 12px !important; }
+body.theme-classic .tabbed-window .tabbed-window-header {
+    background: #f5f5f7 !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 12px 12px 0 0 !important;
+    color: #1d1d1f !important;
+    font-weight: 600 !important;
+    font-size: 1.05rem !important;
+    letter-spacing: 0.01em !important;
+}
+body.theme-classic .tabbed-window .bottom-tabs { border-radius: 0 0 12px 12px !important; overflow: hidden; }
+body.theme-classic .tabbed-window .settings-content { border-radius: 0 !important; }
+body.theme-classic .bottom-tabs {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border-top-color: rgba(0, 0, 0, 0.1);
+}
+body.theme-classic .bottom-tabs .tab-btn {
+    color: #1d1d1f !important;
+}
+body.theme-classic .bottom-tabs .tab-btn:hover {
+    background: rgba(0, 0, 0, 0.06) !important;
+    color: #1d1d1f !important;
+}
+body.theme-classic .bottom-tabs .tab-btn.active {
+    color: #007aff !important;
+    background: rgba(0, 122, 255, 0.12) !important;
+    border-bottom-color: #007aff !important;
+}
