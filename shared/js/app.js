@@ -1022,7 +1022,7 @@
     let modalCloseXAction = null;
 
     function openModal(opts) {
-        const title = opts.title || "";
+        const title = opts.title || ui.modalImportantTitle || "Важливе повідомлення";
         const text = opts.text || "";
         const primaryText = opts.primaryText !== undefined ? opts.primaryText : (ui.modalContinue || "OK");
         const secondaryText = opts.secondaryText || "";
@@ -1038,6 +1038,8 @@
         modalCloseXAction = opts.onCloseX || null;
         modalSecondaryEl.style.display = secondaryText ? "inline-flex" : "none";
         modalTertiaryEl.style.display = tertiaryText ? "inline-flex" : "none";
+        const actionsEl = modalPrimaryEl ? modalPrimaryEl.parentElement : null;
+        if (actionsEl) actionsEl.style.justifyContent = (secondaryText || tertiaryText) ? "flex-end" : "center";
         if (modalCloseXEl) modalCloseXEl.style.display = opts.showCloseX ? "inline-flex" : "none";
         modalOverlayEl.style.display = "flex";
         modalOverlayEl.setAttribute("aria-hidden", "false");

@@ -5,6 +5,7 @@ window.COURSE_CONFIG = {
     ttsEnabled: true,
     ui: {
         modalContinue: "Продовжити",
+        modalImportantTitle: "Важливе повідомлення",
         modalContinueLearning: "Продовжити навчання",
         modalRepeatLastStage: "Повторити останній етап",
         modalRepeatExercise: "Повторити вправу",

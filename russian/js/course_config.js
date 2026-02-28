@@ -5,6 +5,7 @@ window.COURSE_CONFIG = {
     ttsEnabled: true,
     ui: {
         modalContinue: "Continuar",
+        modalImportantTitle: "Mensaje importante",
         modalContinueLearning: "Continuar",
         modalRepeatLastStage: "Repetir última etapa",
         modalRepeatExercise: "Repetir ejercicio",
