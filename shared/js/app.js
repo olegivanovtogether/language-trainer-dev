@@ -664,6 +664,74 @@
         return (n < 10) ? 3 : 5;
     }
     function getBatchSize(n) { return (n >= 10) ? 5 : 3; }
+    function getBatchSpecs(n) {
+        const B = getBatchSize(n);
+        const specs = [];
+        for (let start = 0; start < n; start += B) {
+            const len = Math.min(B, n - start);
+            specs.push({ start: start, len: len, units: len * 2 });
+        }
+        return specs;
+    }
+    function getCombinedDoneUnits() {
+        const n = getNFor("mc");
+        if (n <= 0) return 0;
+        const specs = getBatchSpecs(n);
+        let done = 0;
+        for (let i = 0; i < specs.length; i++) {
+            const spec = specs[i];
+            if (spec.start < currentBatchStart) done += spec.units;
+        }
+        const currentLen = Math.max(1, Math.min(getBatchSize(n), n - currentBatchStart));
+        if (combinedStagePart === "write") done += currentLen + Math.max(0, writeQueuePos);
+        else done += Math.max(0, mcBatchPos);
+        return done;
+    }
+    function setCombinedStateFromDoneUnits(doneUnits) {
+        const n = getNFor("mc");
+        if (n <= 0) return false;
+        const specs = getBatchSpecs(n);
+        let remaining = Math.max(0, doneUnits);
+        let chosen = specs[0];
+        for (let i = 0; i < specs.length; i++) {
+            const spec = specs[i];
+            if (remaining > spec.units) {
+                remaining -= spec.units;
+                continue;
+            }
+            chosen = spec;
+            break;
+        }
+        currentBatchStart = chosen.start;
+        if (remaining <= chosen.len) {
+            combinedStagePart = "mc";
+            mcBatchPhase = 1;
+            mcBatchPos = Math.max(0, Math.min(chosen.len, remaining));
+            if (phaseState.mc) phaseState.mc.phase = 1;
+            writeQueue = [];
+            writeQueuePos = 0;
+            writeBatchPhase = 1;
+            if (phaseState.write) phaseState.write.phase = 1;
+        } else {
+            combinedStagePart = "write";
+            mcBatchPhase = 1;
+            mcBatchPos = chosen.len;
+            if (phaseState.mc) phaseState.mc.phase = 1;
+            writeQueue = [];
+            for (let idx = chosen.start; idx < chosen.start + chosen.len; idx++) writeQueue.push(idx);
+            writeQueuePos = Math.max(0, Math.min(chosen.len, remaining - chosen.len));
+            writeBatchPhase = 1;
+            if (phaseState.write) phaseState.write.phase = 1;
+        }
+        lastVocabIndexMC = -1;
+        lastVocabIndexWrite = -1;
+        return true;
+    }
+    function applyCombinedRollback(rollback) {
+        const done = getCombinedDoneUnits();
+        const targetDone = Math.max(0, done - rollback);
+        return setCombinedStateFromDoneUnits(targetDone);
+    }
     function getMcBatchIndices() {
         const n = getNFor("mc");
         if (n <= 0) return [];
@@ -1120,21 +1188,33 @@
         const s = stageState[kind];
         s.correct = Math.max(0, s.correct - rollback);
         s.lives = getLivesMax(kind);
-        try {
-            if (seq && seq[kind]) {
-                seq[kind].pos = Math.max(0, (seq[kind].pos || 0) - rollback);
-                seq[kind].last = -1;
-            }
-        } catch (e) { }
+        const isCombinedStage = (currentExerciseStep === 1) && (kind === "mc" || kind === "write");
+        if (isCombinedStage && !remediationActive) {
+            applyCombinedRollback(rollback);
+        } else if (isCombinedStage && remediationActive) {
+            writeQueuePos = Math.max(0, writeQueuePos - rollback);
+        } else {
+            try {
+                if (seq && seq[kind]) {
+                    seq[kind].pos = Math.max(0, (seq[kind].pos || 0) - rollback);
+                    seq[kind].last = -1;
+                }
+            } catch (e) { }
+        }
         showFeedback(false, null);
         showToast((ui.toastPenalty || "") + rollback);
         updateGateUI();
         if (kind === "mc" || kind === "write") {
             correctSinceRollback[kind] = 0;
         }
-        if (kind === "mc") loadMCQuestion();
-        if (kind === "write") loadWQuestion();
         if (kind === "sent") loadSentence();
+        else if (currentExerciseStep === 1) {
+            if (combinedStagePart === "write") loadWQuestion();
+            else loadMCQuestion();
+        } else {
+            if (kind === "mc") loadMCQuestion();
+            if (kind === "write") loadWQuestion();
+        }
         saveProgress();
     }
 
@@ -1392,21 +1472,31 @@
     function getProgressPercentForBatchCombined() {
         const nV = getNFor("mc");
         if (nV <= 0) return 0;
-        const B = getBatchSize(nV);
-        const totalBatches = Math.ceil(nV / B);
-        if (totalBatches <= 0) return 0;
-        const completedBatchCount = Math.floor(currentBatchStart / B);
-        const batchIndices = getMcBatchIndices();
-        const batchSize = batchIndices.length;
-        if (batchSize <= 0) return Math.min(1, completedBatchCount / totalBatches);
-        let progressInBatch = 0;
-        if (combinedStagePart === "mc") {
-            progressInBatch = (batchSize > 0) ? Math.min(1, mcBatchPos / batchSize) * 0.5 : 0;
-        } else {
-            if (writeQueue.length <= 0) progressInBatch = 0.5;
-            else progressInBatch = 0.5 + 0.5 * Math.min(1, writeQueuePos / writeQueue.length);
+        const baseTotalUnits = nV * 2;
+        let baseDoneUnits = baseTotalUnits;
+        if (currentExerciseStep === 1) {
+            baseDoneUnits = Math.max(0, Math.min(baseTotalUnits, getCombinedDoneUnits()));
         }
-        return Math.min(1, (completedBatchCount + progressInBatch) / totalBatches);
+
+        let extraTotalUnits = 0;
+        let extraDoneUnits = 0;
+        const pendingMistakes = collectWriteMistakeIndices().length;
+        const baseCompleted = baseDoneUnits >= baseTotalUnits;
+
+        // Dynamic tail: when base cycle is done, include additional remediation workload.
+        if (currentExerciseStep === 1 && (remediationActive || baseCompleted)) {
+            if (remediationActive) {
+                extraTotalUnits = Math.max(0, writeQueue.length);
+                extraDoneUnits = Math.max(0, Math.min(extraTotalUnits, writeQueuePos));
+            } else if (pendingMistakes > 0) {
+                extraTotalUnits = pendingMistakes;
+                extraDoneUnits = 0;
+            }
+        }
+
+        const totalUnits = Math.max(1, baseTotalUnits + extraTotalUnits);
+        const doneUnits = Math.max(0, Math.min(totalUnits, baseDoneUnits + extraDoneUnits));
+        return doneUnits / totalUnits;
     }
     function getProgressPercentCombined() {
         const nV = getNFor("mc");
