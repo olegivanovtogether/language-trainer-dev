@@ -1,4 +1,4 @@
-/* ====== SHARED ENGINE — course-agnostic; uses window.COURSE_CONFIG ====== */
+﻿/* ====== SHARED ENGINE — course-agnostic; uses window.COURSE_CONFIG ====== */
 (function () {
     "use strict";
     if (window.COURSE_CONFIG && window.COURSE_CONFIG.uiLang) {
@@ -722,9 +722,7 @@
             sentQueuePos = 0;
         }
         if (sentQueuePos < 0) sentQueuePos = 0;
-        // Keep an explicit "finished" sentinel at pos === length.
-        // Clamping to (length - 1) here causes endless final-card loops.
-        if (sentQueuePos > sentQueue.length) sentQueuePos = sentQueue.length;
+        if (sentQueuePos >= sentQueue.length) sentQueuePos = Math.max(0, sentQueue.length - 1);
         GAME.stage.sent.needCorrect = Math.max(1, sentQueue.length);
     }
     function getLivesMax(kind) {
@@ -1124,10 +1122,6 @@
             }
             return true;
         }
-        if (kind === "sent" && currentExerciseStep === 2) {
-            ensureFinalStageQueue(false);
-            return sentQueue.length > 0 && sentQueuePos >= sentQueue.length;
-        }
         const cfg = GAME.stage[kind];
         const s = stageState[kind];
         return s.correct >= cfg.needCorrect && stageAccuracy(kind) >= cfg.minAccuracy;
@@ -1242,30 +1236,11 @@
         const stageNumber = (kind === "mc") ? 1 : (kind === "write") ? 1 : 2;
         const isFinalStage = (kind === "sent");
         const exerciseDone = isFinalStage && stageState.mc.cleared && stageState.write.cleared && stageState.sent.cleared;
-        const isLastExercise = currentBlockIndex >= blocks.length - 1;
         const stars = calcStars(kind);
         stageState[kind].stars = stars;
         saveProgress();
 
         if (exerciseDone) {
-            if (isLastExercise) {
-                openModal({
-                    title: ui.lastStageTitle || "",
-                    text: ui.lastStageText || "",
-                    primaryText: ui.modalRepeatExercise || ui.modalRepeatLastStage || ui.modalContinue || "",
-                    secondaryText: ui.settingsBack || ui.modalContinueLearning || ui.modalContinue || "",
-                    tertiaryText: "",
-                    onPrimary: function () { closeModal(); restartCurrentBlock(); },
-                    onSecondary: function () {
-                        closeModal();
-                        const closeBtn = document.getElementById("btn-training-close");
-                        const tabExercisesBtn = document.getElementById("tab-exercises");
-                        if (closeBtn && typeof closeBtn.click === "function") closeBtn.click();
-                        else if (tabExercisesBtn && typeof tabExercisesBtn.click === "function") tabExercisesBtn.click();
-                    }
-                });
-                return;
-            }
             openModal({
                 title: (ui.victoryTitle || "") + "⭐".repeat(stars),
                 text: ui.victoryText || "",
@@ -1899,21 +1874,7 @@
             if (currentBlockIndex < blocks.length - 1) {
                 nextBlock();
             } else {
-                openModal({
-                    title: ui.lastStageTitle || "",
-                    text: ui.lastStageText || "",
-                    primaryText: ui.modalRepeatExercise || ui.modalRepeatLastStage || ui.modalContinue || "",
-                    secondaryText: ui.settingsBack || ui.modalContinueLearning || ui.modalContinue || "",
-                    tertiaryText: "",
-                    onPrimary: function () { closeModal(); restartCurrentBlock(); },
-                    onSecondary: function () {
-                        closeModal();
-                        const closeBtn = document.getElementById("btn-training-close");
-                        const tabExercisesBtn = document.getElementById("tab-exercises");
-                        if (closeBtn && typeof closeBtn.click === "function") closeBtn.click();
-                        else if (tabExercisesBtn && typeof tabExercisesBtn.click === "function") tabExercisesBtn.click();
-                    }
-                });
+                openModal({ title: ui.lastStageTitle || "", text: ui.lastStageText || "", primaryText: ui.ok || "OK" });
             }
         }
     }
@@ -2334,19 +2295,7 @@
         }
         if (sentQueuePos < 0) sentQueuePos = 0;
         if (sentQueuePos >= sentQueue.length) {
-            if (stageGoalMet("sent")) {
-                if (!stageState.sent.cleared) {
-                    stageState.sent.cleared = true;
-                    stageState.sent.stars = calcStars("sent");
-                    updateGateUI();
-                    addFlashBlockOverlay();
-                    flashProgressBarGreen(function () {
-                        removeFlashBlockOverlay();
-                        showVictory("sent");
-                    });
-                }
-                return;
-            }
+            if (stageGoalMet("sent")) return;
             sentQueuePos = Math.max(0, sentQueue.length - 1);
         }
         currentSentenceIndex = sentQueue[sentQueuePos];
@@ -2380,7 +2329,7 @@
             onCorrect("sent");
             speak(card.en);
             updateStatsView();
-            if (!stageState.sent.cleared) autoNextTimeout = setTimeout(loadSentence, 900);
+            autoNextTimeout = setTimeout(loadSentence, 900);
         } else {
             wrongAttemptsSent++;
             showFeedback(false, sCheckBtn);
